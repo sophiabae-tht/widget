@@ -42,8 +42,22 @@ let launchRect = null;
 function insetFor(el) {
   const p = phone.getBoundingClientRect();
   const r = el.getBoundingClientRect();
-  return `inset(${r.top - p.top}px ${p.right - r.right}px ${p.bottom - r.bottom}px ${r.left - p.left}px round 16px)`;
+  const k = phone.offsetWidth / p.width; // screen px → phone px (the frame may be scaled to fit)
+  return `inset(${(r.top - p.top) * k}px ${(p.right - r.right) * k}px ${(p.bottom - r.bottom) * k}px ${(r.left - p.left) * k}px round 16px)`;
 }
+
+/* Fit the 360×800 frame: desktop → to the window height (phone left, settings right);
+   mobile → to the screen width (phone on top, settings below). */
+const MOBILE = window.matchMedia("(max-width: 860px)");
+function fitDevice() {
+  const s = MOBILE.matches
+    ? Math.min(1, (window.innerWidth - 32) / 360)
+    : Math.min(1, (window.innerHeight - 48) / 800);
+  document.documentElement.style.setProperty("--s", s.toFixed(4));
+}
+window.addEventListener("resize", fitDevice);
+MOBILE.addEventListener("change", fitDevice);
+fitDevice();
 
 function openApp(key, fromEl) {
   const dest = DESTINATIONS[key];
@@ -330,14 +344,13 @@ function setMode(mode) {
     else layout();
   });
   if (isPrism()) requestAnimationFrame(() => (flexTile.style.transition = ""));
-  flipOptions.classList.toggle("is-disabled", mode !== "flipper");
-  flipInputs.forEach((r) => (r.disabled = mode !== "flipper"));
+  flipOptions.classList.toggle("is-inactive", mode !== "flipper");
   busy = false;
-  autoNote.textContent = mode === "stack" ? "(the launcher sets the timing)" : "(flipInterval, 5s)";
+  autoNote.textContent = mode === "stack" ? "· launcher timing" : "· every 5s";
   // The flipper always shows its dots (they replace the icon + arrow column), so the toggle only applies to StackView.
   const dotsInput = hintInputs.find((i) => i.dataset.hint === "dots");
   dotsInput.disabled = mode === "flipper";
-  document.getElementById("dotsNote").textContent = mode === "flipper" ? "(always on for the flipper)" : "";
+  document.getElementById("dotsNote").textContent = mode === "flipper" ? "· always on for the flipper" : "";
   startAuto();
 }
 function applyHints() {
@@ -349,7 +362,8 @@ function setHints(list) {
   applyHints();
 }
 modeInputs.forEach((r) => r.addEventListener("change", () => setMode(r.value)));
-flipInputs.forEach((r) => r.addEventListener("change", () => setMode(flexTile.dataset.mode)));
+// Picking a flipper animation switches to the flipper (the options stay readable and clickable in StackView).
+flipInputs.forEach((r) => r.addEventListener("change", () => setMode("flipper")));
 hintInputs.forEach((inp) => inp.addEventListener("change", applyHints));
 document.getElementById("hintRecommended").addEventListener("click", () => { setMode("stack"); setHints(["dots"]); });
 document.getElementById("hintFigma").addEventListener("click", () => { setMode("flipper"); setHints([]); });

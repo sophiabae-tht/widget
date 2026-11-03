@@ -30,15 +30,25 @@ body {
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 p, h1, h2 { margin: 0; }
 
+/* Desktop: phone left, settings right, everything inside the window.
+   The phone is scaled to the window height; the settings panel scrolls on its own. */
+html, body { overflow: hidden; }
 .stage {
-  min-height: 100%;
+  height: 100vh;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 48px;
-  padding: 32px;
-  flex-wrap: wrap;
+  gap: 40px;
+  padding: 24px;
 }
+.device {
+  flex: none;
+  width: calc(360px * var(--s, 1));
+  height: calc(800px * var(--s, 1));
+  position: relative;
+}
+.device > .phone { transform: scale(var(--s, 1)); transform-origin: 0 0; }
 
 /* ---------- Android Large frame ---------- */
 .phone {
@@ -462,7 +472,32 @@ p, h1, h2 { margin: 0; }
 .toast.show { transform: translate(-50%, 0); opacity: 1; }
 
 /* ---------- Side notes ---------- */
-.notes { max-width: 300px; color: #3b3e66; font-size: 14px; line-height: 20px; }
+.notes {
+  flex: 0 1 460px;
+  min-width: 300px;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px 12px 24px 4px;
+  color: #3b3e66;
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+/* Mobile: phone on top (scaled to the screen width), settings below; the page scrolls. */
+@media (max-width: 860px) {
+  html { overflow: auto; height: auto; }
+  body { overflow: visible; height: auto; }
+  .stage {
+    height: auto;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 16px;
+  }
+  .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; max-height: none; overflow: visible; padding: 0 4px 32px; }
+}
 .notes h1 { font-size: 22px; line-height: 28px; font-weight: 600; color: #0c0f41; margin-bottom: 4px; }
 .notes ul { padding-left: 18px; margin: 16px 0; }
 .notes-h2 { font-size: 16px; font-weight: 600; color: #0c0f41; margin-top: 20px; }
@@ -535,7 +570,7 @@ p, h1, h2 { margin: 0; }
 .tile--flex[data-mode="flipper"][data-flip="prism"] .pcard-body { opacity: 1; }
 
 .sub-options { display: flex; flex-direction: column; gap: 8px; margin: 2px 0 4px 26px; padding-left: 10px; border-left: 2px solid rgba(71, 84, 235, 0.15); }
-.sub-options.is-disabled { opacity: 0.45; }
+.sub-options.is-inactive .sub-label::after { content: " · picking one switches to AdapterViewFlipper"; font-weight: 500; }
 .sub-label { font-size: 12px; font-weight: 600; color: #8b8eb1; }
 
 /* In deck / prism modes each purse card draws its own 1px stroke, so the tile itself has
@@ -570,7 +605,8 @@ p, h1, h2 { margin: 0; }
    (in the slot the arrow used to take). */
 .tile--flex[data-mode="flipper"] .tile-next { display: none; }
 .tile--flex[data-mode="flipper"] .pager-dots { opacity: 1; pointer-events: auto; }
-.hint-group label:has(input:disabled) { opacity: 0.45; cursor: default; }
+.hint-group label:has(input:disabled) { cursor: default; }
+.hint-group input:disabled { opacity: 0.5; }
 
 /* StackView only: Call Member Services hugs its content so the Flex Card deck gets the
    extra width. AdapterViewFlipper keeps both tiles the same width (as in Figma v2/link). */
@@ -620,3 +656,27 @@ p, h1, h2 { margin: 0; }
   transition: transform 0.32s cubic-bezier(0, 0, 0.2, 1) 0.08s, opacity 0.24s linear 0.08s;
 }
 
+
+/* Side panel: title, then the Android build line, then the plain description */
+.opt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.opt-title { color: #0c0f41; }
+.opt-title em { font-style: normal; font-weight: 500; color: #8b8eb1; }
+.opt-tag {
+  margin-left: 4px; padding: 1px 6px; border-radius: 6px;
+  font-size: 11px; font-weight: 600; color: #4754eb; background: rgba(71, 84, 235, 0.1);
+}
+.opt-android {
+  display: block;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(52, 168, 83, 0.08);
+  color: #2b5f3b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 16px;
+}
+.opt-android i {
+  font-style: normal; font-weight: 700; margin-right: 6px;
+  color: #1e7e3e; text-transform: uppercase; letter-spacing: 0.4px; font-size: 10px;
+}
+.opt-desc { color: #565a86; }
