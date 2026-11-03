@@ -48,16 +48,27 @@ function insetFor(el) {
 
 /* Fit the 360×800 frame: desktop → to the window height (phone left, settings right);
    mobile → to the screen width (phone on top, settings below). */
-const MOBILE = window.matchMedia("(max-width: 860px)");
+// Side by side whenever the scaled phone + a readable settings column (320px) fit;
+// otherwise stack them (phone on top). Decided by real space, not a fixed breakpoint.
 function fitDevice() {
-  const s = MOBILE.matches
-    ? Math.min(1, (window.innerWidth - 32) / 360)
-    : Math.min(1, (window.innerHeight - 48) / 800);
-  document.documentElement.style.setProperty("--s", s.toFixed(4));
+  const root = document.documentElement;
+  const sideScale = Math.min(1, (window.innerHeight - 48) / 800);
+  const fitsSideBySide = window.innerWidth >= 360 * sideScale + 40 + 320 + 48;
+  root.classList.toggle("stacked", !fitsSideBySide);
+  const s = fitsSideBySide ? sideScale : Math.min(1, (window.innerWidth - 32) / 360);
+  root.style.setProperty("--s", s.toFixed(4));
 }
 window.addEventListener("resize", fitDevice);
-MOBILE.addEventListener("change", fitDevice);
 fitDevice();
+
+// Side by side: scrolling anywhere outside the phone scrolls the settings column,
+// so the phone stays fixed and the text is always reachable.
+const notesPanel = document.querySelector(".notes");
+document.querySelector(".stage").addEventListener("wheel", (e) => {
+  if (document.documentElement.classList.contains("stacked")) return;
+  if (e.target.closest(".notes") || e.target.closest("#phone")) return;
+  notesPanel.scrollBy({ top: e.deltaY });
+}, { passive: true });
 
 function openApp(key, fromEl) {
   const dest = DESTINATIONS[key];
