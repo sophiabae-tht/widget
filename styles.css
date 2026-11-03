@@ -344,7 +344,7 @@ p, h1, h2 { margin: 0; }
 .widget button:active { transform: scale(0.97); }
 .btn-tonal:active { background: rgba(71, 84, 235, 0.18); }
 .tile:active:not(.tile--flex) { background: var(--fill-brandweaker); }
-.tile--flex[data-mode="flipper"][data-flip="slide"]:active { background: var(--fill-brandweaker); }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"]):active { background: var(--fill-brandweaker); }
 .widget button:focus-visible { outline: 2px solid var(--text-brand); outline-offset: 2px; }
 
 .powered-frame { position: relative; width: 100%; padding-top: 20px; display: flex; flex-direction: column; }
@@ -492,13 +492,6 @@ p, h1, h2 { margin: 0; }
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
 
-/* Call Member Services: hugs its content instead of splitting the row 50/50,
-   so the Flex Card tile gets the extra width (design tweak, not in Figma v2/link). */
-#callTile { flex: none; }
-#callTile .tile-text { flex: none; width: auto; }
-#callTile .tile-face { position: static; height: 100%; }
-#callTile .tile-icon { margin-left: 8px; }
-
 /* Flipper mode: a drag does nothing on Android, so pulse the tap target instead */
 @keyframes hint-pulse {
   0%, 100% { transform: scale(1); background-color: transparent; }
@@ -552,3 +545,78 @@ p, h1, h2 { margin: 0; }
 
 /* StackView is swiped, so it gets no arrow. The page dots (if on) are its only hint. */
 .tile--flex[data-mode="stack"] .tile-next { display: none; }
+
+/* Prism tap zones: pressed feedback on the half being tapped
+   (on Android: ?android:attr/selectableItemBackground on each zone view). */
+.tile--flex[data-mode="flipper"][data-flip="prism"] .pcard[data-depth="0"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50%;
+  border-radius: 15px 15px 0 0;
+  background: rgba(71, 84, 235, 0.1);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.tile--flex.press-top .pcard[data-depth="0"]::before { opacity: 1; }
+.tile--flex.press-bottom .pcard[data-depth="0"]::before { top: 50%; border-radius: 0 0 15px 15px; opacity: 1; }
+.tile--flex[data-flip="prism"][data-mode="flipper"] .tile-icon { cursor: pointer; transition: transform 0.15s, background-color 0.15s; }
+.tile--flex.press-icon .pcard[data-depth="0"] .tile-icon { transform: scale(0.9); background: rgba(71, 84, 235, 0.22); }
+
+/* --- AdapterViewFlipper (default): purse icon on top, page dots below it
+   (in the slot the arrow used to take). */
+.tile--flex[data-mode="flipper"] .tile-next { display: none; }
+.tile--flex[data-mode="flipper"] .pager-dots { opacity: 1; pointer-events: auto; }
+.hint-group label:has(input:disabled) { opacity: 0.45; cursor: default; }
+
+/* StackView only: Call Member Services hugs its content so the Flex Card deck gets the
+   extra width. AdapterViewFlipper keeps both tiles the same width (as in Figma v2/link). */
+.tile-row:has(.tile--flex[data-mode="stack"]) #callTile { flex: none; }
+.tile-row:has(.tile--flex[data-mode="stack"]) #callTile .tile-text { flex: none; width: auto; }
+.tile-row:has(.tile--flex[data-mode="stack"]) #callTile .tile-face { position: static; height: 100%; }
+.tile-row:has(.tile--flex[data-mode="stack"]) #callTile .tile-icon { margin-left: 8px; }
+
+/* Two equal columns, independent of each tile's padding/border (the flex row split
+   leftover space after padding, so the padding-less Flex tile came out 22px narrower).
+   StackView: the Flex deck takes the rest and Call Member Services hugs its content. */
+.tile-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.tile-row:has(.tile--flex[data-mode="stack"]) { grid-template-columns: minmax(0, 1fr) auto; }
+
+/* --- More AdapterViewFlipper animations -------------------------------------
+   Each is one in/out animator pair on the whole purse item. States:
+   waiting (not shown) → [data-depth="0"] (shown) → .exit-up (leaving). */
+.tile--flex[data-mode="flipper"][data-flip="fade"] .pcard,
+.tile--flex[data-mode="flipper"][data-flip="fade"] .pcard.exit-up,
+.tile--flex[data-mode="flipper"][data-flip="fade"] .pcard.enter-top {
+  opacity: 0; transform: none;
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tile--flex[data-mode="flipper"][data-flip="fade"] .pcard[data-depth="0"]:not(.exit-up) { opacity: 1; }
+
+/* Pop / zoom: old shrinks + fades fast; new grows in after a beat with overshoot */
+.tile--flex[data-mode="flipper"][data-flip="pop"] .pcard,
+.tile--flex[data-mode="flipper"][data-flip="pop"] .pcard.enter-top {
+  opacity: 0; transform: scale(0.8);
+  transition: transform 0.18s cubic-bezier(0.4, 0, 1, 1), opacity 0.18s linear;
+}
+.tile--flex[data-mode="flipper"][data-flip="pop"] .pcard.exit-up { opacity: 0; transform: scale(0.8); }
+.tile--flex[data-mode="flipper"][data-flip="pop"] .pcard[data-depth="0"]:not(.exit-up) {
+  opacity: 1; transform: none;
+  transition: transform 0.34s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s, opacity 0.2s linear 0.12s;
+}
+
+/* Combo · Rise + fade: 12px move instead of a full slide */
+.tile--flex[data-mode="flipper"][data-flip="rise"] .pcard,
+.tile--flex[data-mode="flipper"][data-flip="rise"] .pcard.enter-top {
+  opacity: 0; transform: translateY(12px);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s linear;
+}
+.tile--flex[data-mode="flipper"][data-flip="rise"] .pcard.exit-up { opacity: 0; transform: translateY(-12px); }
+.tile--flex[data-mode="flipper"][data-flip="rise"] .pcard[data-depth="0"]:not(.exit-up) {
+  opacity: 1; transform: none;
+  transition: transform 0.32s cubic-bezier(0, 0, 0.2, 1) 0.08s, opacity 0.24s linear 0.08s;
+}
+

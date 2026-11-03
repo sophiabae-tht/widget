@@ -154,10 +154,17 @@ function go(dir) {
   if (busy) return;
   busy = true;
   if (isPrism()) {
+    // dir can be more than one face (e.g. -2 = turn back over two faces in one motion)
+    const faces = Math.abs(dir);
+    const ms = PRISM_MS + (faces - 1) * 300;
     step += dir;
     page = mod(step);
-    layoutPrism();
-    setTimeout(() => (busy = false), PRISM_MS);
+    layoutPrism(); // resets the inline transition, so set the duration after it
+    flexTile.style.transitionDuration = `${ms}ms`;
+    setTimeout(() => {
+      flexTile.style.transitionDuration = "";
+      busy = false;
+    }, ms);
     return;
   }
   const mode = flexTile.dataset.mode;
@@ -197,14 +204,32 @@ function userGo(dir) {
 
 // Hint taps (arrow or dots) → next purse. On Android: setOnClickFillInIntent → showNext().
 flexTile.addEventListener("click", (e) => {
-  if (e.target.closest("[data-next]")) { e.stopPropagation(); userGo(1); }
+  const hint = e.target.closest("[data-next]");
+  if (!hint) return;
+  e.stopPropagation();
+  // Prism: on the last purse the arrow points up, so it turns the prism the other way,
+  // back over the earlier faces to the first purse, instead of continuing forward.
+  if (isPrism() && page === N - 1 && hint.classList.contains("tile-next")) return userGo(-(N - 1));
+  userGo(1);
 });
 
 // Swipe. Only StackView supports it, so flipper mode treats any press as a tap.
 let drag = null;
+/* Prism tap zones: widgets only get taps, so direction comes from WHERE you tap.
+   Top half → previous purse, bottom half → next purse, purse icon → open the app.
+   On Android: three child views inside each flipper item, each with its own
+   setOnClickFillInIntent (extras: prev / next / open). */
+function prismZone(e) {
+  if (e.target.closest(".tile-icon")) return "icon";
+  const r = flexTile.getBoundingClientRect();
+  return e.clientY < r.top + r.height / 2 ? "top" : "bottom";
+}
+const PRESS = ["press-top", "press-bottom", "press-icon"];
+
 flexTile.addEventListener("pointerdown", (e) => {
   if (e.target.closest("[data-next]") || busy) return;
-  drag = { y: e.clientY, dy: 0, id: e.pointerId };
+  drag = { y: e.clientY, dy: 0, id: e.pointerId, zone: isPrism() ? prismZone(e) : null };
+  if (drag.zone) flexTile.classList.add(`press-${drag.zone}`);
   try { flexTile.setPointerCapture(e.pointerId); } catch {}
 });
 flexTile.addEventListener("pointermove", (e) => {
@@ -219,8 +244,14 @@ flexTile.addEventListener("pointermove", (e) => {
 });
 function endDrag(e) {
   if (!drag || e.pointerId !== drag.id) return;
-  const { dy } = drag;
+  const { dy, zone } = drag;
   drag = null;
+  flexTile.classList.remove(...PRESS);
+  if (zone) {
+    if (Math.abs(dy) > 12) return toast("Widgets can't swipe. Tap the top or bottom half");
+    if (zone === "icon") return openApp("flex", flexTile);
+    return userGo(zone === "top" ? -1 : 1);
+  }
   if (flexTile.dataset.mode === "stack") {
     // Undo the drag styling. Only StackView sets it — in prism mode the inline
     // transform is the face's position on the prism and must be left alone.
@@ -233,7 +264,7 @@ function endDrag(e) {
   if (flexTile.dataset.mode !== "stack") {
     // On a real widget nothing would happen here. Explain it, and point at the tap target.
     if (Math.abs(dy) > 12) {
-      toast("Flipper can't swipe. Tap the arrow, or switch to StackView");
+      toast("Flipper can't swipe. Tap the dots, or switch to StackView");
       flexTile.classList.remove("hint-pulse");
       reflow(flexTile);
       flexTile.classList.add("hint-pulse");
@@ -303,6 +334,10 @@ function setMode(mode) {
   flipInputs.forEach((r) => (r.disabled = mode !== "flipper"));
   busy = false;
   autoNote.textContent = mode === "stack" ? "(the launcher sets the timing)" : "(flipInterval, 5s)";
+  // The flipper always shows its dots (they replace the icon + arrow column), so the toggle only applies to StackView.
+  const dotsInput = hintInputs.find((i) => i.dataset.hint === "dots");
+  dotsInput.disabled = mode === "flipper";
+  document.getElementById("dotsNote").textContent = mode === "flipper" ? "(always on for the flipper)" : "";
   startAuto();
 }
 function applyHints() {
@@ -319,7 +354,7 @@ hintInputs.forEach((inp) => inp.addEventListener("change", applyHints));
 document.getElementById("hintRecommended").addEventListener("click", () => { setMode("stack"); setHints(["dots"]); });
 document.getElementById("hintFigma").addEventListener("click", () => { setMode("flipper"); setHints([]); });
 
-setMode("stack");
+setMode("flipper");
 
 /* ---------- Member Services: call sheet ---------- */
 const openSheet = () => phone.classList.add("sheet-open");

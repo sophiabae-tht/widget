@@ -118,18 +118,21 @@
 
       <fieldset class="hint-group" id="modeControls">
         <legend>Built with</legend>
-        <label><input type="radio" name="mode" value="flipper" /> <span><b>AdapterViewFlipper</b>: tap the arrow or dots to go to the next purse. Swiping isn't possible.</span></label>
+        <label><input type="radio" name="mode" value="flipper" checked /> <span><b>AdapterViewFlipper</b> (default): page dots sit under the purse icon. Tap the dots to go to the next purse. Swiping isn't possible.</span></label>
         <div class="sub-options" id="flipOptions">
           <span class="sub-label">Flipper animation</span>
-          <label><input type="radio" name="flip" value="slide" checked /> <span><b>Slide</b>: the purse slides up and out, the next one slides in from below</span></label>
-          <label><input type="radio" name="flip" value="prism" /> <span><b>Prism revolve</b>: the purses are the faces of a turning prism joined at their top and bottom edges (3 purses make a triangle, 4 a square). Each tap turns it one face.</span></label>
+          <label><input type="radio" name="flip" value="slide" checked /> <span><b>Vertical slide</b>: the purse slides up and out, the next one slides in from below <em>(translationY)</em></span></label>
+          <label><input type="radio" name="flip" value="fade" /> <span><b>Crossfade</b>: the old purse fades out while the next fades in, with no movement <em>(alpha)</em></span></label>
+          <label><input type="radio" name="flip" value="pop" /> <span><b>Pop / zoom</b>: the old purse shrinks away and the next grows in with a small bounce <em>(scaleX/Y + alpha, overshoot curve)</em></span></label>
+          <label><input type="radio" name="flip" value="prism" /> <span><b>Prism revolve</b>: the purses are the faces of a turning prism joined at their top and bottom edges (3 purses make a triangle, 4 a square). <b>Tap zones:</b> tap the top half to go back, the bottom half (or the dots) to go forward, or the purse icon to open the app.</span></label>
+          <label><input type="radio" name="flip" value="rise" /> <span><b>Combo · Rise + fade</b>: a short 12dp lift while fading. A subtler slide <em>(translationY + alpha)</em></span></label>
         </div>
-        <label><input type="radio" name="mode" value="stack" checked /> <span><b>StackView</b>: purses are a real deck of cards. Swipe up and the top card flies off while the next one moves forward. Swipe down to bring it back. There's no arrow, because the swipe is the gesture.</span></label>
+        <label><input type="radio" name="mode" value="stack" /> <span><b>StackView</b>: purses are a real deck of cards. Swipe up and the top card flies off while the next one moves forward. Swipe down to bring it back. There's no arrow, because the swipe is the gesture.</span></label>
       </fieldset>
 
       <fieldset class="hint-group" id="hintControls">
         <legend>Hints</legend>
-        <label><input type="checkbox" data-hint="dots" /> <span><b>Page dots</b> instead of the arrow, drawn inside each page so they stay correct</span></label>
+        <label><input type="checkbox" data-hint="dots" /> <span><b>Page dots</b> instead of the arrow, drawn inside each page so they stay correct <em id="dotsNote"></em></span></label>
         <label><input type="checkbox" data-hint="auto" /> <span><b>Auto-advance</b>: cycles through the purses until the member interacts <em id="autoNote">(flipInterval, 5s)</em></span></label>
       </fieldset>
 
