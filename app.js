@@ -7,32 +7,54 @@ const flexTile = document.getElementById("flexTile");
 const callTile = document.getElementById("callTile");
 const toastEl = document.getElementById("toast");
 
-// Destinations the widget deep-links into
+// Destinations the widget deep-links into. html can be a function of how the page was opened.
+// Flex Card purses (Figma 2663:16237 / 2664:16248 / 2664:16318). One purse per row, never summed.
+const FLEX_PURSES = [
+  { line1: "Flex Card", line2: "balance",  amount: "$515.05", icon: "icon-currency-circle-dollar.svg" },
+  { line1: "Health",    line2: "rewards",  amount: "$375.00", icon: "icon-gift.svg" },
+  { line1: "Prepaid",   line2: "benefits", amount: "$143.00", icon: "icon-cardholder.svg" },
+];
+let careHubNoteSeen = false; // Android: a SharedPreferences flag, set by "Got it"
+
 const DESTINATIONS = {
   benefits: {
     title: "Your benefits",
-    html: `
+    html: () => `
       <div class="app-hero"><h3>Make the most of your plan</h3><p>Here's what your Molina plan covers this year.</p></div>
       <div class="app-row"><span>Dental cleanings</span><span>2 / year</span></div>
       <div class="app-row"><span>Vision exam</span><span>Covered</span></div>
       <div class="app-row"><span>Rides to appointments</span><span>24 left</span></div>
       <div class="app-row"><span>Over-the-counter items</span><span>$50 / qtr</span></div>`,
   },
+  // Full list of purses. Opened from the widget → one-time note that this page always lives in
+  // Care Hub. Opened from Care Hub itself → no note (the member already knows where it is).
   flex: {
-    title: "Flex Card",
-    html: `
-      <div class="app-hero"><h3>$515.05 available</h3><p>Use your Flex Card on groceries, OTC items and more.</p></div>
-      <div class="app-row"><span>CVS Pharmacy</span><span>&minus;$18.40</span></div>
-      <div class="app-row"><span>Walgreens</span><span>&minus;$7.15</span></div>
-      <div class="app-row"><span>Next reload · Jan 1</span><span>+$150.00</span></div>`,
+    title: "Flex Card balances",
+    html: ({ source, focus } = {}) => `
+      <p class="app-crumb"><span>Care Hub</span> › <b>Flex Card balances</b></p>
+      ${source === "widget" && !careHubNoteSeen ? `
+      <div class="app-note" id="careHubNote">
+        <p class="app-note-title">Your balances always live in Care Hub</p>
+        <p class="app-note-text">Find them anytime in Care Hub › Flex Card balances. The widget is a shortcut to this page.</p>
+        <button class="app-note-btn" data-dismiss-note type="button">Got it</button>
+      </div>` : ""}
+      <div class="purse-list">
+        ${FLEX_PURSES.map((p, i) => `
+        <div class="purse-row${i === focus ? " is-focus" : ""}">
+          <span class="tile-icon"><img src="assets/${p.icon}" width="16" height="16" alt="" /></span>
+          <span class="purse-name">${p.line1} ${p.line2}</span>
+          <span class="purse-amount">${p.amount}</span>
+        </div>`).join("")}
+      </div>
+      <p class="app-foot">Updated today at 9:30 AM</p>`,
   },
   home: {
-    title: "Molina Healthcare",
-    html: `
+    title: "Care Hub",
+    html: () => `
       <div class="app-hero"><h3>Welcome back</h3><p>Everything about your plan, in one place.</p></div>
-      <div class="app-row"><span>Flex Card</span><span>$515.05</span></div>
-      <div class="app-row"><span>Find a doctor</span><span>→</span></div>
-      <div class="app-row"><span>ID card</span><span>→</span></div>`,
+      <button class="app-row app-row--link" data-goto="flex" type="button"><span>Flex Card balances</span><span>${FLEX_PURSES.length} balances ›</span></button>
+      <div class="app-row"><span>Find a doctor</span><span>›</span></div>
+      <div class="app-row"><span>ID card</span><span>›</span></div>`,
   },
 };
 
@@ -70,11 +92,18 @@ document.querySelector(".stage").addEventListener("wheel", (e) => {
   notesPanel.scrollBy({ top: e.deltaY });
 }, { passive: true });
 
-function openApp(key, fromEl) {
+let appStack = []; // in-app navigation, so Back from Flex Card returns to Care Hub
+function renderApp() {
+  const { key, opts } = appStack[appStack.length - 1];
   const dest = DESTINATIONS[key];
-  if (!dest) return;
   appTitle.textContent = dest.title;
-  appBody.innerHTML = dest.html;
+  appBody.innerHTML = dest.html(opts);
+  appBody.scrollTop = 0;
+}
+function openApp(key, fromEl, opts = {}) {
+  if (!DESTINATIONS[key]) return;
+  appStack = [{ key, opts }];
+  renderApp();
 
   launchRect = insetFor(fromEl);
   appScreen.style.transition = "none";
@@ -98,16 +127,24 @@ function closeApp() {
 document.querySelectorAll("[data-open]").forEach((el) => {
   el.addEventListener("click", () => openApp(el.dataset.open, el.closest(".card") || el));
 });
-document.getElementById("appBack").addEventListener("click", closeApp);
+document.getElementById("appBack").addEventListener("click", () => {
+  if (appStack.length > 1) { appStack.pop(); renderApp(); }
+  else closeApp();
+});
+appBody.addEventListener("click", (e) => {
+  const link = e.target.closest("[data-goto]");
+  if (link) { appStack.push({ key: link.dataset.goto, opts: { source: "carehub" } }); renderApp(); return; }
+  if (e.target.closest("[data-dismiss-note]")) {
+    careHubNoteSeen = true;
+    const note = document.getElementById("careHubNote");
+    note.classList.add("is-leaving");
+    setTimeout(() => note.remove(), 200);
+  }
+});
 
 /* ---------- Flex Card purses ----------
    Content + icons from Figma 2663:16237 / 2664:16248 / 2664:16318.
    One purse per card — never summed (per the flexCard/purseCard note in Figma). */
-const FLEX_PURSES = [
-  { line1: "Flex Card", line2: "balance",  amount: "$515.05", icon: "icon-currency-circle-dollar.svg" },
-  { line1: "Health",    line2: "rewards",  amount: "$375.00", icon: "icon-gift.svg" },
-  { line1: "Prepaid",   line2: "benefits", amount: "$143.00", icon: "icon-cardholder.svg" },
-];
 const N = FLEX_PURSES.length;
 const DURATION = 450;
 
@@ -130,9 +167,17 @@ flexTile.innerHTML = FLEX_PURSES.map((p, i) => `
           <span class="pager-dots" data-next aria-hidden="true">${FLEX_PURSES.map((_, k) => `<i${k === i ? ' class="on"' : ""}></i>`).join("")}</span>
         </span>
       </div>
+      <button class="tile-chip" data-next type="button" aria-label="Next balance, ${i + 1} of ${N}">
+        <span>${i + 1}/${N}</span><img src="assets/icon-caret-down-brand.svg" width="12" height="12" alt="" draggable="false" />
+      </button>
     </div>
-  </div>`).join("");
+  </div>`).join("") + `
+  <button class="flex-rail" data-next type="button" aria-label="Next balance">
+    <img src="assets/icon-caret-down-brand.svg" width="16" height="16" alt="" draggable="false" />
+    <span class="rail-count" id="railCount">1/${N}</span>
+  </button>`;
 const cards = [...flexTile.querySelectorAll(".pcard")];
+const railCount = document.getElementById("railCount");
 
 let page = 0;
 let step = 0; // prism: unbounded turn count, so 3 → 1 keeps turning forward instead of rewinding
@@ -143,6 +188,9 @@ const mod = (n) => ((n % N) + N) % N;
 const reflow = (el) => void el.offsetWidth;
 function layout() {
   cards.forEach((c, i) => (c.dataset.depth = mod(i - page)));
+  // Side rail sits outside the flipper, so its counter is updated separately (setTextViewText).
+  railCount.textContent = `${page + 1}/${N}`;
+  flexTile.classList.toggle("on-last", page === N - 1);
 }
 function withoutAnim(els, fn) {
   els.forEach((el) => el.classList.add("no-anim"));
@@ -222,6 +270,8 @@ function markUsed() {
   used = true;
   stopAuto();
 }
+// Widget → Flex Card list. Android: the item's fill-in intent carries source=widget + the purse index.
+const openFlex = () => openApp("flex", flexTile, { source: "widget", focus: page });
 function userGo(dir) {
   markUsed();
   go(dir);
@@ -237,6 +287,13 @@ flexTile.addEventListener("click", (e) => {
   if (isPrism() && page === N - 1 && hint.classList.contains("tile-next")) return userGo(-(N - 1));
   userGo(1);
 });
+
+const CTL_TIP = {
+  dots: "Tap the dots for the next balance",
+  button: "Tap the arrow button for the next balance",
+  chip: "Tap 1/3 for the next balance",
+  rail: "Tap the strip on the right for the next balance",
+};
 
 // Swipe. Only StackView supports it, so flipper mode treats any press as a tap.
 let drag = null;
@@ -274,7 +331,7 @@ function endDrag(e) {
   flexTile.classList.remove(...PRESS);
   if (zone) {
     if (Math.abs(dy) > 12) return toast("Widgets can't swipe. Tap the top or bottom half");
-    if (zone === "icon") return openApp("flex", flexTile);
+    if (zone === "icon") return openFlex();
     return userGo(zone === "top" ? -1 : 1);
   }
   if (flexTile.dataset.mode === "stack") {
@@ -285,11 +342,11 @@ function endDrag(e) {
     front.style.transform = "";
     front.style.opacity = "";
   }
-  if (Math.abs(dy) < 6) return openApp("flex", flexTile); // a tap, not a swipe
+  if (Math.abs(dy) < 6) return openFlex(); // a tap, not a swipe
   if (flexTile.dataset.mode !== "stack") {
     // On a real widget nothing would happen here. Explain it, and point at the tap target.
     if (Math.abs(dy) > 12) {
-      toast("Flipper can't swipe. Tap the dots, or switch to StackView");
+      toast(`Widgets can't swipe. ${CTL_TIP[flexTile.dataset.ctl] || CTL_TIP.dots}`);
       flexTile.classList.remove("hint-pulse");
       reflow(flexTile);
       flexTile.classList.add("hint-pulse");
@@ -318,7 +375,7 @@ flexTile.addEventListener("wheel", (e) => {
 flexTile.addEventListener("keydown", (e) => {
   if (e.key === "ArrowDown") { e.preventDefault(); userGo(1); }
   if (e.key === "ArrowUp") { e.preventDefault(); userGo(-1); }
-  if (e.key === "Enter") openApp("flex", flexTile);
+  if (e.key === "Enter") openFlex();
 });
 
 /* ---------- Auto-advance ----------
@@ -342,6 +399,9 @@ const modeInputs = [...document.querySelectorAll('input[name="mode"]')];
 const autoNote = document.getElementById("autoNote");
 const flipInputs = [...document.querySelectorAll('input[name="flip"]')];
 const flipOptions = document.getElementById("flipOptions");
+const ctlInputs = [...document.querySelectorAll('input[name="ctl"]')];
+const ctlOptions = document.getElementById("ctlOptions");
+const ctlNote = document.getElementById("ctlNote");
 
 function setMode(mode) {
   modeInputs.forEach((r) => (r.checked = r.value === mode));
@@ -349,6 +409,7 @@ function setMode(mode) {
     cards.forEach((c) => { c.classList.remove("exit-up", "enter-top"); c.style.cssText = ""; });
     flexTile.dataset.mode = mode;
     flexTile.dataset.flip = flipInputs.find((r) => r.checked).value;
+    flexTile.dataset.ctl = ctlInputs.find((r) => r.checked).value;
     clearPrism();
     step = page;
     if (isPrism()) layoutPrism({ animate: false });
@@ -356,8 +417,26 @@ function setMode(mode) {
   });
   if (isPrism()) requestAnimationFrame(() => (flexTile.style.transition = ""));
   flipOptions.classList.toggle("is-inactive", mode !== "flipper");
+  // The next control applies to the flipper's slide / fade / pop / rise. Prism has its own tap zones.
+  ctlOptions.classList.toggle("is-inactive", mode !== "flipper" || isPrism());
+  ctlNote.textContent = mode !== "flipper" ? "· picking one switches to AdapterViewFlipper"
+    : isPrism() ? "· Prism uses tap zones instead; picking one switches to Vertical slide" : "";
   busy = false;
-  autoNote.textContent = mode === "stack" ? "· launcher timing" : "· every 5s";
+  // Side rail: its counter sits outside the flipper and can't follow auto-flips, so no auto-advance.
+  const autoInput = hintInputs.find((i) => i.dataset.hint === "auto");
+  const railOn = mode === "flipper" && !isPrism() && flexTile.dataset.ctl === "rail";
+  autoInput.disabled = railOn;
+  if (railOn) autoInput.checked = false;
+  // Side rail already splits the tile into "next" (rail) and "open" (everything else),
+  // so the › cue after the name would just be a second chevron. Hide it with the rail.
+  const cueInput = hintInputs.find((i) => i.dataset.hint === "cue");
+  cueInput.disabled = railOn;
+  if (railOn) cueInput.checked = false;
+  else if (cueInput.dataset.wasRail) cueInput.checked = true; // restore when leaving the rail
+  cueInput.dataset.wasRail = railOn ? "1" : "";
+  document.getElementById("cueNote").textContent = railOn ? "· not needed with the side rail" : "";
+  autoNote.textContent = railOn ? "· off with the side rail" : mode === "stack" ? "· launcher timing" : "· every 5s";
+  applyHints();
   // The flipper always shows its dots (they replace the icon + arrow column), so the toggle only applies to StackView.
   const dotsInput = hintInputs.find((i) => i.dataset.hint === "dots");
   dotsInput.disabled = mode === "flipper";
@@ -375,11 +454,19 @@ function setHints(list) {
 modeInputs.forEach((r) => r.addEventListener("change", () => setMode(r.value)));
 // Picking a flipper animation switches to the flipper (the options stay readable and clickable in StackView).
 flipInputs.forEach((r) => r.addEventListener("change", () => setMode("flipper")));
+function setCtl(value) {
+  ctlInputs.forEach((r) => (r.checked = r.value === value));
+  if (isPrism()) flipInputs.forEach((r) => (r.checked = r.value === "slide"));
+  setMode("flipper");
+}
+ctlInputs.forEach((r) => r.addEventListener("change", () => setCtl(r.value)));
+function setFlip(value) { flipInputs.forEach((r) => (r.checked = r.value === value)); }
 hintInputs.forEach((inp) => inp.addEventListener("change", applyHints));
-document.getElementById("hintRecommended").addEventListener("click", () => { setMode("stack"); setHints(["dots"]); });
-document.getElementById("hintFigma").addEventListener("click", () => { setMode("flipper"); setHints([]); });
+document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCtl("rail"); setHints([]); });
+document.getElementById("hintFigma").addEventListener("click", () => { setFlip("slide"); setCtl("dots"); setHints([]); });
 
 setMode("flipper");
+applyHints();
 
 /* ---------- Member Services: call sheet ---------- */
 const openSheet = () => phone.classList.add("sheet-open");
@@ -414,5 +501,6 @@ document.getElementById("reset").addEventListener("click", () => {
   goHome();
   page = 0;
   used = false;
+  careHubNoteSeen = false;
   setMode(flexTile.dataset.mode);
 });

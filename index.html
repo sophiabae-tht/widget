@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
   <main class="stage">
@@ -124,8 +124,8 @@
         <label><input type="radio" name="mode" value="flipper" checked />
           <span class="opt">
             <b class="opt-title">AdapterViewFlipper <span class="opt-tag">default</span></b>
-            <span class="opt-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService. Dots tap → setOnClickFillInIntent → broadcast → showNext(). Card tap → opens the app.</span>
-            <span class="opt-desc">Page dots sit under the purse icon. Tap the dots to go to the next purse. Swiping isn't possible.</span>
+            <span class="opt-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService. Next tap → setOnClickFillInIntent → broadcast → showNext(). Card tap → opens Flex Card balances in Care Hub.</span>
+            <span class="opt-desc">One purse at a time. A small control moves to the next purse; tapping anywhere else on the card opens the full list. Swiping isn't possible.</span>
           </span>
         </label>
         <div class="sub-options" id="flipOptions">
@@ -166,6 +166,37 @@
             </span>
           </label>
         </div>
+        <div class="sub-options" id="ctlOptions">
+          <span class="sub-label">Next control <em id="ctlNote"></em></span>
+          <label><input type="radio" name="ctl" value="rail" checked />
+            <span class="opt">
+              <b class="opt-title">Side rail <span class="opt-tag">recommended</span></b>
+              <span class="opt-android"><i>Android</i>Horizontal LinearLayout: the flipper + a static ImageButton/TextView strip outside it. Strip tap → broadcast → partiallyUpdateAppWidget() with showNext(flipperId) + setTextViewText(counter). Expect a short lag (~100–300ms). The counter lives outside the flipper and can't follow its own auto-advance, so auto-advance is off with the rail.</span>
+              <span class="opt-desc">A separate strip on the right edge is the only "next" target, so the rest of the card clearly opens the list. The card keeps just the name and amount, so it reads calmer, and no › cue is needed. No room for the purse icon at this tile width.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="chip" />
+            <span class="opt">
+              <b class="opt-title">Counter chip</b>
+              <span class="opt-android"><i>Android</i>TextView + ImageView on a rounded background inside each item. getViewAt(position) sets its text ("2/3"), so it stays right after auto-advance. Same fill-in intent as the dots.</span>
+              <span class="opt-desc">A "1/3 ⌄" pill in the bottom-right corner. It looks like a button and says how many balances there are.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="button" />
+            <span class="opt">
+              <b class="opt-title">Arrow button</b>
+              <span class="opt-android"><i>Android</i>ImageButton with a filled circle background inside each item. Same fill-in intent as the dots.</span>
+              <span class="opt-desc">A filled round button with a down arrow where the dots were. Clearly tappable, but it doesn't say how many balances there are.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="dots" />
+            <span class="opt">
+              <b class="opt-title">Page dots <span class="opt-tag opt-tag--muted">previous</span></b>
+              <span class="opt-android"><i>Android</i>3 ImageViews inside each item, highlighted in getViewAt(position). Same fill-in intent.</span>
+              <span class="opt-desc">Dots under the purse icon. Compact, but members may not know to tap them.</span>
+            </span>
+          </label>
+        </div>
         <label><input type="radio" name="mode" value="stack" />
           <span class="opt">
             <b class="opt-title">StackView</b>
@@ -177,9 +208,16 @@
 
       <fieldset class="hint-group" id="hintControls">
         <legend>Hints</legend>
+        <label><input type="checkbox" data-hint="cue" checked />
+          <span class="opt">
+            <b class="opt-title">"Opens" cue <em id="cueNote"></em></b>
+            <span class="opt-android"><i>Android</i>An ImageView (›) after the label TextView inside each item. The item's own fill-in intent still opens Care Hub.</span>
+            <span class="opt-desc">A › after the purse name, like a list row, so tapping the card reads as "open the full list".</span>
+          </span>
+        </label>
         <label><input type="checkbox" data-hint="dots" />
           <span class="opt">
-            <b class="opt-title">Page dots <em id="dotsNote"></em></b>
+            <b class="opt-title">Page dots (StackView) <em id="dotsNote"></em></b>
             <span class="opt-android"><i>Android</i>3 ImageViews inside each item layout. getViewAt(position) highlights that item's own dot, so they stay correct after a swipe or auto-advance.</span>
             <span class="opt-desc">Replaces the arrow and shows how many purses there are and which one is showing.</span>
           </span>
@@ -195,8 +233,12 @@
 
       <div class="notes-actions">
         <button class="reset reset--primary" id="hintRecommended" type="button">Try recommended</button>
-        <button class="reset" id="hintFigma" type="button">Figma (arrow only)</button>
+        <button class="reset" id="hintFigma" type="button">Previous version (dots)</button>
       </div>
+
+      <h2 class="notes-h2">Full list in Care Hub</h2>
+      <p class="notes-sub">Tapping the card opens <b>Flex Card balances</b> with every purse listed separately, the one you were looking at highlighted. Opened from the widget, a one-time note says this page always lives in Care Hub. Opened from Care Hub itself (<b>See more</b> → <b>Flex Card balances</b>), the note is skipped so it isn't repetitive.</p>
+      <p class="notes-android"><i>Android</i>The widget's PendingIntent carries extras (source=widget, purse index). The app shows the note only for that source and saves a "seen" flag after Got it. Reset brings it back.</p>
 
       <details class="notes-cut">
         <summary>Dropped: not possible on Android widgets</summary>
@@ -205,13 +247,15 @@
       </details>
 
       <ul>
-        <li><b>Explore your benefits</b> / <b>See more</b> / tap Flex Card → opens the app</li>
+        <li>Tap the Flex Card tile (not the next control) → Flex Card balances</li>
+        <li><b>See more</b> → Care Hub → <b>Flex Card balances</b> (no note)</li>
+        <li><b>Explore your benefits</b> → benefits page</li>
         <li><b>Call Member Services</b> → call confirmation sheet</li>
         <li><b>Gesture bar</b> or <kbd>Esc</kbd> → back to home screen</li>
       </ul>
       <button class="reset" id="reset" type="button">Reset</button>
     </aside>
   </main>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>

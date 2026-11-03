@@ -679,3 +679,112 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
   color: #1e7e3e; text-transform: uppercase; letter-spacing: 0.4px; font-size: 10px;
 }
 .opt-desc { color: #565a86; }
+
+/* ---------- Next control (AdapterViewFlipper: slide / fade / pop / rise) ----------
+   data-ctl on the tile picks how "next purse" is shown. Prism keeps its tap zones + dots. */
+.pcard-body { position: relative; }
+.tile-chip, .flex-rail { display: none; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"]):not([data-ctl="dots"]) .pager-dots { opacity: 0; pointer-events: none; }
+
+/* Arrow button: a filled circle where the dots were */
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next {
+  display: flex; opacity: 1; pointer-events: auto;
+  background: var(--text-brand);
+}
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:hover { background: #3742c9; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next img { filter: brightness(0) invert(1); }
+
+/* Counter chip: "1/3 ⌄" pill, bottom-right, sharing the row with the amount */
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="chip"] .tile-hint { display: none; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="chip"] .tile-chip { display: flex; }
+.widget .tile-chip {
+  position: absolute; right: -3px; bottom: -3px;
+  height: 26px; padding: 0 6px 0 9px; gap: 2px;
+  align-items: center;
+  border-radius: 13px;
+  background: #fff;
+  border: 1px solid var(--stroke-brandweaker);
+  box-shadow: 0 1px 3px rgba(12, 15, 65, 0.08);
+  color: var(--text-brand);
+  font-size: 12px; line-height: 16px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 0.15s, transform 0.15s;
+}
+.tile-chip:hover { background: #f1f2fd; }
+.tile-chip:active { transform: scale(0.94); background: #e6e8fc; }
+.tile-chip img { display: block; }
+
+/* Side rail: a static strip outside the flipper, the only "next" target */
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="rail"] .flex-rail { display: flex; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="rail"] .pcard { right: 32px; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="rail"] .tile-side { display: none; }
+.widget .flex-rail {
+  position: absolute; z-index: 5; top: 0; right: 0; bottom: 0; width: 32px;
+  flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  border-left: 1px solid var(--stroke-brandweaker);
+  background: var(--fill-brandweaker);
+  transition: background-color 0.15s;
+}
+.flex-rail:hover { background: rgba(71, 84, 235, 0.15); }
+.flex-rail:active { background: rgba(71, 84, 235, 0.22); }
+.flex-rail img { display: block; transition: transform 0.3s var(--ease-standard); }
+.tile--flex.on-last .flex-rail img { transform: rotate(180deg); }
+.rail-count { font-size: 11px; line-height: 14px; font-weight: 600; color: var(--text-brand); font-variant-numeric: tabular-nums; }
+
+/* Pressing the next control shouldn't also tint the whole card (that means "open") */
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"]):has([data-next]:active):active { background: var(--fill-brandveryweak); }
+
+/* Drag in flipper mode → pulse whichever control is the tap target */
+.tile--flex.hint-pulse[data-ctl="chip"] .pcard[data-depth="0"] .tile-chip,
+.tile--flex.hint-pulse[data-ctl="rail"] .flex-rail { animation: hint-pulse-soft 0.6s var(--ease-standard) 2; }
+@keyframes hint-pulse-soft { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.12); } }
+
+/* "Opens" cue: › after the purse name, like a list row */
+.phone[data-cue] .pcard .tile-line:nth-child(2)::after {
+  content: "";
+  display: inline-block;
+  width: 14px; height: 14px;
+  margin-left: 1px;
+  vertical-align: -2px;
+  background: url("assets/icon-caret-right-brand.svg") center / 14px no-repeat;
+}
+
+/* The ctl group writes its own note (see #ctlNote), so skip the generic one */
+#ctlOptions.is-inactive .sub-label::after { content: none; }
+#ctlOptions.is-inactive label { opacity: 0.75; }
+.opt-tag--muted { color: #6b6e93; background: rgba(12, 15, 65, 0.06); }
+.notes-android {
+  margin-top: 8px; padding: 6px 8px; border-radius: 8px;
+  background: rgba(52, 168, 83, 0.08); color: #2b5f3b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; line-height: 16px;
+}
+.notes-android i { font-style: normal; font-weight: 700; margin-right: 6px; color: #1e7e3e; text-transform: uppercase; letter-spacing: 0.4px; font-size: 10px; }
+
+/* ---------- Flex Card balances (in Care Hub) ---------- */
+.app-crumb { font-size: 13px; line-height: 18px; color: #8b8eb1; }
+.app-crumb b { font-weight: 500; color: var(--text-weak); }
+.app-note {
+  padding: 14px 16px; border-radius: 16px;
+  background: #eef0fd; border: 1px solid var(--stroke-brandweaker);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.app-note.is-leaving { opacity: 0; transform: translateY(-4px); }
+.app-note-title { font-weight: 600; font-size: 15px; line-height: 20px; color: #0c0f41; }
+.app-note-text { margin-top: 4px; font-size: 14px; line-height: 20px; color: var(--text-weak); }
+.app-note-btn {
+  margin-top: 10px; padding: 6px 14px; border-radius: 16px;
+  background: var(--text-brand); color: #fff; font-weight: 600; font-size: 14px;
+}
+.purse-list { display: flex; flex-direction: column; gap: 8px; }
+.purse-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-radius: 12px;
+  background: #fff; border: 1px solid var(--stroke-brandweaker);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.purse-row.is-focus { border-color: rgba(71, 84, 235, 0.55); box-shadow: 0 0 0 3px rgba(71, 84, 235, 0.1); }
+.purse-name { flex: 1; font-weight: 500; font-size: 15px; color: var(--text-weak); }
+.purse-amount { font-weight: 600; font-size: 16px; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+.app-foot { font-size: 12px; line-height: 16px; color: #8b8eb1; }
+button.app-row { width: 100%; text-align: left; cursor: pointer; }
+.app-row--link:hover { border-color: rgba(71, 84, 235, 0.4); }
