@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Widget prototype · v2/link</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="stage">
+    <!-- Android Large frame: 360 × 800 (Figma node 2644:14146) -->
+    <div class="phone" id="phone">
+      <img class="wallpaper" src="assets/wallpaper.png" alt="" />
+
+      <header class="status-bar">
+        <span class="status-time" id="clock">9:30</span>
+        <span class="status-icons">
+          <img src="assets/status-wifi.svg" width="17" height="17" alt="" class="si-wifi" />
+          <img src="assets/status-signal.svg" width="17" height="17" alt="" class="si-signal" />
+          <img src="assets/status-battery.svg" width="8" height="15" alt="" class="si-battery" />
+        </span>
+      </header>
+
+      <section class="widget-frame">
+        <div class="widget" id="widget">
+          <div class="gradient-bg" aria-hidden="true">
+            <div class="blob-blue"><img src="assets/gradient-blue.svg" width="1147" height="1147" alt="" /></div>
+          </div>
+
+          <div class="widget-top-bar">
+            <img src="assets/logo-molina.svg" width="68.637" height="20" alt="Molina Healthcare" class="logo" />
+            <button class="link" data-open="home" type="button">See more</button>
+          </div>
+
+          <div class="chat-frame">
+            <div class="card-content">
+              <div class="card">
+                <div class="card-row">
+                  <div class="card-icon"><img src="assets/icon-hand-heart.svg" width="24" height="24" alt="" /></div>
+                  <p class="card-body">Find out what your plan covers and how to make the most of it.</p>
+                </div>
+                <button class="btn-tonal" data-open="benefits" type="button">Explore your benefits</button>
+              </div>
+            </div>
+
+            <div class="tile-row">
+              <!-- Flex Card purses (Figma 2663:16237, 2664:16248, 2664:16318).
+                   Each page is one widget collection item: label, icon and hint all live
+                   inside the item, the way they would in an AdapterViewFlipper / StackView. -->
+              <div class="tile tile--flex" id="flexTile" role="group" aria-roledescription="carousel" aria-label="Flex Card balances" tabindex="0">
+                <div class="pager" id="flexPager">
+                  <div class="pager-track" id="flexTrack"><!-- pages rendered by app.js --></div>
+                </div>
+              </div>
+
+              <button class="tile" id="callTile" type="button">
+                <span class="tile-text">
+                  <span class="tile-face">
+                    <span class="tile-line">Call</span>
+                    <span class="tile-line">Member</span>
+                    <span class="tile-line">Services</span>
+                  </span>
+                </span>
+                <span class="tile-icon"><img src="assets/icon-phone.svg" width="16" height="16" alt="" /></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="powered-frame">
+            <div class="powered-by">
+              <img src="assets/thrive-symbol.svg" width="22" height="22" alt="" class="thrive-symbol" />
+              <img src="assets/thrive-wordmark.svg" width="78.296" height="18.7072" alt="Powered by Thrive Mobile" class="thrive-wordmark" />
+            </div>
+            <div class="spacer-16"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="fill"></div>
+
+      <!-- Simulated app launch (opened from widget taps) -->
+      <div class="app-screen" id="appScreen" aria-hidden="true">
+        <div class="app-bar">
+          <button class="app-back" id="appBack" type="button" aria-label="Back">←</button>
+          <span class="app-title" id="appTitle">Your benefits</span>
+        </div>
+        <div class="app-body" id="appBody"></div>
+      </div>
+
+      <!-- Call confirmation sheet -->
+      <div class="scrim" id="scrim"></div>
+      <div class="sheet" id="callSheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+        <div class="sheet-handle"></div>
+        <div class="sheet-icon"><img src="assets/icon-phone.svg" width="16" height="16" alt="" /></div>
+        <h2 class="sheet-title" id="sheetTitle">Call Member Services?</h2>
+        <p class="sheet-text">Available 24/7. Average wait under 2 minutes.</p>
+        <p class="sheet-number">1-800-555-0123</p>
+        <div class="sheet-actions">
+          <button class="sheet-btn sheet-btn--ghost" id="sheetCancel" type="button">Cancel</button>
+          <button class="sheet-btn sheet-btn--primary" id="sheetCall" type="button">Call</button>
+        </div>
+      </div>
+
+      <div class="toast" id="toast" role="status"></div>
+
+      <footer class="gesture-bar" id="gestureBar" title="Tap to go home"><span class="handle"></span></footer>
+    </div>
+
+    <aside class="notes">
+      <h1>Widget prototype</h1>
+      <p>Figma <code>v2/link</code> · Android Large 360×800</p>
+      <h2 class="notes-h2">Flex Card pager · Android widget</h2>
+      <p class="notes-sub">Only options a real home-screen widget can do. Each one notes the Android piece it uses. Stacked edges come only with StackView, because there the cards actually move.</p>
+
+      <fieldset class="hint-group" id="modeControls">
+        <legend>Built with</legend>
+        <label><input type="radio" name="mode" value="flipper" /> <span><b>AdapterViewFlipper</b>: tap the arrow or dots to go to the next purse. Swiping isn't possible.</span></label>
+        <div class="sub-options" id="flipOptions">
+          <span class="sub-label">Flipper animation</span>
+          <label><input type="radio" name="flip" value="slide" checked /> <span><b>Slide</b>: the purse slides up and out, the next one slides in from below</span></label>
+          <label><input type="radio" name="flip" value="prism" /> <span><b>Prism revolve</b>: the purses are the faces of a turning prism joined at their top and bottom edges (3 purses make a triangle, 4 a square). Each tap turns it one face.</span></label>
+        </div>
+        <label><input type="radio" name="mode" value="stack" checked /> <span><b>StackView</b>: purses are a real deck of cards. Swipe up and the top card flies off while the next one moves forward. Swipe down to bring it back. There's no arrow, because the swipe is the gesture.</span></label>
+      </fieldset>
+
+      <fieldset class="hint-group" id="hintControls">
+        <legend>Hints</legend>
+        <label><input type="checkbox" data-hint="dots" /> <span><b>Page dots</b> instead of the arrow, drawn inside each page so they stay correct</span></label>
+        <label><input type="checkbox" data-hint="auto" /> <span><b>Auto-advance</b>: cycles through the purses until the member interacts <em id="autoNote">(flipInterval, 5s)</em></span></label>
+      </fieldset>
+
+      <div class="notes-actions">
+        <button class="reset reset--primary" id="hintRecommended" type="button">Try recommended</button>
+        <button class="reset" id="hintFigma" type="button">Figma (arrow only)</button>
+      </div>
+
+      <details class="notes-cut">
+        <summary>Dropped: not possible on Android widgets</summary>
+        <p><b>Content peek</b>: widgets have no fade masks or snap-scrolling, so the half-visible next page would land at random scroll positions.</p>
+        <p><b>Nudge animation</b>: widgets can't run custom animations. Auto-advance is the closest supported way to show motion.</p>
+      </details>
+
+      <ul>
+        <li><b>Explore your benefits</b> / <b>See more</b> / tap Flex Card → opens the app</li>
+        <li><b>Call Member Services</b> → call confirmation sheet</li>
+        <li><b>Gesture bar</b> or <kbd>Esc</kbd> → back to home screen</li>
+      </ul>
+      <button class="reset" id="reset" type="button">Reset</button>
+    </aside>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

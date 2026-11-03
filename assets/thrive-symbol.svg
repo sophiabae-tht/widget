@@ -1,0 +1,12 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="thriveLogoSymbol" clip-path="url(#clip0_0_1344)">
+<path id="bg" d="M0.821427 2.60848C1.82356 0.986988 3.59383 0 5.50001 0H16.5C18.4062 0 20.1764 0.986988 21.1786 2.60848C22.1807 4.22997 22.2718 6.25474 21.4194 7.95967L15.9194 18.9597C14.9877 20.823 13.0833 22 11 22C8.91676 22 7.01231 20.823 6.08066 18.9597L0.580656 7.95967C-0.271812 6.25474 -0.18071 4.22997 0.821427 2.60848Z" fill-rule="evenodd" clip-rule="evenodd" fill="#D9E1F7"/>
+<circle id="circle" cx="11" cy="16.5" r="5.5" fill="#B1BBEC"/>
+<path id="bar" d="M16.5 0C19.5376 0 22 2.46243 22 5.5C22 8.53757 19.5376 11 16.5 11H5.5C2.46243 11 0 8.53757 0 5.5C0 2.46243 2.46243 0 5.5 0H16.5Z" fill="#6773EE"/>
+</g>
+<defs>
+<clipPath id="clip0_0_1344">
+<rect width="22" height="22" fill="white"/>
+</clipPath>
+</defs>
+</svg>
