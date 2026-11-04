@@ -407,8 +407,10 @@ html, body { overflow: hidden; }
 .app-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
 .app-back {
   width: 40px; height: 40px; border-radius: 20px;
-  font-size: 20px; color: #0c0f41;
+  display: flex; align-items: center; justify-content: center; margin-left: -8px;
 }
+.app-back[hidden] { display: none; }
+.app-back img { display: block; }
 .app-back:hover { background: var(--fill-weaker); }
 .app-title { font-weight: 600; font-size: 20px; line-height: 28px; color: #0c0f41; }
 .app-body { padding: 8px 16px; display: flex; flex-direction: column; gap: 12px; }
@@ -788,3 +790,101 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 .app-foot { font-size: 12px; line-height: 16px; color: #8b8eb1; }
 button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .app-row--link:hover { border-color: rgba(71, 84, 235, 0.4); }
+
+/* ---------- Core App Experience pages: Care hub (Figma 6283:1802) + Flex card (6287:23451) ---------- */
+.app-screen { display: flex; flex-direction: column; }
+.app-body { flex: 1; min-height: 0; overflow-y: auto; }
+.app-help, .app-nav, .ch-bg { display: none; }
+
+.app-screen--core .ch-bg { display: block; position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.ch-blob { position: absolute; width: 379px; height: 379px; }
+.ch-blob img { position: absolute; inset: -52.77%; width: 205.54%; height: 205.54%; max-width: none; }
+.ch-blob--green { right: -189px; top: 313px; }
+.ch-blob--blue { left: -177px; top: 439px; }
+
+.app-screen--core .app-bar { position: relative; z-index: 1; height: 56px; padding: 16px; gap: 16px; }
+.app-screen--core .app-title { display: none; }
+.app-screen--core .app-help {
+  display: block; margin-left: auto;
+  font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text-brand);
+  text-decoration: underline; text-underline-position: from-font;
+}
+.app-screen--core .app-body { position: relative; z-index: 1; padding: 0 0 124px; gap: 0; }
+
+.app-screen--core .app-nav {
+  display: flex; gap: 8px; padding: 0 8px 24px;
+  position: absolute; z-index: 2; left: 0; right: 0; bottom: 0;
+  background: var(--background-base);
+  box-shadow: 0 0 12px rgba(13, 17, 64, 0.1);
+}
+.app-nav button {
+  flex: 1; min-width: 0; padding: 12px 0 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);
+}
+.app-nav button img { display: block; margin: 4px 0; }
+.app-nav button.is-active { font-weight: 600; color: var(--text-strong); }
+
+.ch-page-header { padding: 16px 16px 8px; }
+.ch-h2 { margin: 0; font-size: 28px; line-height: 36px; font-weight: 600; color: var(--text-strong); }
+.ch-body { margin-top: 12px; font-size: 16px; line-height: 24px; font-weight: 500; color: var(--text-weak); }
+.ch-section { margin: 0; padding: 24px 16px 0; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); }
+.ch-pad { padding: 16px 16px 0; }
+.ch-spacer { height: 8px; }
+.ch-circle { display: flex; align-items: center; justify-content: center; flex: none; border-radius: 999px; background: var(--fill-brandweaker); }
+.ch-circle--32 { width: 32px; height: 32px; }
+.ch-circle--48 { width: 48px; height: 48px; }
+.ch-circle img { display: block; }
+.ch-card-shadow, .ch-nav-card, .ch-perk, .ch-contact, .ch-app { background: #fff; border-radius: 16px; box-shadow: 0 2px 8px rgba(12, 15, 65, 0.05); }
+
+/* Member ID */
+.ch-member { display: flex; align-items: center; gap: 16px; padding: 16px 16px 8px; }
+.ch-member-icon { width: 48px; height: 48px; border-radius: 100px; background: var(--fill-weaker); display: flex; align-items: center; justify-content: center; }
+.ch-member-label { display: block; font-size: 14px; line-height: 20px; font-weight: 500; color: #696d9b; }
+.ch-member-id { display: block; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); }
+
+/* Flex card entry (cardNavigationItem) */
+.ch-nav-card { display: block; width: 100%; padding: 20px 16px; text-align: left; transition: box-shadow 0.15s; }
+.ch-nav-card:hover { box-shadow: 0 2px 12px rgba(12, 15, 65, 0.1); }
+.ch-nav-main { display: flex; align-items: center; gap: 16px; padding-bottom: 20px; }
+.ch-nav-text { flex: 1; min-width: 0; }
+.ch-nav-title { display: block; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); }
+.ch-nav-body { display: block; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
+.ch-nav-foot { display: flex; justify-content: space-between; padding-top: 16px; border-top: 1px solid rgba(13, 17, 64, 0.1); font-size: 14px; line-height: 20px; }
+.ch-nav-foot b { font-weight: 600; color: var(--text-weak); }
+.ch-nav-foot span { font-weight: 500; color: #696d9b; }
+
+/* Horizontal scrollers */
+.ch-hscroll { display: flex; gap: 16px; padding: 16px 16px 4px; overflow-x: auto; scrollbar-width: none; }
+.ch-hscroll::-webkit-scrollbar { display: none; }
+.ch-contact { flex: none; width: 148px; height: 164px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; text-align: left; }
+.ch-contact-name { display: block; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); }
+.ch-contact-desc { display: block; padding-top: 4px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
+.ch-app { flex: none; width: 208px; height: 206px; padding: 16px; display: flex; flex-direction: column; }
+.ch-app-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: auto; }
+.ch-app-logo { display: block; width: 64px; height: 64px; border-radius: 8px; object-fit: cover; }
+.ch-app-logo--molina { display: flex; align-items: center; justify-content: center; background: #009fab; border-radius: 6px; }
+.ch-app-name { margin-top: 16px; font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; color: var(--text-weak); }
+.ch-app-desc { padding-top: 8px; font-size: 16px; line-height: 24px; font-weight: 500; color: var(--text-weak); }
+
+/* Resources */
+.ch-resources { padding: 16px 16px 16px; }
+.ch-resources::before { content: ""; display: block; border-top: 1px solid rgba(12, 15, 65, 0.1); }
+.ch-resource { display: flex; justify-content: space-between; gap: 16px; padding: 16px 0; border-bottom: 1px solid rgba(12, 15, 65, 0.05); }
+.ch-resource > span { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ch-resource-title { font-size: 16px; line-height: 24px; font-weight: 500; color: var(--text-strong); text-decoration: underline; text-underline-position: from-font; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-resource-desc { font-size: 16px; line-height: 24px; font-weight: 500; color: var(--text-weak); }
+.ch-resource img { flex: none; }
+
+/* Flex card purses (cardPerk) */
+.ch-perk { display: flex; align-items: center; }
+.ch-perk > .ch-circle { margin-left: 16px; }
+.ch-perk-text { flex: 1; min-width: 0; padding: 16px; }
+.ch-perk-name { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text-weak); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-perk-amount { margin-top: 4px; font-size: 24px; line-height: 32px; font-weight: 600; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+.ch-perk-label { margin-top: 4px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
+.ch-updated { padding: 12px 16px 0; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
+
+/* Widget → Flex card: one-time "lives in Care hub" note */
+.app-screen--core .app-note { background: #fff; border-color: rgba(71, 84, 235, 0.3); }
+.app-screen--core .app-body > * { flex-shrink: 0; }

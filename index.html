@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=7" />
+  <link rel="stylesheet" href="styles.css?v=10" />
 </head>
 <body>
   <main class="stage">
@@ -86,11 +86,22 @@
 
       <!-- Simulated app launch (opened from widget taps) -->
       <div class="app-screen" id="appScreen" aria-hidden="true">
+        <div class="ch-bg" aria-hidden="true">
+          <div class="ch-blob ch-blob--green"><img src="assets/carehub/gradient-green.svg" alt="" /></div>
+          <div class="ch-blob ch-blob--blue"><img src="assets/carehub/gradient-blue.svg" alt="" /></div>
+        </div>
         <div class="app-bar">
-          <button class="app-back" id="appBack" type="button" aria-label="Back">←</button>
+          <button class="app-back" id="appBack" type="button" aria-label="Back"><img src="assets/carehub/icon-arrow-left.svg" width="24" height="24" alt="" /></button>
           <span class="app-title" id="appTitle">Your benefits</span>
+          <button class="app-help" id="appHelp" type="button">Need help?</button>
         </div>
         <div class="app-body" id="appBody"></div>
+        <nav class="app-nav" id="appNav" aria-label="App">
+          <button type="button" data-tab="home"><img src="assets/carehub/nav-house.svg" width="24" height="24" alt="" /><span>Home</span></button>
+          <button type="button" data-tab="perks"><img src="assets/carehub/nav-tag.svg" width="24" height="24" alt="" /><span>Perks</span></button>
+          <button type="button" data-tab="carehub" class="is-active"><img src="assets/carehub/nav-bookmark.svg" width="24" height="24" alt="" /><span>Care hub</span></button>
+          <button type="button" data-tab="account"><img src="assets/carehub/nav-user.svg" width="24" height="24" alt="" /><span>Account</span></button>
+        </nav>
       </div>
 
       <!-- Call confirmation sheet -->
@@ -124,7 +135,7 @@
         <label><input type="radio" name="mode" value="flipper" checked />
           <span class="opt">
             <b class="opt-title">AdapterViewFlipper <span class="opt-tag">default</span></b>
-            <span class="opt-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService. Next tap → setOnClickFillInIntent → broadcast → showNext(). Card tap → opens Flex Card balances in Care Hub.</span>
+            <span class="opt-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService. Next tap → setOnClickFillInIntent → broadcast → showNext(). Card tap → opens Flex Card balances in Care hub.</span>
             <span class="opt-desc">One purse at a time. A small control moves to the next purse; tapping anywhere else on the card opens the full list. Swiping isn't possible.</span>
           </span>
         </label>
@@ -211,7 +222,7 @@
         <label><input type="checkbox" data-hint="cue" checked />
           <span class="opt">
             <b class="opt-title">"Opens" cue <em id="cueNote"></em></b>
-            <span class="opt-android"><i>Android</i>An ImageView (›) after the label TextView inside each item. The item's own fill-in intent still opens Care Hub.</span>
+            <span class="opt-android"><i>Android</i>An ImageView (›) after the label TextView inside each item. The item's own fill-in intent still opens Care hub.</span>
             <span class="opt-desc">A › after the purse name, like a list row, so tapping the card reads as "open the full list".</span>
           </span>
         </label>
@@ -236,9 +247,9 @@
         <button class="reset" id="hintFigma" type="button">Previous version (dots)</button>
       </div>
 
-      <h2 class="notes-h2">Full list in Care Hub</h2>
-      <p class="notes-sub">Tapping the card opens <b>Flex Card balances</b> with every purse listed separately, the one you were looking at highlighted. Opened from the widget, a one-time note says this page always lives in Care Hub. Opened from Care Hub itself (<b>See more</b> → <b>Flex Card balances</b>), the note is skipped so it isn't repetitive.</p>
-      <p class="notes-android"><i>Android</i>The widget's PendingIntent carries extras (source=widget, purse index). The app shows the note only for that source and saves a "seen" flag after Got it. Reset brings it back.</p>
+      <h2 class="notes-h2">Full list in Care hub</h2>
+      <p class="notes-sub">Tapping the card opens the <b>Flex card</b> page (Core App Experience WIP, Figma 6287:23451): every purse listed separately with its name, as on the Nations portal, and available balance, nothing else (confirmed by Nicole on DES-88). Care hub (Figma 6283:1802) links to it from <b>Your benefits</b>. Opened from the widget, a one-time note says this page always lives in Care hub. Opened from Care hub itself (<b>See more</b> → <b>Flex card</b>), the note is skipped so it isn't repetitive.</p>
+      <p class="notes-android"><i>Android</i>The widget's PendingIntent carries an extra (source=widget). The app shows the note only for that source and saves a "seen" flag after Got it. Reset brings it back.</p>
 
       <details class="notes-cut">
         <summary>Dropped: not possible on Android widgets</summary>
@@ -247,8 +258,8 @@
       </details>
 
       <ul>
-        <li>Tap the Flex Card tile (not the next control) → Flex Card balances</li>
-        <li><b>See more</b> → Care Hub → <b>Flex Card balances</b> (no note)</li>
+        <li>Tap the Flex Card tile (not the next control) → Flex card page</li>
+        <li><b>See more</b> → Care hub → <b>Flex card</b> (no note)</li>
         <li><b>Explore your benefits</b> → benefits page</li>
         <li><b>Call Member Services</b> → call confirmation sheet</li>
         <li><b>Gesture bar</b> or <kbd>Esc</kbd> → back to home screen</li>
@@ -256,6 +267,6 @@
       <button class="reset" id="reset" type="button">Reset</button>
     </aside>
   </main>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

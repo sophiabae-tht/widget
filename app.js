@@ -3,6 +3,7 @@ const phone = document.getElementById("phone");
 const appScreen = document.getElementById("appScreen");
 const appTitle = document.getElementById("appTitle");
 const appBody = document.getElementById("appBody");
+const appBack = document.getElementById("appBack");
 const flexTile = document.getElementById("flexTile");
 const callTile = document.getElementById("callTile");
 const toastEl = document.getElementById("toast");
@@ -14,7 +15,44 @@ const FLEX_PURSES = [
   { line1: "Health",    line2: "rewards",  amount: "$375.00", icon: "icon-gift.svg" },
   { line1: "Prepaid",   line2: "benefits", amount: "$143.00", icon: "icon-cardholder.svg" },
 ];
+// Purses as named on the Nations portal (Core App Experience, Figma 6287:23451)
+const C = "assets/carehub/";
+const NATIONS_PURSES = [
+  { name: "2026 Health Screening Rewards",    amount: "$375.00", icon: "icon-heartbeat.svg" },
+  { name: "Over the Counter, Food & Produce", amount: "$143.00", icon: "icon-fork-knife.svg" },
+  { name: "Post Discharge Incentives",        amount: "$50.00",  icon: "icon-hospital.svg" },
+  { name: "Health Risk Assessment Rewards",   amount: "$25.00",  icon: "icon-list-checks.svg" },
+];
 let careHubNoteSeen = false; // Android: a SharedPreferences flag, set by "Got it"
+
+const pageHeader = (title, body) => `
+  <div class="ch-page-header"><h2 class="ch-h2">${title}</h2><p class="ch-body">${body}</p></div>`;
+const section = (title) => `<h3 class="ch-section">${title}</h3>`;
+
+// Care hub (Figma 6283:1802) — work-in-progress mock
+const CONTACTS = [
+  { name: "Member Services", desc: "Call about your health plan", call: true },
+  { name: "24/7 Nurse Line", desc: "Talk to a nurse day or night" },
+];
+const APPS = [
+  { name: "My Molina", desc: "See your ID card, benefits, and doctors near you", molina: true },
+  { name: "Benefits pro", desc: "Check your Flex Card balance and shop eligible items", img: "app-benefits-pro.png" },
+  { name: "CVS Caremark", desc: "Access prescriptions, compare prices, find pharmacies in one app", img: "app-cvs.png" },
+  { name: "Teladoc", desc: "Connect with doctors, therapists, and health professionals virtually", img: "app-teladoc.png" },
+  { name: "Maven Clinic", desc: "24/7 fertility, pregnancy, parenting &amp; menopause support", img: "app-maven.png" },
+];
+const RESOURCES = [
+  ["Aetna Better Health of OK", "Find out more about what is available to you through your Aetna Oklahoma health plan"],
+  ["Member Handbook", "Learn about your health care benefits"],
+  ["Member Portal", "Find care, manage benefits, handle claims, get quotes, and find forms through Aetna’s Member Portal"],
+  ["SoonerQuit Program", "Need support in quitting tobacco? Connect with a team that can support your tobacco cessation journey"],
+  ["OK WIC / SNAP", "Pregnant, Breastfeeding or Post-Partum? Find out if you are eligible for WIC benefits"],
+  ["HeadStart", "Do you have children 5 years old or younger? You may be eligible for support in their health and education"],
+  ["Oklahoma 211", "Find out what social service resources are available to you through Oklahoma 211"],
+  ["Krames Online", "Have questions about your healthcare. Find answers through Krames Online’s digital library"],
+  ["KidsHealth", "Have children? Get advice on your child’s health, behavior, and growth through KidsHealth"],
+  ["HRS Link", "Complete your Health Risk Screen here"],
+];
 
 const DESTINATIONS = {
   benefits: {
@@ -26,35 +64,86 @@ const DESTINATIONS = {
       <div class="app-row"><span>Rides to appointments</span><span>24 left</span></div>
       <div class="app-row"><span>Over-the-counter items</span><span>$50 / qtr</span></div>`,
   },
-  // Full list of purses. Opened from the widget → one-time note that this page always lives in
-  // Care Hub. Opened from Care Hub itself → no note (the member already knows where it is).
+  // Flex card (Figma 6287:23451): purse name + available balance only, named as on the Nations
+  // portal. Opened from the widget → one-time note that this page always lives in Care hub.
+  // Opened from Care hub itself → no note.
   flex: {
-    title: "Flex Card balances",
-    html: ({ source, focus } = {}) => `
-      <p class="app-crumb"><span>Care Hub</span> › <b>Flex Card balances</b></p>
+    title: "Flex card",
+    core: true,
+    html: ({ source } = {}) => `
+      ${pageHeader("Flex card", "View your available balance for each benefit.")}
       ${source === "widget" && !careHubNoteSeen ? `
-      <div class="app-note" id="careHubNote">
-        <p class="app-note-title">Your balances always live in Care Hub</p>
-        <p class="app-note-text">Find them anytime in Care Hub › Flex Card balances. The widget is a shortcut to this page.</p>
+      <div class="ch-pad"><div class="app-note" id="careHubNote">
+        <p class="app-note-title">Your balances always live in Care hub</p>
+        <p class="app-note-text">Find them anytime in Care hub › Flex card. The widget is a shortcut to this page.</p>
         <button class="app-note-btn" data-dismiss-note type="button">Got it</button>
-      </div>` : ""}
-      <div class="purse-list">
-        ${FLEX_PURSES.map((p, i) => `
-        <div class="purse-row${i === focus ? " is-focus" : ""}">
-          <span class="tile-icon"><img src="assets/${p.icon}" width="16" height="16" alt="" /></span>
-          <span class="purse-name">${p.line1} ${p.line2}</span>
-          <span class="purse-amount">${p.amount}</span>
+      </div></div>` : ""}
+      ${NATIONS_PURSES.map((p) => `
+      <div class="ch-pad"><div class="ch-perk">
+        <span class="ch-circle ch-circle--32"><img src="${C}${p.icon}" width="20" height="20" alt="" /></span>
+        <div class="ch-perk-text">
+          <p class="ch-perk-name">${p.name}</p>
+          <p class="ch-perk-amount">${p.amount}</p>
+          <p class="ch-perk-label">Available balance</p>
+        </div>
+      </div></div>`).join("")}
+      <p class="ch-updated">Updated today, 9:30 AM</p>`,
+  },
+  // Care hub (Figma 6283:1802): tab root, so no back arrow
+  home: {
+    title: "Care hub",
+    core: true,
+    root: true,
+    html: () => `
+      ${pageHeader("Care hub", "Easy access to all the tools and services your Molina plan offers.")}
+      <div class="ch-member">
+        <span class="ch-member-icon"><img src="${C}logo-molina-icon.svg" width="22" height="19" alt="" /></span>
+        <span><span class="ch-member-label">Molina member ID</span><span class="ch-member-id">W123456789</span></span>
+      </div>
+      ${section("Your benefits")}
+      <div class="ch-pad">
+        <button class="ch-nav-card" data-goto="flex" type="button">
+          <span class="ch-nav-main">
+            <span class="ch-circle ch-circle--48"><img src="${C}icon-cardholder-24.svg" width="24" height="24" alt="" /></span>
+            <span class="ch-nav-text"><span class="ch-nav-title">Flex card</span><span class="ch-nav-body">Check your card’s balances</span></span>
+            <img src="${C}icon-caret-right-20.svg" width="20" height="20" alt="" />
+          </span>
+          <span class="ch-nav-foot"><b>2 new balances</b><span>Updated today, 9:30 AM</span></span>
+        </button>
+      </div>
+      <div class="ch-spacer"></div>
+      ${section("Contacts")}
+      <div class="ch-hscroll">
+        ${CONTACTS.map((c) => `
+        <button class="ch-contact" type="button"${c.call ? " data-call" : ""}>
+          <span class="ch-circle ch-circle--32"><img src="${C}icon-phone-20.svg" width="20" height="20" alt="" /></span>
+          <span class="ch-contact-text"><span class="ch-contact-name">${c.name}</span><span class="ch-contact-desc">${c.desc}</span></span>
+        </button>`).join("")}
+      </div>
+      <div class="ch-spacer"></div>
+      ${section("Useful Apps")}
+      <div class="ch-hscroll">
+        ${APPS.map((a) => `
+        <div class="ch-app">
+          <span class="ch-app-top">
+            ${a.molina
+              ? `<span class="ch-app-logo ch-app-logo--molina"><img src="${C}app-molina-mark.svg" width="50" height="43" alt="" /></span>`
+              : `<img class="ch-app-logo" src="${C}${a.img}" width="64" height="64" alt="" />`}
+            <img src="${C}icon-download.svg" width="20" height="20" alt="" />
+          </span>
+          <span class="ch-app-name">${a.name}</span>
+          <span class="ch-app-desc">${a.desc}</span>
         </div>`).join("")}
       </div>
-      <p class="app-foot">Updated today at 9:30 AM</p>`,
-  },
-  home: {
-    title: "Care Hub",
-    html: () => `
-      <div class="app-hero"><h3>Welcome back</h3><p>Everything about your plan, in one place.</p></div>
-      <button class="app-row app-row--link" data-goto="flex" type="button"><span>Flex Card balances</span><span>${FLEX_PURSES.length} balances ›</span></button>
-      <div class="app-row"><span>Find a doctor</span><span>›</span></div>
-      <div class="app-row"><span>ID card</span><span>›</span></div>`,
+      <div class="ch-spacer"></div>
+      ${section("Resources")}
+      <div class="ch-resources">
+        ${RESOURCES.map(([t, d]) => `
+        <div class="ch-resource">
+          <span><span class="ch-resource-title">${t}</span><span class="ch-resource-desc">${d}</span></span>
+          <img src="${C}icon-arrow-square-out.svg" width="20" height="20" alt="" />
+        </div>`).join("")}
+      </div>`,
   },
 };
 
@@ -97,6 +186,8 @@ function renderApp() {
   const { key, opts } = appStack[appStack.length - 1];
   const dest = DESTINATIONS[key];
   appTitle.textContent = dest.title;
+  appScreen.classList.toggle("app-screen--core", !!dest.core);
+  appBack.hidden = !!dest.root && appStack.length === 1;
   appBody.innerHTML = dest.html(opts);
   appBody.scrollTop = 0;
 }
@@ -127,13 +218,20 @@ function closeApp() {
 document.querySelectorAll("[data-open]").forEach((el) => {
   el.addEventListener("click", () => openApp(el.dataset.open, el.closest(".card") || el));
 });
-document.getElementById("appBack").addEventListener("click", () => {
+appBack.addEventListener("click", () => {
   if (appStack.length > 1) { appStack.pop(); renderApp(); }
   else closeApp();
 });
+// Bottom nav: Care hub tab → Care hub root. Other tabs aren't part of this prototype.
+document.getElementById("appNav").addEventListener("click", (e) => {
+  const tab = e.target.closest("[data-tab]");
+  if (tab?.dataset.tab === "carehub") { appStack = [{ key: "home", opts: {} }]; renderApp(); }
+});
+document.getElementById("appHelp").addEventListener("click", () => phone.classList.add("sheet-open"));
 appBody.addEventListener("click", (e) => {
   const link = e.target.closest("[data-goto]");
   if (link) { appStack.push({ key: link.dataset.goto, opts: { source: "carehub" } }); renderApp(); return; }
+  if (e.target.closest("[data-call]")) { phone.classList.add("sheet-open"); return; }
   if (e.target.closest("[data-dismiss-note]")) {
     careHubNoteSeen = true;
     const note = document.getElementById("careHubNote");
@@ -270,8 +368,8 @@ function markUsed() {
   used = true;
   stopAuto();
 }
-// Widget → Flex Card list. Android: the item's fill-in intent carries source=widget + the purse index.
-const openFlex = () => openApp("flex", flexTile, { source: "widget", focus: page });
+// Widget → Flex Card list. Android: the item's fill-in intent carries source=widget.
+const openFlex = () => openApp("flex", flexTile, { source: "widget" });
 function userGo(dir) {
   markUsed();
   go(dir);
