@@ -24,6 +24,8 @@ const NATIONS_PURSES = [
   { name: "Health Risk Assessment Rewards",   amount: "$25.00",  icon: "icon-list-checks.svg" },
 ];
 let careHubNoteSeen = false; // Android: a SharedPreferences flag, set by "Got it"
+// How the Flex card page tells widget users it lives in Care hub: "line" | "note" | "none"
+let orient = "line";
 
 const pageHeader = (title, body) => `
   <div class="ch-page-header"><h2 class="ch-h2">${title}</h2><p class="ch-body">${body}</p></div>`;
@@ -72,7 +74,9 @@ const DESTINATIONS = {
     core: true,
     html: ({ source } = {}) => `
       ${pageHeader("Flex card", "View your available balance for each benefit.")}
-      ${source === "widget" && !careHubNoteSeen ? `
+      ${source === "widget" && orient === "line" ? `
+      <p class="ch-orient"><img src="${C}nav-bookmark.svg" width="16" height="16" alt="" />You can always find this in Care hub</p>` : ""}
+      ${source === "widget" && orient === "note" && !careHubNoteSeen ? `
       <div class="ch-pad"><div class="app-note" id="careHubNote">
         <p class="app-note-title">Your balances always live in Care hub</p>
         <p class="app-note-text">Find them anytime in Care hub › Flex card. The widget is a shortcut to this page.</p>
@@ -194,6 +198,9 @@ function renderApp() {
 function openApp(key, fromEl, opts = {}) {
   if (!DESTINATIONS[key]) return;
   appStack = [{ key, opts }];
+  // Deep link from the widget: Care hub is underneath (Android: TaskStackBuilder with Care hub as
+  // the parent), so Back goes to Care hub and the Care hub tab is selected.
+  if (key === "flex" && opts.source === "widget") appStack.unshift({ key: "home", opts: {} });
   renderApp();
 
   launchRect = insetFor(fromEl);
@@ -243,39 +250,51 @@ appBody.addEventListener("click", (e) => {
 /* ---------- Flex Card purses ----------
    Content + icons from Figma 2663:16237 / 2664:16248 / 2664:16318.
    One purse per card — never summed (per the flexCard/purseCard note in Figma). */
-const N = FLEX_PURSES.length;
+let N = FLEX_PURSES.length;
 const DURATION = 450;
 
 // Each card is one collection item: label, icon AND hint (arrow / dots) are drawn inside it,
 // so they stay correct even when the launcher advances the widget on its own.
-flexTile.innerHTML = FLEX_PURSES.map((p, i) => `
+// Purse labels on the widget: "short" = the Figma widget frames (3 purses, 2-line labels),
+// "portal" = the Nations portal names from the Flex card page (4 purses, name clamped to 2 lines).
+const widgetPurses = (names) => names === "portal"
+  ? NATIONS_PURSES.map((p) => ({ name: p.name, amount: p.amount, icon: `assets/carehub/${p.icon}` }))
+  : FLEX_PURSES.map((p) => ({ ...p, icon: `assets/${p.icon}` }));
+let cards = [];
+let railCount = null;
+function buildCards(list) {
+  N = list.length;
+  flexTile.innerHTML = list.map((p, i) => `
   <div class="pcard${i === N - 1 ? " is-last" : ""}" data-i="${i}" aria-label="${i + 1} of ${N}">
     <div class="pcard-body">
       <div class="page-text">
-        <span class="tile-line">${p.line1}</span>
-        <span class="tile-line">${p.line2}</span>
+        ${p.name
+          ? `<span class="tile-name cue-target">${p.name}</span>`
+          : `<span class="tile-line">${p.line1}</span><span class="tile-line cue-target">${p.line2}</span>`}
         <span class="tile-line tile-line--strong">${p.amount}</span>
       </div>
       <div class="tile-side">
-        <span class="tile-icon"><img src="assets/${p.icon}" width="16" height="16" alt="" draggable="false" /></span>
+        <span class="tile-icon"><img src="${p.icon}" width="16" height="16" alt="" draggable="false" /></span>
         <span class="tile-hint">
           <button class="tile-next" data-next type="button" aria-label="Next purse">
-            <img src="assets/icon-arrow-down.svg" width="16" height="16" alt="" draggable="false" />
+            <img src="assets/icon-arrow-down-white.svg" width="20" height="20" alt="" draggable="false" />
           </button>
-          <span class="pager-dots" data-next aria-hidden="true">${FLEX_PURSES.map((_, k) => `<i${k === i ? ' class="on"' : ""}></i>`).join("")}</span>
+          <span class="pager-dots" data-next aria-hidden="true">${list.map((_, k) => `<i${k === i ? ' class="on"' : ""}></i>`).join("")}</span>
         </span>
       </div>
       <button class="tile-chip" data-next type="button" aria-label="Next balance, ${i + 1} of ${N}">
-        <span>${i + 1}/${N}</span><img src="assets/icon-caret-down-brand.svg" width="12" height="12" alt="" draggable="false" />
+        <span>${i + 1}/${N}</span>
       </button>
     </div>
   </div>`).join("") + `
   <button class="flex-rail" data-next type="button" aria-label="Next balance">
-    <img src="assets/icon-caret-down-brand.svg" width="16" height="16" alt="" draggable="false" />
+    <img src="assets/icon-arrow-down-brand.svg" width="20" height="20" alt="" draggable="false" />
     <span class="rail-count" id="railCount">1/${N}</span>
   </button>`;
-const cards = [...flexTile.querySelectorAll(".pcard")];
-const railCount = document.getElementById("railCount");
+  cards = [...flexTile.querySelectorAll(".pcard")];
+  railCount = document.getElementById("railCount");
+}
+buildCards(widgetPurses("short"));
 
 let page = 0;
 let step = 0; // prism: unbounded turn count, so 3 → 1 keeps turning forward instead of rewinding
@@ -483,7 +502,7 @@ let autoTimer = null;
 function stopAuto() { clearInterval(autoTimer); autoTimer = null; }
 function startAuto() {
   stopAuto();
-  if (!phone.hasAttribute("data-auto") || used) return;
+  if (!phone.hasAttribute("data-auto") || used || phone.dataset.answer !== "pager") return;
   const ms = flexTile.dataset.mode === "stack" ? 8000 : 5000;
   autoTimer = setInterval(() => {
     if (phone.classList.contains("app-open") || phone.classList.contains("sheet-open") || drag) return;
@@ -525,14 +544,6 @@ function setMode(mode) {
   const railOn = mode === "flipper" && !isPrism() && flexTile.dataset.ctl === "rail";
   autoInput.disabled = railOn;
   if (railOn) autoInput.checked = false;
-  // Side rail already splits the tile into "next" (rail) and "open" (everything else),
-  // so the › cue after the name would just be a second chevron. Hide it with the rail.
-  const cueInput = hintInputs.find((i) => i.dataset.hint === "cue");
-  cueInput.disabled = railOn;
-  if (railOn) cueInput.checked = false;
-  else if (cueInput.dataset.wasRail) cueInput.checked = true; // restore when leaving the rail
-  cueInput.dataset.wasRail = railOn ? "1" : "";
-  document.getElementById("cueNote").textContent = railOn ? "· not needed with the side rail" : "";
   autoNote.textContent = railOn ? "· off with the side rail" : mode === "stack" ? "· launcher timing" : "· every 5s";
   applyHints();
   // The flipper always shows its dots (they replace the icon + arrow column), so the toggle only applies to StackView.
@@ -560,11 +571,58 @@ function setCtl(value) {
 ctlInputs.forEach((r) => r.addEventListener("change", () => setCtl(r.value)));
 function setFlip(value) { flipInputs.forEach((r) => (r.checked = r.value === value)); }
 hintInputs.forEach((inp) => inp.addEventListener("change", applyHints));
-document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCtl("rail"); setHints([]); });
+document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCtl("rail"); setHints(["cue"]); });
 document.getElementById("hintFigma").addEventListener("click", () => { setFlip("slide"); setCtl("dots"); setHints([]); });
+
+/* DES-88 question 1: "No" swaps the purse pager for a plain link tile; "Yes" keeps it. */
+const answerInputs = [...document.querySelectorAll('input[name="answer"]')];
+const nameInputs = [...document.querySelectorAll('input[name="names"]')];
+const notes = document.querySelector(".notes");
+function setAnswer(value) {
+  answerInputs.forEach((r) => (r.checked = r.value === value));
+  phone.dataset.answer = value;
+  notes.dataset.answer = value;
+  if (value === "pager") startAuto(); else stopAuto();
+}
+answerInputs.forEach((r) => r.addEventListener("change", () => setAnswer(r.value)));
+// Touching any "Yes" option switches back to Yes
+document.querySelectorAll("#modeControls, #hintControls, #namesControls").forEach((f) =>
+  f.addEventListener("change", () => { if (phone.dataset.answer !== "pager") setAnswer("pager"); }));
+document.querySelectorAll("#hintRecommended, #hintFigma").forEach((b) => b.addEventListener("click", () => setAnswer("pager")));
+// "No" tile copy
+const linkCopyInputs = [...document.querySelectorAll('input[name="linkcopy"]')];
+const setLinkCopy = (v) => { phone.dataset.linkcopy = v; if (phone.dataset.answer === "pager") setAnswer("no"); };
+linkCopyInputs.forEach((r) => r.addEventListener("change", () => setLinkCopy(r.value)));
+phone.dataset.linkcopy = linkCopyInputs.find((r) => r.checked).value;
+
+/* ---------- "Yes": separate Flex Card widget ----------
+   Android: ListView rows from a RemoteViewsService, one per purse (full Nations name + balance). */
+const fcList = document.getElementById("fcList");
+fcList.innerHTML = NATIONS_PURSES.map((p, i) => `
+  <li><button class="fc-row" type="button" data-purse="${i}">
+    <span class="fc-name">${p.name}</span>
+    <span class="fc-amount">${p.amount}</span>
+  </button></li>`).join("");
+fcList.addEventListener("click", (e) => {
+  const row = e.target.closest(".fc-row");
+  if (row) openApp("flex", row, { source: "widget" });
+});
+const fcSeeAll = document.getElementById("fcSeeAll");
+fcSeeAll.addEventListener("click", () => openApp("flex", fcSeeAll.closest(".fc-widget"), { source: "widget" }));
+nameInputs.forEach((r) => r.addEventListener("change", () => {
+  page = 0;
+  step = 0;
+  buildCards(widgetPurses(r.value));
+  setMode(flexTile.dataset.mode);
+}));
+const flexLinkTile = document.getElementById("flexLinkTile");
+flexLinkTile.addEventListener("click", () => openApp("flex", flexLinkTile, { source: "widget" }));
+
+document.querySelectorAll('input[name="orient"]').forEach((r) => r.addEventListener("change", () => (orient = r.value)));
 
 setMode("flipper");
 applyHints();
+setAnswer("yes");
 
 /* ---------- Member Services: call sheet ---------- */
 const openSheet = () => phone.classList.add("sheet-open");

@@ -742,7 +742,7 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 @keyframes hint-pulse-soft { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.12); } }
 
 /* "Opens" cue: › after the purse name, like a list row */
-.phone[data-cue] .pcard .tile-line:nth-child(2)::after {
+.phone[data-cue] .pcard .cue-target::after {
   content: "";
   display: inline-block;
   width: 14px; height: 14px;
@@ -888,3 +888,112 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 /* Widget → Flex card: one-time "lives in Care hub" note */
 .app-screen--core .app-note { background: #fff; border-color: rgba(71, 84, 235, 0.3); }
 .app-screen--core .app-body > * { flex-shrink: 0; }
+
+/* ---------- DES-88 answer: "no" / "yes" = link tile, "pager" = purse pager ---------- */
+#flexLinkTile { display: none; }
+.phone:not([data-answer="pager"]) #flexTile { display: none; }
+.phone:not([data-answer="pager"]) #flexLinkTile { display: flex; }
+/* Undo the StackView "Call hugs its content" layout when the pager isn't shown */
+.phone:not([data-answer="pager"]) .tile-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.phone:not([data-answer="pager"]) .tile-row #callTile { flex: 1; }
+.phone:not([data-answer="pager"]) .tile-row #callTile .tile-text { flex: 1; width: auto; }
+.phone:not([data-answer="pager"]) .tile-row #callTile .tile-face { position: absolute; height: auto; }
+.phone:not([data-answer="pager"]) .tile-row #callTile .tile-icon { margin-left: 0; }
+.notes:not([data-answer="pager"]) .pager-only { opacity: 0.45; transition: opacity 0.2s; }
+.notes:not([data-answer="pager"]) .pager-only:hover { opacity: 0.8; }
+
+/* Link tile copy variants */
+#flexLinkTile .link-copy--count { display: none; }
+.phone[data-linkcopy="count"] #flexLinkTile .link-copy--ticket { display: none; }
+.phone[data-linkcopy="count"] #flexLinkTile .link-copy--count { display: flex; }
+.tile-caption { display: block; margin-top: 2px; font-size: 12px; line-height: 16px; font-weight: 500; color: #696d9b; white-space: nowrap; }
+
+/* "Yes": separate Flex Card widget under the Thrive widget */
+.fc-frame { display: none; padding-top: 0; }
+.phone[data-answer="yes"] .fc-frame { display: flex; }
+.fc-widget { align-items: stretch; padding: 16px 16px 12px; }
+.fc-head { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 10px; }
+.fc-title { display: flex; align-items: center; gap: 8px; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); }
+.fc-list {
+  list-style: none; margin: 0; padding: 0 12px;
+  max-height: 260px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+  border-radius: 16px; border: 1px solid var(--stroke-inversestrong); background: var(--fill-inversemidweak);
+  box-shadow: 0 4px 8px rgba(71, 84, 235, 0.08);
+}
+.fc-list::-webkit-scrollbar { display: none; }
+.fc-list li + li { border-top: 1px solid rgba(13, 17, 64, 0.1); }
+.fc-row {
+  width: 100%; display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; text-align: left;
+}
+.fc-row:active { opacity: 0.7; }
+.fc-name { flex: 1; min-width: 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text-weak); }
+.fc-amount { flex: none; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+.fc-foot { padding: 8px 4px 0; font-size: 12px; line-height: 16px; font-weight: 500; color: #696d9b; }
+.phone.app-open .fc-widget { transform: scale(0.94); opacity: 0; }
+
+/* Nations portal names: one name clamped to 2 lines, amount underneath */
+.page-text:has(.tile-name) { justify-content: space-between; }
+.tile-name {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+  font-size: 14px; line-height: 18px; font-weight: 600; color: var(--text-weak);
+}
+
+/* Flex card page, from the widget: quiet "lives in Care hub" line */
+.ch-orient {
+  display: flex; align-items: center; gap: 6px;
+  margin: 4px 16px 0;
+  font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);
+}
+.ch-orient img { flex: none; }
+
+/* ---------- Next controls on Design Library components (Figma "Design Library") ----------
+   Tokens: text/brand #4754eb, text/weak #565a86, stroke/weak rgba(13,17,64,.1),
+   stroke/disabled #d0d3e1, state overlays hover rgba(12,15,65,.05) / press rgba(13,17,64,.1),
+   on-brand overlays hover rgba(255,255,255,.1) / press rgba(255,255,255,.2). */
+
+/* Arrow button = buttonIcon · Primary · Brand · Small · Circle (32px, 20px icon) */
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-side { gap: 4px; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-hint { width: 32px; height: 32px; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next { border-radius: 100px; background: #4754eb; overflow: hidden; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next img { filter: none; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; background: transparent; transition: background-color 0.15s;
+}
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:hover { background: #4754eb; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:hover::after { background: rgba(255, 255, 255, 0.1); }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:active::after { background: rgba(255, 255, 255, 0.2); }
+
+/* Counter chip = chip · default · unselected, label only (leftIcon/rightIcon off) */
+.widget .tile-chip {
+  right: 0; bottom: -4px;
+  height: 28px; padding: 0 12px; gap: 0;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid rgba(13, 17, 64, 0.1);
+  box-shadow: none;
+  color: #4754eb;
+  font-size: 14px; line-height: 20px; font-weight: 600;
+  overflow: hidden;
+}
+.tile-chip::after { content: ""; position: absolute; inset: 0; background: transparent; transition: background-color 0.15s; }
+.tile-chip:hover { background: #fff; }
+.tile-chip:hover::after { background: rgba(12, 15, 65, 0.05); }
+.tile-chip:active { transform: none; background: #fff; }
+.tile-chip:active::after { background: rgba(13, 17, 64, 0.1); }
+
+/* Side rail = a full-height buttonIcon · Tertiary · Brand: no fill, stroke/weak divider,
+   20px brand icon, count in Tiny/Bold (14/20 Semibold, text/weak) */
+.widget .flex-rail {
+  width: 36px; gap: 4px;
+  background: transparent;
+  border-left: 1px solid rgba(13, 17, 64, 0.1);
+}
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="rail"] .pcard { right: 36px; }
+.flex-rail:hover { background: rgba(12, 15, 65, 0.05); }
+.flex-rail:active { background: rgba(13, 17, 64, 0.1); }
+.rail-count { font-size: 14px; line-height: 20px; font-weight: 600; color: #565a86; }
+
+/* Page dots: no Design Library component, so built from tokens (stroke/disabled + text/brand) */
+.pager-dots i { background: #d0d3e1; }
+.pager-dots i.on { background: #4754eb; }
