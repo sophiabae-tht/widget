@@ -11,9 +11,10 @@ const toastEl = document.getElementById("toast");
 // Destinations the widget deep-links into. html can be a function of how the page was opened.
 // Flex Card purses (Figma 2663:16237 / 2664:16248 / 2664:16318). One purse per row, never summed.
 const FLEX_PURSES = [
-  { line1: "Flex Card", line2: "balance",  amount: "$515.05", icon: "icon-currency-circle-dollar.svg" },
+  // stepLabel: the stepper tile already says "Flex Card Balance" on its overview, so don't repeat it
+  { line1: "Flex Card", line2: "balance",  amount: "$515.05", icon: "icon-currency-circle-dollar.svg", stepLabel: "Total balance" },
   { line1: "Health",    line2: "rewards",  amount: "$375.00", icon: "icon-gift.svg" },
-  { line1: "Prepaid",   line2: "benefits", amount: "$143.00", icon: "icon-cardholder.svg" },
+  { line1: "Prepaid",   line2: "benefits", amount: "$143.00", icon: "icon-currency-dollar.svg" }, // Design Library CurrencyDollar 16px
 ];
 // Purses as named on the Nations portal (Core App Experience, Figma 6287:23451)
 const C = "assets/carehub/";
@@ -262,7 +263,37 @@ const widgetPurses = (names) => names === "portal"
   : FLEX_PURSES.map((p) => ({ ...p, icon: `assets/${p.icon}` }));
 let cards = [];
 let railCount = null;
-function buildCards(list) {
+// Stepper tile (Figma 2691:18061): an overview card ("Flex Card / Balance / 4 balances"), then
+// one card per purse. A static ⌃/⌄ stepper sits outside the flipper.
+const stepperCard = (p, i) => `
+  <div class="pcard" data-i="${i}" aria-label="${p.overview ? "Overview" : `${i} of ${N - 1}`}">
+    <div class="pcard-body stp">
+      <div class="stp-top">
+        <span class="stp-label">${p.overview ? "Flex Card<br>Balance" : (p.name || p.stepLabel || `${p.line1} ${p.line2}`)}</span>
+        <span class="tile-icon"><img src="${p.overview ? "assets/icon-cardholder.svg" : p.icon}" width="16" height="16" alt="" draggable="false" /></span>
+      </div>
+      <span class="tile-line tile-line--strong stp-value">${p.overview ? `${p.count} balances` : p.amount}</span>
+    </div>
+  </div>`;
+function buildCards(list, { stepper = false } = {}) {
+  if (stepper) {
+    const items = [{ overview: true, count: list.length }, ...list];
+    N = items.length;
+    // Icon sits outside the flipper too, so it stays put and cross-fades to each purse's icon.
+    // Android: a second ViewFlipper of icons with fade in/out animators, sent the same
+    // showNext()/showPrevious() in the same partiallyUpdateAppWidget() call.
+    flexTile.innerHTML = items.map(stepperCard).join("") + `
+  <span class="tile-icon stp-icon" aria-hidden="true">${items.map((p, i) =>
+    `<img src="${p.overview ? "assets/icon-cardholder.svg" : p.icon}" width="16" height="16" alt="" draggable="false" data-i="${i}" />`).join("")}</span>
+  <span class="flex-stepper">
+    <button class="stp-btn" data-prev type="button" aria-label="Previous balance"><img src="assets/icon-caret-up-16.svg" width="16" height="16" alt="" draggable="false" /></button>
+    <button class="stp-btn" data-next type="button" aria-label="Next balance"><img src="assets/icon-caret-down-16.svg" width="16" height="16" alt="" draggable="false" /></button>
+  </span>
+  <span hidden id="railCount"></span>`;
+    cards = [...flexTile.querySelectorAll(".pcard")];
+    railCount = document.getElementById("railCount");
+    return;
+  }
   N = list.length;
   flexTile.innerHTML = list.map((p, i) => `
   <div class="pcard${i === N - 1 ? " is-last" : ""}" data-i="${i}" aria-label="${i + 1} of ${N}">
@@ -275,6 +306,7 @@ function buildCards(list) {
       </div>
       <div class="tile-side">
         <span class="tile-icon"><img src="${p.icon}" width="16" height="16" alt="" draggable="false" /></span>
+        <span class="tile-count">${i + 1} of ${N}</span>
         <span class="tile-hint">
           <button class="tile-next" data-next type="button" aria-label="Next purse">
             <img src="assets/icon-arrow-down-white.svg" width="20" height="20" alt="" draggable="false" />
@@ -307,6 +339,7 @@ function layout() {
   cards.forEach((c, i) => (c.dataset.depth = mod(i - page)));
   // Side rail sits outside the flipper, so its counter is updated separately (setTextViewText).
   railCount.textContent = `${page + 1}/${N}`;
+  flexTile.querySelectorAll(".stp-icon img").forEach((img) => img.classList.toggle("on", +img.dataset.i === page));
   flexTile.classList.toggle("on-last", page === N - 1);
 }
 function withoutAnim(els, fn) {
@@ -396,6 +429,7 @@ function userGo(dir) {
 
 // Hint taps (arrow or dots) → next purse. On Android: setOnClickFillInIntent → showNext().
 flexTile.addEventListener("click", (e) => {
+  if (e.target.closest("[data-prev]")) { e.stopPropagation(); return userGo(-1); }
   const hint = e.target.closest("[data-next]");
   if (!hint) return;
   e.stopPropagation();
@@ -406,6 +440,8 @@ flexTile.addEventListener("click", (e) => {
 });
 
 const CTL_TIP = {
+  stepper: "Widgets can't swipe. Use the up and down arrows",
+  caption: "Widgets can't swipe. Balances change every 5 seconds",
   dots: "Tap the dots for the next balance",
   button: "Tap the arrow button for the next balance",
   chip: "Tap 1/3 for the next balance",
@@ -426,7 +462,7 @@ function prismZone(e) {
 const PRESS = ["press-top", "press-bottom", "press-icon"];
 
 flexTile.addEventListener("pointerdown", (e) => {
-  if (e.target.closest("[data-next]") || busy) return;
+  if (e.target.closest("[data-next], [data-prev]") || busy) return;
   drag = { y: e.clientY, dy: 0, id: e.pointerId, zone: isPrism() ? prismZone(e) : null };
   if (drag.zone) flexTile.classList.add(`press-${drag.zone}`);
   try { flexTile.setPointerCapture(e.pointerId); } catch {}
@@ -522,6 +558,14 @@ const ctlNote = document.getElementById("ctlNote");
 
 function setMode(mode) {
   modeInputs.forEach((r) => (r.checked = r.value === mode));
+  const stepperOn = mode === "flipper" && flipInputs.find((r) => r.checked).value !== "prism"
+    && ctlInputs.find((r) => r.checked).value === "stepper";
+  if (stepperOn !== (flexTile.dataset.stepper === "1")) {
+    flexTile.dataset.stepper = stepperOn ? "1" : "";
+    page = 0;
+    step = 0;
+    buildCards(widgetPurses(document.querySelector('input[name="names"]:checked').value), { stepper: stepperOn });
+  }
   withoutAnim(cards, () => {
     cards.forEach((c) => { c.classList.remove("exit-up", "enter-top"); c.style.cssText = ""; });
     flexTile.dataset.mode = mode;
@@ -542,9 +586,14 @@ function setMode(mode) {
   // Side rail: its counter sits outside the flipper and can't follow auto-flips, so no auto-advance.
   const autoInput = hintInputs.find((i) => i.dataset.hint === "auto");
   const railOn = mode === "flipper" && !isPrism() && flexTile.dataset.ctl === "rail";
-  autoInput.disabled = railOn;
-  if (railOn) autoInput.checked = false;
-  autoNote.textContent = railOn ? "· off with the side rail" : mode === "stack" ? "· launcher timing" : "· every 5s";
+  // Caption: no next control, so the flipper always auto-advances
+  const captionOn = mode === "flipper" && !isPrism() && flexTile.dataset.ctl === "caption";
+  const stepOn = flexTile.dataset.stepper === "1";
+  autoInput.disabled = railOn || captionOn || stepOn;
+  if (railOn || stepOn) autoInput.checked = false;
+  if (captionOn) autoInput.checked = true;
+  autoNote.textContent = railOn ? "· off with the side rail" : stepOn ? "· off with the stepper" : captionOn ? "· always on (no next control)"
+    : mode === "stack" ? "· launcher timing" : "· every 5s";
   applyHints();
   // The flipper always shows its dots (they replace the icon + arrow column), so the toggle only applies to StackView.
   const dotsInput = hintInputs.find((i) => i.dataset.hint === "dots");
@@ -571,7 +620,7 @@ function setCtl(value) {
 ctlInputs.forEach((r) => r.addEventListener("change", () => setCtl(r.value)));
 function setFlip(value) { flipInputs.forEach((r) => (r.checked = r.value === value)); }
 hintInputs.forEach((inp) => inp.addEventListener("change", applyHints));
-document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCtl("rail"); setHints(["cue"]); });
+document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCtl("stepper"); setHints([]); });
 document.getElementById("hintFigma").addEventListener("click", () => { setFlip("slide"); setCtl("dots"); setHints([]); });
 
 /* DES-88 question 1: "No" swaps the purse pager for a plain link tile; "Yes" keeps it. */
@@ -589,11 +638,6 @@ answerInputs.forEach((r) => r.addEventListener("change", () => setAnswer(r.value
 document.querySelectorAll("#modeControls, #hintControls, #namesControls").forEach((f) =>
   f.addEventListener("change", () => { if (phone.dataset.answer !== "pager") setAnswer("pager"); }));
 document.querySelectorAll("#hintRecommended, #hintFigma").forEach((b) => b.addEventListener("click", () => setAnswer("pager")));
-// "No" tile copy
-const linkCopyInputs = [...document.querySelectorAll('input[name="linkcopy"]')];
-const setLinkCopy = (v) => { phone.dataset.linkcopy = v; if (phone.dataset.answer === "pager") setAnswer("no"); };
-linkCopyInputs.forEach((r) => r.addEventListener("change", () => setLinkCopy(r.value)));
-phone.dataset.linkcopy = linkCopyInputs.find((r) => r.checked).value;
 
 /* ---------- "Yes": separate Flex Card widget ----------
    Android: ListView rows from a RemoteViewsService, one per purse (full Nations name + balance). */
@@ -612,7 +656,7 @@ fcSeeAll.addEventListener("click", () => openApp("flex", fcSeeAll.closest(".fc-w
 nameInputs.forEach((r) => r.addEventListener("change", () => {
   page = 0;
   step = 0;
-  buildCards(widgetPurses(r.value));
+  buildCards(widgetPurses(r.value), { stepper: flexTile.dataset.stepper === "1" });
   setMode(flexTile.dataset.mode);
 }));
 const flexLinkTile = document.getElementById("flexLinkTile");
@@ -622,7 +666,7 @@ document.querySelectorAll('input[name="orient"]').forEach((r) => r.addEventListe
 
 setMode("flipper");
 applyHints();
-setAnswer("yes");
+setAnswer(answerInputs.find((r) => r.checked).value);
 
 /* ---------- Member Services: call sheet ---------- */
 const openSheet = () => phone.classList.add("sheet-open");

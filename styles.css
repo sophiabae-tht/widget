@@ -902,10 +902,10 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .notes:not([data-answer="pager"]) .pager-only { opacity: 0.45; transition: opacity 0.2s; }
 .notes:not([data-answer="pager"]) .pager-only:hover { opacity: 0.8; }
 
-/* Link tile copy variants */
-#flexLinkTile .link-copy--count { display: none; }
-.phone[data-linkcopy="count"] #flexLinkTile .link-copy--ticket { display: none; }
-.phone[data-linkcopy="count"] #flexLinkTile .link-copy--count { display: flex; }
+/* Link tile copy: "no" = count + freshness; "yes" (separate widget) = ticket copy */
+#flexLinkTile .link-copy--ticket { display: none; }
+.phone[data-answer="yes"] #flexLinkTile .link-copy--ticket { display: flex; }
+.phone[data-answer="yes"] #flexLinkTile .link-copy--count { display: none; }
 .tile-caption { display: block; margin-top: 2px; font-size: 12px; line-height: 16px; font-weight: 500; color: #696d9b; white-space: nowrap; }
 
 /* "Yes": separate Flex Card widget under the Thrive widget */
@@ -997,3 +997,50 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 /* Page dots: no Design Library component, so built from tokens (stroke/disabled + text/brand) */
 .pager-dots i { background: #d0d3e1; }
 .pager-dots i.on { background: #4754eb; }
+
+/* ---------- Paged tile · count under the purse icon (no next control) ---------- */
+.tile-count { display: none; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="caption"] .tile-side { gap: 6px; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="caption"] .tile-hint { display: none; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="caption"] .tile-count {
+  display: block; font-size: 12px; line-height: 16px; font-weight: 500; color: #696d9b;
+  white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Paged tile · stepper (Figma 2691:18061) ----------
+   12px padding (11 + 1px stroke) · top row: 2-line label + 28px icon · bottom row: value + 28×40 stepper. */
+.flex-stepper { display: none; }
+.tile--flex[data-stepper="1"] { height: 104px; }
+.tile--flex[data-stepper="1"] .pcard { flex-direction: column; }
+.stp { flex-direction: column; justify-content: space-between; }
+.stp-top { display: flex; align-items: flex-start; gap: 4px; }
+.stp-label {
+  flex: 1; min-width: 0;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+  font-size: 16px; line-height: 20px; font-weight: 600; color: var(--text-weak);
+}
+.stp-value { height: 40px; display: flex; align-items: center; padding-right: 36px; }
+.tile--flex[data-stepper="1"] .flex-stepper {
+  display: flex; flex-direction: column;
+  position: absolute; z-index: 5; right: 11px; bottom: 11px;
+  width: 28px; border-radius: 16px; background: #dadcf8; overflow: hidden;
+}
+.stp-btn { display: flex; align-items: center; justify-content: center; height: 20px; padding: 0 6px; transition: background-color 0.15s; }
+.stp-btn:first-child { padding-top: 4px; height: 20px; }
+.stp-btn:last-child { padding-bottom: 4px; height: 20px; }
+.stp-btn:hover { background: rgba(12, 15, 65, 0.05); }
+.stp-btn:active { background: rgba(13, 17, 64, 0.1); }
+.stp-btn img { display: block; }
+/* Pressing the stepper shouldn't tint the whole card */
+.tile--flex[data-stepper="1"]:has(.stp-btn:active):active { background: var(--fill-brandveryweak); }
+
+/* Stepper: the corner icon stays in place and morphs (cross-fade + scale) between purse icons */
+.tile--flex[data-stepper="1"] .pcard .tile-icon { visibility: hidden; }
+.stp-icon { display: none; }
+.tile--flex[data-stepper="1"] .stp-icon { display: block; position: absolute; z-index: 5; top: 11px; right: 11px; }
+.stp-icon img {
+  position: absolute; left: 6px; top: 6px;
+  opacity: 0; transform: scale(0.6) rotate(-20deg);
+  transition: opacity 0.22s var(--ease-standard), transform 0.32s var(--ease-emphasized);
+}
+.stp-icon img.on { opacity: 1; transform: none; transition-delay: 0.08s; }
