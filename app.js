@@ -14,7 +14,7 @@ const FLEX_PURSES = [
   // stepLabel: the stepper tile already says "Flex Card Balance" on its overview, so don't repeat it
   { line1: "Flex Card", line2: "balance",  amount: "$515.05", icon: "icon-currency-circle-dollar.svg", stepLabel: "Total balance" },
   { line1: "Health",    line2: "rewards",  amount: "$375.00", icon: "icon-gift.svg" },
-  { line1: "Prepaid",   line2: "benefits", amount: "$143.00", icon: "icon-currency-dollar.svg" }, // Design Library CurrencyDollar 16px
+  { line1: "Prepaid",   line2: "benefits", amount: "$143.05", icon: "icon-currency-dollar.svg" }, // Design Library CurrencyDollar 16px
 ];
 // Purses as named on the Nations portal (Core App Experience, Figma 6287:23451)
 const C = "assets/carehub/";
