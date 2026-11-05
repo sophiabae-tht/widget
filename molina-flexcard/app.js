@@ -9,20 +9,16 @@ const callTile = document.getElementById("callTile");
 const toastEl = document.getElementById("toast");
 
 // Destinations the widget deep-links into. html can be a function of how the page was opened.
-// Flex Card purses (Figma 2663:16237 / 2664:16248 / 2664:16318). One purse per row, never summed.
-const FLEX_PURSES = [
-  // stepLabel: the stepper tile already says "Flex Card Balance" on its overview, so don't repeat it
-  { line1: "Flex Card", line2: "balance",  amount: "$515.05", icon: "icon-currency-circle-dollar.svg", stepLabel: "Total balance" },
-  { line1: "Health",    line2: "rewards",  amount: "$375.00", icon: "icon-gift.svg" },
-  { line1: "Prepaid",   line2: "benefits", amount: "$143.05", icon: "icon-currency-dollar.svg" }, // Design Library CurrencyDollar 16px
-];
-// Purses as named on the Nations portal (Core App Experience, Figma 6287:23451)
+// Purses as named on the Nations portal (Core App Experience, Figma 6287:23451). Never summed, and
+// no total or "N balances" summary on the widget (Molina, DES-88 thread 11/5). Members have up to 4.
+// short: the portal name, trimmed only where it doesn't fit the widget tile's 2-line label
+// (16px semibold, 116px wide with the open cue beside line 1). Same words and casing as the portal.
 const C = "assets/carehub/";
 const NATIONS_PURSES = [
-  { name: "2026 Health Screening Rewards",    amount: "$375.00", icon: "icon-heartbeat.svg" },
-  { name: "Over the Counter, Food & Produce", amount: "$143.00", icon: "icon-fork-knife.svg" },
-  { name: "Post Discharge Incentives",        amount: "$50.00",  icon: "icon-hospital.svg" },
-  { name: "Health Risk Assessment Rewards",   amount: "$25.00",  icon: "icon-list-checks.svg" },
+  { name: "2026 Health Screening Rewards",    short: ["Health", "Screening"],      amount: "$375.00", icon: "icon-heartbeat.svg" },
+  { name: "Over the Counter, Food & Produce", short: ["OTC, Food", "& Produce"],    amount: "$143.00", icon: "icon-fork-knife.svg" },
+  { name: "Post Discharge Incentives",        short: ["Post", "Discharge"],         amount: "$50.00",  icon: "icon-hospital.svg" },
+  { name: "Health Risk Assessment Rewards",   short: ["Health Risk", "Assessment"], amount: "$25.00",  icon: "icon-list-checks.svg" },
 ];
 let careHubNoteSeen = false; // Android: a SharedPreferences flag, set by "Got it"
 // How the Flex card page tells widget users it lives in Care hub: "line" | "note" | "none"
@@ -251,7 +247,7 @@ appBody.addEventListener("click", (e) => {
 /* ---------- Flex Card purses ----------
    Content + icons from Figma 2663:16237 / 2664:16248 / 2664:16318.
    One purse per card — never summed (per the flexCard/purseCard note in Figma). */
-let N = FLEX_PURSES.length;
+let N = NATIONS_PURSES.length;
 const DURATION = 450;
 
 // Each card is one collection item: label, icon AND hint (arrow / dots) are drawn inside it,
@@ -259,32 +255,35 @@ const DURATION = 450;
 // Purse labels on the widget: "short" = the Figma widget frames (3 purses, 2-line labels),
 // "portal" = the Nations portal names from the Flex card page (4 purses, name clamped to 2 lines).
 const widgetPurses = (names) => names === "portal"
-  ? NATIONS_PURSES.map((p) => ({ name: p.name, amount: p.amount, icon: `assets/carehub/${p.icon}` }))
-  : FLEX_PURSES.map((p) => ({ ...p, icon: `assets/${p.icon}` }));
+  ? NATIONS_PURSES.map((p) => ({ name: p.name, amount: p.amount, icon: `${C}${p.icon}` }))
+  : NATIONS_PURSES.map((p) => ({ line1: p.short[0], line2: p.short[1], amount: p.amount, icon: `${C}${p.icon}` }));
+// How the stepper tile signals "tap to open the full list": "icon" (link-out) | "text" ("See all")
+const openInputs = [...document.querySelectorAll('input[name="open"]')];
+const setCue = (v) => { openInputs.forEach((r) => (r.checked = r.value === v)); flexTile.dataset.cue = v; };
+openInputs.forEach((r) => r.addEventListener("change", () => { setCue(r.value); setCtl("stepper"); }));
+setCue(openInputs.find((r) => r.checked).value);
 let cards = [];
 let railCount = null;
-// Stepper tile (Figma 2691:18061): an overview card ("Flex Card / Balance / 4 balances"), then
-// one card per purse. A static ⌃/⌄ stepper sits outside the flipper.
+// Stepper tile (Figma 2691:18061): one card per purse, starting on the first purse (no overview,
+// no count). A static ⌃/⌄ stepper and a static "open" cue (link-out icon or "See all") sit outside
+// the flipper, so the only thing that changes is the purse name and amount.
 const stepperCard = (p, i) => `
-  <div class="pcard" data-i="${i}" aria-label="${p.overview ? "Overview" : `${i} of ${N - 1}`}">
+  <div class="pcard" data-i="${i}" aria-label="${i + 1} of ${N}">
     <div class="pcard-body stp">
       <div class="stp-top">
-        <span class="stp-label">${p.overview ? "Flex Card<br>Balance" : (p.name || p.stepLabel || `${p.line1} ${p.line2}`)}</span>
-        <span class="tile-icon"><img src="${p.overview ? "assets/icon-cardholder.svg" : p.icon}" width="16" height="16" alt="" draggable="false" /></span>
+        <span class="stp-label"><i class="stp-clear" aria-hidden="true"></i>${p.name || `${p.line1}<br>${p.line2}`}</span>
       </div>
-      <span class="tile-line tile-line--strong stp-value">${p.overview ? `${p.count} balances` : p.amount}</span>
+      <span class="tile-line tile-line--strong stp-value">${p.amount}</span>
     </div>
   </div>`;
 function buildCards(list, { stepper = false } = {}) {
   if (stepper) {
-    const items = [{ overview: true, count: list.length }, ...list];
-    N = items.length;
-    // Icon sits outside the flipper too, so it stays put and cross-fades to each purse's icon.
-    // Android: a second ViewFlipper of icons with fade in/out animators, sent the same
-    // showNext()/showPrevious() in the same partiallyUpdateAppWidget() call.
-    flexTile.innerHTML = items.map(stepperCard).join("") + `
-  <span class="tile-icon stp-icon" aria-hidden="true">${items.map((p, i) =>
-    `<img src="${p.overview ? "assets/icon-cardholder.svg" : p.icon}" width="16" height="16" alt="" draggable="false" data-i="${i}" />`).join("")}</span>
+    N = list.length;
+    // Open cue: static, outside the flipper. Android: an ImageView / TextView with the same
+    // setOnClickPendingIntent as the card (→ Care hub › Flex card).
+    flexTile.innerHTML = list.map(stepperCard).join("") + `
+  <span class="stp-open stp-open--icon tile-icon" aria-hidden="true"><img src="assets/icon-arrow-square-out-16.svg" width="16" height="16" alt="" draggable="false" /></span>
+  <span class="stp-open stp-open--text" aria-hidden="true">See all</span>
   <span class="flex-stepper">
     <button class="stp-btn" data-prev type="button" aria-label="Previous balance"><img src="assets/icon-caret-up-16.svg" width="16" height="16" alt="" draggable="false" /></button>
     <button class="stp-btn" data-next type="button" aria-label="Next balance"><img src="assets/icon-caret-down-16.svg" width="16" height="16" alt="" draggable="false" /></button>
@@ -339,7 +338,6 @@ function layout() {
   cards.forEach((c, i) => (c.dataset.depth = mod(i - page)));
   // Side rail sits outside the flipper, so its counter is updated separately (setTextViewText).
   railCount.textContent = `${page + 1}/${N}`;
-  flexTile.querySelectorAll(".stp-icon img").forEach((img) => img.classList.toggle("on", +img.dataset.i === page));
   flexTile.classList.toggle("on-last", page === N - 1);
 }
 function withoutAnim(els, fn) {
@@ -444,7 +442,7 @@ const CTL_TIP = {
   caption: "Widgets can't swipe. Balances change every 5 seconds",
   dots: "Tap the dots for the next balance",
   button: "Tap the arrow button for the next balance",
-  chip: "Tap 1/3 for the next balance",
+  chip: "Tap 1/4 for the next balance",
   rail: "Tap the strip on the right for the next balance",
 };
 
@@ -620,39 +618,32 @@ function setCtl(value) {
 ctlInputs.forEach((r) => r.addEventListener("change", () => setCtl(r.value)));
 function setFlip(value) { flipInputs.forEach((r) => (r.checked = r.value === value)); }
 hintInputs.forEach((inp) => inp.addEventListener("change", applyHints));
-document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCtl("stepper"); setHints([]); });
+document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCue("icon"); setCtl("stepper"); setHints([]); });
 document.getElementById("hintFigma").addEventListener("click", () => { setFlip("slide"); setCtl("dots"); setHints([]); });
 
-/* DES-88 question 1: "No" swaps the purse pager for a plain link tile; "Yes" keeps it. */
+/* Widget 1 = flippable purse tile ("pager"). Widget 2 = static, tap-only link tile ("no"). */
 const answerInputs = [...document.querySelectorAll('input[name="answer"]')];
+const widgetInputs = [...document.querySelectorAll('input[name="widget"]')];
 const nameInputs = [...document.querySelectorAll('input[name="names"]')];
 const notes = document.querySelector(".notes");
+let w2Version = answerInputs.find((r) => r.checked)?.value || "no";
 function setAnswer(value) {
-  answerInputs.forEach((r) => (r.checked = r.value === value));
+  if (value !== "pager") {
+    w2Version = value;
+    answerInputs.forEach((r) => (r.checked = r.value === value));
+  }
+  widgetInputs.forEach((r) => (r.checked = r.value === (value === "pager" ? "1" : "2")));
   phone.dataset.answer = value;
   notes.dataset.answer = value;
   if (value === "pager") startAuto(); else stopAuto();
 }
 answerInputs.forEach((r) => r.addEventListener("change", () => setAnswer(r.value)));
-// Touching any "Yes" option switches back to Yes
+widgetInputs.forEach((r) => r.addEventListener("change", () => setAnswer(r.value === "1" ? "pager" : w2Version)));
+// Touching any Widget 1 option switches to Widget 1
 document.querySelectorAll("#modeControls, #hintControls, #namesControls").forEach((f) =>
   f.addEventListener("change", () => { if (phone.dataset.answer !== "pager") setAnswer("pager"); }));
 document.querySelectorAll("#hintRecommended, #hintFigma").forEach((b) => b.addEventListener("click", () => setAnswer("pager")));
 
-/* ---------- "Yes": separate Flex Card widget ----------
-   Android: ListView rows from a RemoteViewsService, one per purse (full Nations name + balance). */
-const fcList = document.getElementById("fcList");
-fcList.innerHTML = NATIONS_PURSES.map((p, i) => `
-  <li><button class="fc-row" type="button" data-purse="${i}">
-    <span class="fc-name">${p.name}</span>
-    <span class="fc-amount">${p.amount}</span>
-  </button></li>`).join("");
-fcList.addEventListener("click", (e) => {
-  const row = e.target.closest(".fc-row");
-  if (row) openApp("flex", row, { source: "widget" });
-});
-const fcSeeAll = document.getElementById("fcSeeAll");
-fcSeeAll.addEventListener("click", () => openApp("flex", fcSeeAll.closest(".fc-widget"), { source: "widget" }));
 nameInputs.forEach((r) => r.addEventListener("change", () => {
   page = 0;
   step = 0;
@@ -666,7 +657,7 @@ document.querySelectorAll('input[name="orient"]').forEach((r) => r.addEventListe
 
 setMode("flipper");
 applyHints();
-setAnswer(answerInputs.find((r) => r.checked).value);
+setAnswer(widgetInputs.find((r) => r.checked).value === "1" ? "pager" : w2Version);
 
 /* ---------- Member Services: call sheet ---------- */
 const openSheet = () => phone.classList.add("sheet-open");

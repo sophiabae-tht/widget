@@ -1,0 +1,1050 @@
+/* Design tokens pulled from Figma (v2/link, node 2644:14146) */
+:root {
+  --font-body: "General Sans", system-ui, sans-serif;
+  --font-system: "Roboto", system-ui, sans-serif;
+
+  --background-base: #f9f9fb;
+  --text-weak: #565a86;
+  --text-brand: #4754eb;
+  --text-strong: #1f2247;
+  --fill-weaker: rgba(12, 15, 65, 0.05);
+  --fill-inversemidweak: rgba(255, 255, 255, 0.65);
+  --fill-brandweaker: rgba(71, 84, 235, 0.1);
+  --fill-brandveryweak: rgba(71, 84, 235, 0.05);
+  --stroke-inversestrong: #fff;
+  --stroke-brandweaker: rgba(71, 84, 235, 0.15);
+  --shadow-weaker: rgba(12, 15, 65, 0.05);
+
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: var(--font-body);
+  background: #e9eaf2;
+  color: #0c0f41;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+p, h1, h2 { margin: 0; }
+
+/* Desktop: phone left, settings right, everything inside the window.
+   The phone is scaled to the window height; the settings panel scrolls on its own. */
+html, body { overflow: hidden; }
+.stage {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 24px;
+}
+.device {
+  flex: none;
+  width: calc(360px * var(--s, 1));
+  height: calc(800px * var(--s, 1));
+  position: relative;
+}
+.device > .phone { transform: scale(var(--s, 1)); transform-origin: 0 0; }
+
+/* ---------- Android Large frame ---------- */
+.phone {
+  position: relative;
+  width: 360px;
+  height: 800px;
+  flex: none;
+  border-radius: 32px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 60px rgba(12, 15, 65, 0.25);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.wallpaper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* Status bar */
+.status-bar {
+  position: relative;
+  z-index: 40;
+  height: 52px;
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 10px 24px;
+  color: #fff;
+  transition: color 0.3s;
+}
+.status-time {
+  font-family: var(--font-system);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.14px;
+  font-feature-settings: "lnum" 1, "pnum" 1;
+}
+.status-icons { position: relative; width: 46px; height: 17px; }
+.status-icons img { position: absolute; top: 0; display: block; transition: filter 0.3s; }
+.si-wifi { left: 0; }
+.si-signal { left: 16px; }
+.si-battery { left: 38px; top: 1px !important; }
+.phone.app-open .status-bar { color: #0c0f41; }
+.phone.app-open .status-icons img { filter: invert(1) brightness(0.2); }
+
+/* ---------- Widget ---------- */
+.widget-frame {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: flex;
+  padding: 16px;
+}
+.widget {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--background-base);
+  transition: transform 0.35s var(--ease-emphasized), opacity 0.35s;
+}
+.phone.app-open .widget { transform: scale(0.94); opacity: 0; }
+
+.gradient-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 328px;
+  transform: translateX(-50%);
+  overflow: hidden;
+  pointer-events: none;
+}
+.blob-blue {
+  position: absolute;
+  top: 133px;
+  left: calc(50% - 0.5px);
+  width: 379px;
+  height: 379px;
+  transform: translateX(-50%);
+}
+.blob-blue img {
+  position: absolute;
+  inset: -101.32%;
+  width: calc(100% + 2 * 101.32%);
+  height: calc(100% + 2 * 101.32%);
+  display: block;
+}
+
+.widget-top-bar {
+  position: relative;
+  width: 330px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 16px 20px 0;
+}
+.logo { display: block; }
+.link {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-weak);
+  text-decoration: underline;
+  text-underline-position: from-font;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+.link:hover { color: var(--text-brand); }
+
+.chat-frame { position: relative; width: 100%; display: flex; flex-direction: column; }
+
+.card-content {
+  width: 327px;
+  max-height: 200px;
+  display: flex;
+  padding: 16px 16px 0;
+  filter: drop-shadow(0 4px 8px rgba(71, 84, 235, 0.08));
+}
+.card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 11px; /* 12px minus 1px inside stroke, as in Figma */
+  border-radius: 16px;
+  border: 1px solid var(--stroke-inversestrong);
+  background: var(--fill-inversemidweak);
+}
+.card-row { display: flex; gap: 12px; align-items: flex-start; }
+.card-icon {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9.6px;
+  background: var(--fill-weaker);
+}
+.card-icon img { display: block; }
+.card-body {
+  flex: 1;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17.5px;
+  color: var(--text-weak);
+}
+.btn-tonal {
+  width: 100%;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: var(--fill-brandweaker);
+  color: var(--text-brand);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.tile-row { display: flex; gap: 16px; padding: 16px; }
+.tile {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  padding: 11px; /* 12px minus 1px inside stroke, as in Figma */
+  border-radius: 16px;
+  border: 1px solid var(--stroke-brandweaker);
+  background: var(--fill-brandveryweak);
+  box-shadow: 0 2px 8px 0 var(--shadow-weaker);
+  text-align: left;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.tile-text { position: relative; flex: 1; min-width: 0; height: 60px; }
+.tile-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.tile-line {
+  display: block;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  color: var(--text-weak);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tile-line--strong { color: var(--text-strong); }
+.tile-icon {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: var(--fill-brandweaker);
+}
+.tile-icon img { display: block; }
+
+/* ---------- Flex Card pager ----------
+   Each purse is one collection item (.pcard) holding its own label, icon and hint.
+   data-mode="flipper" → AdapterViewFlipper: one fixed tile, content slides inside it.
+   data-mode="stack"   → StackView: each purse is a real card in a deck.            */
+.tile--flex {
+  position: relative;
+  height: 88px;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  touch-action: none;
+}
+.tile--flex:focus-visible { outline: 2px solid var(--text-brand); outline-offset: 2px; }
+
+.pcard {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  padding: 11px; /* 12px minus 1px stroke */
+  border-radius: 16px;
+  transition: transform 0.45s var(--ease-emphasized), opacity 0.3s var(--ease-standard);
+  will-change: transform, opacity;
+}
+.pcard.no-anim, .pcard.no-anim .pcard-body { transition: none !important; }
+.pcard-body { display: flex; flex: 1; min-width: 0; transition: opacity 0.25s; }
+.page-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.tile-side { flex: none; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.tile-hint { position: relative; width: 28px; height: 28px; }
+.widget .tile-next {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 16px;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+.tile-next:hover { background: var(--fill-brandveryweak); }
+.tile-next img { display: block; }
+.pcard.is-last .tile-next img { transform: rotate(180deg); } /* last purse: arrow points back to the first */
+
+/* Hint: page dots (each card draws its own, so they're always correct) */
+.pager-dots {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  opacity: 0; pointer-events: none; cursor: pointer;
+  transition: opacity 0.2s;
+}
+.pager-dots i { display: block; width: 4px; height: 4px; border-radius: 2px; background: rgba(86, 90, 134, 0.3); }
+.pager-dots i.on { height: 10px; background: var(--text-brand); }
+.phone[data-dots] .tile-next { opacity: 0; pointer-events: none; }
+.phone[data-dots] .pager-dots { opacity: 1; pointer-events: auto; }
+
+/* --- Flipper: tile chrome stays put, purse content slides vertically inside it --- */
+.tile--flex[data-mode="flipper"] .pcard { opacity: 0; transform: translateY(100%); }
+.tile--flex[data-mode="flipper"] .pcard[data-depth="0"] { opacity: 1; transform: none; }
+.tile--flex[data-mode="flipper"] .pcard.exit-up   { opacity: 0; transform: translateY(-100%); }
+.tile--flex[data-mode="flipper"] .pcard.enter-top { opacity: 0; transform: translateY(-100%); }
+
+/* --- StackView: a real deck. Back cards show their bottom edge under the front card --- */
+.tile--flex[data-mode="stack"] {
+  overflow: visible;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.tile--flex[data-mode="stack"] .pcard {
+  background: #f0f1fa; /* opaque version of fill/brandveryweak over the widget background */
+  border: 1px solid var(--stroke-brandweaker);
+  box-shadow: 0 2px 8px 0 var(--shadow-weaker);
+  transform-origin: 50% 100%;
+}
+.tile--flex[data-mode="stack"] .pcard[data-depth="0"] { z-index: 3; transform: none; }
+.tile--flex[data-mode="stack"] .pcard[data-depth="1"] { z-index: 2; transform: translateY(6px) scale(0.92); background: #e8eaf9; }
+.tile--flex[data-mode="stack"] .pcard[data-depth="2"] { z-index: 1; transform: translateY(11px) scale(0.84); background: #eef0fa; }
+.tile--flex[data-mode="stack"] .pcard:not([data-depth="0"]) .pcard-body { opacity: 0; }
+/* top card being swiped away (or coming back) */
+.tile--flex[data-mode="stack"] .pcard.exit-up,
+.tile--flex[data-mode="stack"] .pcard.enter-top { z-index: 4; opacity: 0; transform: translateY(-56px) rotate(-2deg); }
+.tile--flex[data-mode="stack"] .pcard.dragging { transition: none; }
+
+/* Press feedback shared by all tappables in the widget */
+.widget button { position: relative; transition: transform 0.15s var(--ease-standard), background-color 0.2s, border-color 0.2s; }
+.widget button:active { transform: scale(0.97); }
+.btn-tonal:active { background: rgba(71, 84, 235, 0.18); }
+.tile:active:not(.tile--flex) { background: var(--fill-brandweaker); }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"]):active { background: var(--fill-brandweaker); }
+.widget button:focus-visible { outline: 2px solid var(--text-brand); outline-offset: 2px; }
+
+.powered-frame { position: relative; width: 100%; padding-top: 20px; display: flex; flex-direction: column; }
+.powered-by { position: relative; margin: 0 20px; width: 109.921px; height: 22px; }
+.thrive-symbol { position: absolute; left: 0; top: 0; display: block; }
+.thrive-wordmark { position: absolute; left: 31.63px; top: 2.06px; display: block; }
+.spacer-16 { height: 16px; }
+
+.fill { flex: 1; }
+
+/* Gesture bar */
+.gesture-bar {
+  position: relative;
+  z-index: 60;
+  height: 24px;
+  flex: none;
+  cursor: pointer;
+}
+.handle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 108px;
+  height: 4px;
+  border-radius: 12px;
+  background: #fff;
+  transform: translate(-50%, -50%);
+  transition: background-color 0.3s;
+}
+.phone.app-open .handle,
+.phone.sheet-open .handle { background: #0c0f41; }
+
+/* ---------- Simulated app launch ---------- */
+.app-screen {
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  top: 0;
+  width: 360px;
+  height: 800px;
+  background: var(--background-base);
+  padding-top: 52px;
+  opacity: 0;
+  pointer-events: none;
+  /* clip-path animated from the tapped element's rect, set in JS */
+  clip-path: inset(0 round 32px);
+  transition: clip-path 0.45s var(--ease-emphasized), opacity 0.2s;
+}
+.phone.app-open .app-screen { opacity: 1; pointer-events: auto; }
+.app-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
+.app-back {
+  width: 40px; height: 40px; border-radius: 20px;
+  display: flex; align-items: center; justify-content: center; margin-left: -8px;
+}
+.app-back[hidden] { display: none; }
+.app-back img { display: block; }
+.app-back:hover { background: var(--fill-weaker); }
+.app-title { font-weight: 600; font-size: 20px; line-height: 28px; color: #0c0f41; }
+.app-body { padding: 8px 16px; display: flex; flex-direction: column; gap: 12px; }
+.app-hero {
+  border-radius: 16px; padding: 16px;
+  background: linear-gradient(135deg, #4754eb, #2a33a8);
+  color: #fff;
+}
+.app-hero h3 { margin: 0 0 4px; font-size: 18px; font-weight: 600; }
+.app-hero p { font-size: 14px; line-height: 20px; opacity: 0.85; }
+.app-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; border-radius: 12px;
+  background: #fff; border: 1px solid var(--stroke-brandweaker);
+  font-weight: 500; font-size: 15px; color: var(--text-weak);
+}
+.app-row span:last-child { color: var(--text-brand); font-weight: 600; }
+
+/* ---------- Bottom sheet ---------- */
+.scrim {
+  position: absolute; inset: 0; z-index: 45;
+  background: rgba(12, 15, 65, 0.4);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.sheet {
+  position: absolute; z-index: 50; left: 0; right: 0; bottom: 0;
+  padding: 12px 24px 40px;
+  border-radius: 28px 28px 0 0;
+  background: #fff;
+  text-align: center;
+  transform: translateY(100%);
+  transition: transform 0.4s var(--ease-emphasized);
+}
+.phone.sheet-open .scrim { opacity: 1; pointer-events: auto; }
+.phone.sheet-open .sheet { transform: none; }
+.sheet-handle { width: 32px; height: 4px; border-radius: 2px; background: rgba(12, 15, 65, 0.2); margin: 0 auto 20px; }
+.sheet-icon {
+  width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 24px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--fill-brandweaker);
+}
+.sheet-title { font-size: 20px; line-height: 28px; font-weight: 600; color: #0c0f41; }
+.sheet-text { margin-top: 4px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
+.sheet-number { margin-top: 12px; font-size: 18px; font-weight: 600; color: var(--text-brand); letter-spacing: 0.3px; }
+.sheet-actions { display: flex; gap: 12px; margin-top: 24px; }
+.sheet-btn { flex: 1; height: 44px; border-radius: 22px; font-weight: 600; font-size: 16px; transition: transform 0.15s, background-color 0.2s; }
+.sheet-btn:active { transform: scale(0.97); }
+.sheet-btn--ghost { background: var(--fill-weaker); color: var(--text-weak); }
+.sheet-btn--primary { background: var(--text-brand); color: #fff; }
+
+/* ---------- Toast ---------- */
+.toast {
+  position: absolute; z-index: 70; left: 50%; bottom: 48px;
+  padding: 10px 16px; border-radius: 12px;
+  background: #1f2140; color: #fff;
+  font-size: 14px; line-height: 20px; font-weight: 500; white-space: nowrap;
+  transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
+  transition: transform 0.3s var(--ease-emphasized), opacity 0.2s;
+}
+.toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+/* ---------- Side notes ---------- */
+.notes {
+  flex: 0 1 460px;
+  min-width: 320px;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px 12px 24px 4px;
+  color: #3b3e66;
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+/* Mobile: phone on top (scaled to the screen width), settings below; the page scrolls. */
+/* (app.js adds .stacked when side by side doesn't fit) */
+html.stacked { overflow: auto; height: auto; }
+html.stacked body { overflow: visible; height: auto; }
+html.stacked .stage {
+  height: auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 16px;
+}
+html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; max-height: none; overflow: visible; padding: 0 4px 32px; }
+.notes h1 { font-size: 22px; line-height: 28px; font-weight: 600; color: #0c0f41; margin-bottom: 4px; }
+.notes ul { padding-left: 18px; margin: 16px 0; }
+.notes-h2 { font-size: 16px; font-weight: 600; color: #0c0f41; margin-top: 20px; }
+.notes-sub { margin-top: 4px; color: #565a86; }
+.hint-controls { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.hint-controls label { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
+.hint-controls input { margin-top: 3px; accent-color: #4754eb; }
+.hint-group { border: 0; padding: 0; margin: 16px 0 0; display: flex; flex-direction: column; gap: 10px; }
+.hint-group legend { font-size: 12px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: #8b8eb1; margin-bottom: 8px; padding: 0; }
+.hint-group label { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
+.hint-group input { margin-top: 3px; accent-color: #4754eb; }
+.hint-group em { font-style: normal; color: #8b8eb1; }
+.notes-cut { margin-top: 16px; color: #565a86; }
+.notes-cut summary { cursor: pointer; font-weight: 600; color: #3b3e66; }
+.notes-cut p { margin-top: 8px; }
+.notes-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.reset.reset--primary { background: #4754eb; color: #fff; border-color: #4754eb; }
+.notes li { margin-bottom: 8px; }
+.notes code, .notes kbd { font-size: 12px; background: #fff; padding: 1px 5px; border-radius: 4px; }
+.reset {
+  padding: 8px 16px; border-radius: 10px;
+  background: #fff; border: 1px solid var(--stroke-brandweaker);
+  color: var(--text-brand); font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+
+/* Flipper mode: a drag does nothing on Android, so pulse the tap target instead */
+@keyframes hint-pulse {
+  0%, 100% { transform: scale(1); background-color: transparent; }
+  40%      { transform: scale(1.25); background-color: var(--fill-brandweaker); }
+}
+.tile--flex.hint-pulse .pcard[data-depth="0"] .tile-hint { animation: hint-pulse 0.6s var(--ease-standard) 2; border-radius: 16px; }
+.phone img { -webkit-user-drag: none; }
+
+/* --- Flipper + prism revolve ----------------------------------------------
+   The tile is a prism: each purse card is one face, rotated (i × 360/N)° around the
+   tile's horizontal centre line and pushed out by the apothem, so neighbouring faces
+   meet at their top/bottom edges. Seen from the side it's a triangle (3 purses).
+   Face transforms and the prism's rotation are set from app.js. */
+.tile--flex[data-mode="flipper"][data-flip="prism"] {
+  overflow: visible;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(0.3, 0, 0.15, 1);
+}
+.tile--flex[data-mode="flipper"][data-flip="prism"] .pcard {
+  opacity: 1;
+  background: #f0f1fa;
+  border: 1px solid var(--stroke-brandweaker);
+  backface-visibility: hidden;
+  transition: none; /* the prism moves, not the faces */
+}
+/* shade faces that are turned away from the viewer, so the depth reads */
+.tile--flex[data-mode="flipper"][data-flip="prism"] .pcard::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 16px;
+  background: rgba(12, 15, 65, 0.28);
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity 0.65s cubic-bezier(0.3, 0, 0.15, 1);
+}
+.tile--flex[data-mode="flipper"][data-flip="prism"] .pcard[data-depth="0"]::after { opacity: 0; }
+.tile--flex[data-mode="flipper"][data-flip="prism"] .pcard-body { opacity: 1; }
+
+.sub-options { display: flex; flex-direction: column; gap: 8px; margin: 2px 0 4px 26px; padding-left: 10px; border-left: 2px solid rgba(71, 84, 235, 0.15); }
+.sub-options.is-inactive .sub-label::after { content: " · picking one switches to AdapterViewFlipper"; font-weight: 500; }
+.sub-label { font-size: 12px; font-weight: 600; color: #8b8eb1; }
+
+/* In deck / prism modes each purse card draws its own 1px stroke, so the tile itself has
+   no border and the cards fill the full 88px (otherwise they come out 2px short). */
+.tile--flex[data-mode="stack"],
+.tile--flex[data-mode="flipper"][data-flip="prism"] { border-width: 0; }
+
+/* StackView is swiped, so it gets no arrow. The page dots (if on) are its only hint. */
+.tile--flex[data-mode="stack"] .tile-next { display: none; }
+
+/* Prism tap zones: pressed feedback on the half being tapped
+   (on Android: ?android:attr/selectableItemBackground on each zone view). */
+.tile--flex[data-mode="flipper"][data-flip="prism"] .pcard[data-depth="0"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50%;
+  border-radius: 15px 15px 0 0;
+  background: rgba(71, 84, 235, 0.1);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.tile--flex.press-top .pcard[data-depth="0"]::before { opacity: 1; }
+.tile--flex.press-bottom .pcard[data-depth="0"]::before { top: 50%; border-radius: 0 0 15px 15px; opacity: 1; }
+.tile--flex[data-flip="prism"][data-mode="flipper"] .tile-icon { cursor: pointer; transition: transform 0.15s, background-color 0.15s; }
+.tile--flex.press-icon .pcard[data-depth="0"] .tile-icon { transform: scale(0.9); background: rgba(71, 84, 235, 0.22); }
+
+/* --- AdapterViewFlipper (default): purse icon on top, page dots below it
+   (in the slot the arrow used to take). */
+.tile--flex[data-mode="flipper"] .tile-next { display: none; }
+.tile--flex[data-mode="flipper"] .pager-dots { opacity: 1; pointer-events: auto; }
+.hint-group label:has(input:disabled) { cursor: default; }
+.hint-group input:disabled { opacity: 0.5; }
+
+/* StackView only: Call Member Services hugs its content so the Flex Card deck gets the
+   extra width. AdapterViewFlipper keeps both tiles the same width (as in Figma v2/link). */
+.tile-row:has(.tile--flex[data-mode="stack"]) #callTile { flex: none; }
+.tile-row:has(.tile--flex[data-mode="stack"]) #callTile .tile-text { flex: none; width: auto; }
+.tile-row:has(.tile--flex[data-mode="stack"]) #callTile .tile-face { position: static; height: 100%; }
+.tile-row:has(.tile--flex[data-mode="stack"]) #callTile .tile-icon { margin-left: 8px; }
+
+/* Two equal columns, independent of each tile's padding/border (the flex row split
+   leftover space after padding, so the padding-less Flex tile came out 22px narrower).
+   StackView: the Flex deck takes the rest and Call Member Services hugs its content. */
+.tile-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.tile-row:has(.tile--flex[data-mode="stack"]) { grid-template-columns: minmax(0, 1fr) auto; }
+
+/* --- More AdapterViewFlipper animations -------------------------------------
+   Each is one in/out animator pair on the whole purse item. States:
+   waiting (not shown) → [data-depth="0"] (shown) → .exit-up (leaving). */
+.tile--flex[data-mode="flipper"][data-flip="fade"] .pcard,
+.tile--flex[data-mode="flipper"][data-flip="fade"] .pcard.exit-up,
+.tile--flex[data-mode="flipper"][data-flip="fade"] .pcard.enter-top {
+  opacity: 0; transform: none;
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tile--flex[data-mode="flipper"][data-flip="fade"] .pcard[data-depth="0"]:not(.exit-up) { opacity: 1; }
+
+/* Pop / zoom: old shrinks + fades fast; new grows in after a beat with overshoot */
+.tile--flex[data-mode="flipper"][data-flip="pop"] .pcard,
+.tile--flex[data-mode="flipper"][data-flip="pop"] .pcard.enter-top {
+  opacity: 0; transform: scale(0.8);
+  transition: transform 0.18s cubic-bezier(0.4, 0, 1, 1), opacity 0.18s linear;
+}
+.tile--flex[data-mode="flipper"][data-flip="pop"] .pcard.exit-up { opacity: 0; transform: scale(0.8); }
+.tile--flex[data-mode="flipper"][data-flip="pop"] .pcard[data-depth="0"]:not(.exit-up) {
+  opacity: 1; transform: none;
+  transition: transform 0.34s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s, opacity 0.2s linear 0.12s;
+}
+
+/* Combo · Rise + fade: 12px move instead of a full slide */
+.tile--flex[data-mode="flipper"][data-flip="rise"] .pcard,
+.tile--flex[data-mode="flipper"][data-flip="rise"] .pcard.enter-top {
+  opacity: 0; transform: translateY(12px);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s linear;
+}
+.tile--flex[data-mode="flipper"][data-flip="rise"] .pcard.exit-up { opacity: 0; transform: translateY(-12px); }
+.tile--flex[data-mode="flipper"][data-flip="rise"] .pcard[data-depth="0"]:not(.exit-up) {
+  opacity: 1; transform: none;
+  transition: transform 0.32s cubic-bezier(0, 0, 0.2, 1) 0.08s, opacity 0.24s linear 0.08s;
+}
+
+
+/* Side panel: title, then the Android build line, then the plain description */
+.opt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.opt-title { color: #0c0f41; }
+.opt-title em { font-style: normal; font-weight: 500; color: #8b8eb1; }
+.opt-tag {
+  margin-left: 4px; padding: 1px 6px; border-radius: 6px;
+  font-size: 11px; font-weight: 600; color: #4754eb; background: rgba(71, 84, 235, 0.1);
+}
+.opt-android {
+  display: block;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(52, 168, 83, 0.08);
+  color: #2b5f3b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 16px;
+}
+.opt-android i {
+  font-style: normal; font-weight: 700; margin-right: 6px;
+  color: #1e7e3e; text-transform: uppercase; letter-spacing: 0.4px; font-size: 10px;
+}
+.opt-desc { color: #565a86; }
+
+/* ---------- Next control (AdapterViewFlipper: slide / fade / pop / rise) ----------
+   data-ctl on the tile picks how "next purse" is shown. Prism keeps its tap zones + dots. */
+.pcard-body { position: relative; }
+.tile-chip, .flex-rail { display: none; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"]):not([data-ctl="dots"]) .pager-dots { opacity: 0; pointer-events: none; }
+
+/* Arrow button: a filled circle where the dots were */
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next {
+  display: flex; opacity: 1; pointer-events: auto;
+  background: var(--text-brand);
+}
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:hover { background: #3742c9; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next img { filter: brightness(0) invert(1); }
+
+/* Counter chip: "1/3 ⌄" pill, bottom-right, sharing the row with the amount */
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="chip"] .tile-hint { display: none; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="chip"] .tile-chip { display: flex; }
+.widget .tile-chip {
+  position: absolute; right: -3px; bottom: -3px;
+  height: 26px; padding: 0 6px 0 9px; gap: 2px;
+  align-items: center;
+  border-radius: 13px;
+  background: #fff;
+  border: 1px solid var(--stroke-brandweaker);
+  box-shadow: 0 1px 3px rgba(12, 15, 65, 0.08);
+  color: var(--text-brand);
+  font-size: 12px; line-height: 16px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 0.15s, transform 0.15s;
+}
+.tile-chip:hover { background: #f1f2fd; }
+.tile-chip:active { transform: scale(0.94); background: #e6e8fc; }
+.tile-chip img { display: block; }
+
+/* Side rail: a static strip outside the flipper, the only "next" target */
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="rail"] .flex-rail { display: flex; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="rail"] .pcard { right: 32px; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="rail"] .tile-side { display: none; }
+.widget .flex-rail {
+  position: absolute; z-index: 5; top: 0; right: 0; bottom: 0; width: 32px;
+  flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  border-left: 1px solid var(--stroke-brandweaker);
+  background: var(--fill-brandweaker);
+  transition: background-color 0.15s;
+}
+.flex-rail:hover { background: rgba(71, 84, 235, 0.15); }
+.flex-rail:active { background: rgba(71, 84, 235, 0.22); }
+.flex-rail img { display: block; transition: transform 0.3s var(--ease-standard); }
+.tile--flex.on-last .flex-rail img { transform: rotate(180deg); }
+.rail-count { font-size: 11px; line-height: 14px; font-weight: 600; color: var(--text-brand); font-variant-numeric: tabular-nums; }
+
+/* Pressing the next control shouldn't also tint the whole card (that means "open") */
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"]):has([data-next]:active):active { background: var(--fill-brandveryweak); }
+
+/* Drag in flipper mode → pulse whichever control is the tap target */
+.tile--flex.hint-pulse[data-ctl="chip"] .pcard[data-depth="0"] .tile-chip,
+.tile--flex.hint-pulse[data-ctl="rail"] .flex-rail { animation: hint-pulse-soft 0.6s var(--ease-standard) 2; }
+@keyframes hint-pulse-soft { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.12); } }
+
+/* "Opens" cue: › after the purse name, like a list row */
+.phone[data-cue] .pcard .cue-target::after {
+  content: "";
+  display: inline-block;
+  width: 14px; height: 14px;
+  margin-left: 1px;
+  vertical-align: -2px;
+  background: url("../assets/icon-caret-right-brand.svg") center / 14px no-repeat;
+}
+
+/* The ctl group writes its own note (see #ctlNote), so skip the generic one */
+#ctlOptions.is-inactive .sub-label::after { content: none; }
+#ctlOptions.is-inactive label { opacity: 0.75; }
+.opt-tag--muted { color: #6b6e93; background: rgba(12, 15, 65, 0.06); }
+.notes-android {
+  margin-top: 8px; padding: 6px 8px; border-radius: 8px;
+  background: rgba(52, 168, 83, 0.08); color: #2b5f3b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; line-height: 16px;
+}
+.notes-android i { font-style: normal; font-weight: 700; margin-right: 6px; color: #1e7e3e; text-transform: uppercase; letter-spacing: 0.4px; font-size: 10px; }
+
+/* ---------- Flex Card balances (in Care Hub) ---------- */
+.app-crumb { font-size: 13px; line-height: 18px; color: #8b8eb1; }
+.app-crumb b { font-weight: 500; color: var(--text-weak); }
+.app-note {
+  padding: 14px 16px; border-radius: 16px;
+  background: #eef0fd; border: 1px solid var(--stroke-brandweaker);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.app-note.is-leaving { opacity: 0; transform: translateY(-4px); }
+.app-note-title { font-weight: 600; font-size: 15px; line-height: 20px; color: #0c0f41; }
+.app-note-text { margin-top: 4px; font-size: 14px; line-height: 20px; color: var(--text-weak); }
+.app-note-btn {
+  margin-top: 10px; padding: 6px 14px; border-radius: 16px;
+  background: var(--text-brand); color: #fff; font-weight: 600; font-size: 14px;
+}
+.purse-list { display: flex; flex-direction: column; gap: 8px; }
+.purse-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-radius: 12px;
+  background: #fff; border: 1px solid var(--stroke-brandweaker);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.purse-row.is-focus { border-color: rgba(71, 84, 235, 0.55); box-shadow: 0 0 0 3px rgba(71, 84, 235, 0.1); }
+.purse-name { flex: 1; font-weight: 500; font-size: 15px; color: var(--text-weak); }
+.purse-amount { font-weight: 600; font-size: 16px; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+.app-foot { font-size: 12px; line-height: 16px; color: #8b8eb1; }
+button.app-row { width: 100%; text-align: left; cursor: pointer; }
+.app-row--link:hover { border-color: rgba(71, 84, 235, 0.4); }
+
+/* ---------- Core App Experience pages: Care hub (Figma 6283:1802) + Flex card (6287:23451) ---------- */
+.app-screen { display: flex; flex-direction: column; }
+.app-body { flex: 1; min-height: 0; overflow-y: auto; }
+.app-help, .app-nav, .ch-bg { display: none; }
+
+.app-screen--core .ch-bg { display: block; position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.ch-blob { position: absolute; width: 379px; height: 379px; }
+.ch-blob img { position: absolute; inset: -52.77%; width: 205.54%; height: 205.54%; max-width: none; }
+.ch-blob--green { right: -189px; top: 313px; }
+.ch-blob--blue { left: -177px; top: 439px; }
+
+.app-screen--core .app-bar { position: relative; z-index: 1; height: 56px; padding: 16px; gap: 16px; }
+.app-screen--core .app-title { display: none; }
+.app-screen--core .app-help {
+  display: block; margin-left: auto;
+  font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text-brand);
+  text-decoration: underline; text-underline-position: from-font;
+}
+.app-screen--core .app-body { position: relative; z-index: 1; padding: 0 0 124px; gap: 0; }
+
+.app-screen--core .app-nav {
+  display: flex; gap: 8px; padding: 0 8px 24px;
+  position: absolute; z-index: 2; left: 0; right: 0; bottom: 0;
+  background: var(--background-base);
+  box-shadow: 0 0 12px rgba(13, 17, 64, 0.1);
+}
+.app-nav button {
+  flex: 1; min-width: 0; padding: 12px 0 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);
+}
+.app-nav button img { display: block; margin: 4px 0; }
+.app-nav button.is-active { font-weight: 600; color: var(--text-strong); }
+
+.ch-page-header { padding: 16px 16px 8px; }
+.ch-h2 { margin: 0; font-size: 28px; line-height: 36px; font-weight: 600; color: var(--text-strong); }
+.ch-body { margin-top: 12px; font-size: 16px; line-height: 24px; font-weight: 500; color: var(--text-weak); }
+.ch-section { margin: 0; padding: 24px 16px 0; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); }
+.ch-pad { padding: 16px 16px 0; }
+.ch-spacer { height: 8px; }
+.ch-circle { display: flex; align-items: center; justify-content: center; flex: none; border-radius: 999px; background: var(--fill-brandweaker); }
+.ch-circle--32 { width: 32px; height: 32px; }
+.ch-circle--48 { width: 48px; height: 48px; }
+.ch-circle img { display: block; }
+.ch-card-shadow, .ch-nav-card, .ch-perk, .ch-contact, .ch-app { background: #fff; border-radius: 16px; box-shadow: 0 2px 8px rgba(12, 15, 65, 0.05); }
+
+/* Member ID */
+.ch-member { display: flex; align-items: center; gap: 16px; padding: 16px 16px 8px; }
+.ch-member-icon { width: 48px; height: 48px; border-radius: 100px; background: var(--fill-weaker); display: flex; align-items: center; justify-content: center; }
+.ch-member-label { display: block; font-size: 14px; line-height: 20px; font-weight: 500; color: #696d9b; }
+.ch-member-id { display: block; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); }
+
+/* Flex card entry (cardNavigationItem) */
+.ch-nav-card { display: block; width: 100%; padding: 20px 16px; text-align: left; transition: box-shadow 0.15s; }
+.ch-nav-card:hover { box-shadow: 0 2px 12px rgba(12, 15, 65, 0.1); }
+.ch-nav-main { display: flex; align-items: center; gap: 16px; padding-bottom: 20px; }
+.ch-nav-text { flex: 1; min-width: 0; }
+.ch-nav-title { display: block; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); }
+.ch-nav-body { display: block; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
+.ch-nav-foot { display: flex; justify-content: space-between; padding-top: 16px; border-top: 1px solid rgba(13, 17, 64, 0.1); font-size: 14px; line-height: 20px; }
+.ch-nav-foot b { font-weight: 600; color: var(--text-weak); }
+.ch-nav-foot span { font-weight: 500; color: #696d9b; }
+
+/* Horizontal scrollers */
+.ch-hscroll { display: flex; gap: 16px; padding: 16px 16px 4px; overflow-x: auto; scrollbar-width: none; }
+.ch-hscroll::-webkit-scrollbar { display: none; }
+.ch-contact { flex: none; width: 148px; height: 164px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; text-align: left; }
+.ch-contact-name { display: block; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); }
+.ch-contact-desc { display: block; padding-top: 4px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
+.ch-app { flex: none; width: 208px; height: 206px; padding: 16px; display: flex; flex-direction: column; }
+.ch-app-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: auto; }
+.ch-app-logo { display: block; width: 64px; height: 64px; border-radius: 8px; object-fit: cover; }
+.ch-app-logo--molina { display: flex; align-items: center; justify-content: center; background: #009fab; border-radius: 6px; }
+.ch-app-name { margin-top: 16px; font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; color: var(--text-weak); }
+.ch-app-desc { padding-top: 8px; font-size: 16px; line-height: 24px; font-weight: 500; color: var(--text-weak); }
+
+/* Resources */
+.ch-resources { padding: 16px 16px 16px; }
+.ch-resources::before { content: ""; display: block; border-top: 1px solid rgba(12, 15, 65, 0.1); }
+.ch-resource { display: flex; justify-content: space-between; gap: 16px; padding: 16px 0; border-bottom: 1px solid rgba(12, 15, 65, 0.05); }
+.ch-resource > span { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ch-resource-title { font-size: 16px; line-height: 24px; font-weight: 500; color: var(--text-strong); text-decoration: underline; text-underline-position: from-font; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-resource-desc { font-size: 16px; line-height: 24px; font-weight: 500; color: var(--text-weak); }
+.ch-resource img { flex: none; }
+
+/* Flex card purses (cardPerk) */
+.ch-perk { display: flex; align-items: center; }
+.ch-perk > .ch-circle { margin-left: 16px; }
+.ch-perk-text { flex: 1; min-width: 0; padding: 16px; }
+.ch-perk-name { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text-weak); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-perk-amount { margin-top: 4px; font-size: 24px; line-height: 32px; font-weight: 600; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+.ch-perk-label { margin-top: 4px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
+.ch-updated { padding: 12px 16px 0; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
+
+/* Widget → Flex card: one-time "lives in Care hub" note */
+.app-screen--core .app-note { background: #fff; border-color: rgba(71, 84, 235, 0.3); }
+.app-screen--core .app-body > * { flex-shrink: 0; }
+
+/* ---------- DES-88 answer: "no" / "yes" = link tile, "pager" = purse pager ---------- */
+#flexLinkTile { display: none; }
+.phone:not([data-answer="pager"]) #flexTile { display: none; }
+.phone:not([data-answer="pager"]) #flexLinkTile { display: flex; }
+/* Undo the StackView "Call hugs its content" layout when the pager isn't shown */
+.phone:not([data-answer="pager"]) .tile-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.phone:not([data-answer="pager"]) .tile-row #callTile { flex: 1; }
+.phone:not([data-answer="pager"]) .tile-row #callTile .tile-text { flex: 1; width: auto; }
+.phone:not([data-answer="pager"]) .tile-row #callTile .tile-face { position: absolute; height: auto; }
+.phone:not([data-answer="pager"]) .tile-row #callTile .tile-icon { margin-left: 0; }
+.notes:not([data-answer="pager"]) .pager-only { opacity: 0.45; transition: opacity 0.2s; }
+.notes:not([data-answer="pager"]) .pager-only:hover { opacity: 0.8; }
+
+/* Link tile copy: "no" = count + freshness; "yes" (separate widget) = ticket copy */
+#flexLinkTile .link-copy--ticket { display: none; }
+.phone[data-answer="yes"] #flexLinkTile .link-copy--ticket { display: flex; }
+.phone[data-answer="yes"] #flexLinkTile .link-copy--count { display: none; }
+.tile-caption { display: block; margin-top: 2px; font-size: 12px; line-height: 16px; font-weight: 500; color: #696d9b; white-space: nowrap; }
+
+/* "Yes": separate Flex Card widget under the Thrive widget */
+.fc-frame { display: none; padding-top: 0; }
+.phone[data-answer="yes"] .fc-frame { display: flex; }
+.fc-widget { align-items: stretch; padding: 16px 16px 12px; }
+.fc-head { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 10px; }
+.fc-title { display: flex; align-items: center; gap: 8px; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); }
+.fc-list {
+  list-style: none; margin: 0; padding: 0 12px;
+  max-height: 260px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+  border-radius: 16px; border: 1px solid var(--stroke-inversestrong); background: var(--fill-inversemidweak);
+  box-shadow: 0 4px 8px rgba(71, 84, 235, 0.08);
+}
+.fc-list::-webkit-scrollbar { display: none; }
+.fc-list li + li { border-top: 1px solid rgba(13, 17, 64, 0.1); }
+.fc-row {
+  width: 100%; display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; text-align: left;
+}
+.fc-row:active { opacity: 0.7; }
+.fc-name { flex: 1; min-width: 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text-weak); }
+.fc-amount { flex: none; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+.fc-foot { padding: 8px 4px 0; font-size: 12px; line-height: 16px; font-weight: 500; color: #696d9b; }
+.phone.app-open .fc-widget { transform: scale(0.94); opacity: 0; }
+
+/* Nations portal names: one name clamped to 2 lines, amount underneath */
+.page-text:has(.tile-name) { justify-content: space-between; }
+.tile-name {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+  font-size: 14px; line-height: 18px; font-weight: 600; color: var(--text-weak);
+}
+
+/* Flex card page, from the widget: quiet "lives in Care hub" line */
+.ch-orient {
+  display: flex; align-items: center; gap: 6px;
+  margin: 4px 16px 0;
+  font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);
+}
+.ch-orient img { flex: none; }
+
+/* ---------- Next controls on Design Library components (Figma "Design Library") ----------
+   Tokens: text/brand #4754eb, text/weak #565a86, stroke/weak rgba(13,17,64,.1),
+   stroke/disabled #d0d3e1, state overlays hover rgba(12,15,65,.05) / press rgba(13,17,64,.1),
+   on-brand overlays hover rgba(255,255,255,.1) / press rgba(255,255,255,.2). */
+
+/* Arrow button = buttonIcon · Primary · Brand · Small · Circle (32px, 20px icon) */
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-side { gap: 4px; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-hint { width: 32px; height: 32px; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next { border-radius: 100px; background: #4754eb; overflow: hidden; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next img { filter: none; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; background: transparent; transition: background-color 0.15s;
+}
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:hover { background: #4754eb; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:hover::after { background: rgba(255, 255, 255, 0.1); }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:active::after { background: rgba(255, 255, 255, 0.2); }
+
+/* Counter chip = chip · default · unselected, label only (leftIcon/rightIcon off) */
+.widget .tile-chip {
+  right: 0; bottom: -4px;
+  height: 28px; padding: 0 12px; gap: 0;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid rgba(13, 17, 64, 0.1);
+  box-shadow: none;
+  color: #4754eb;
+  font-size: 14px; line-height: 20px; font-weight: 600;
+  overflow: hidden;
+}
+.tile-chip::after { content: ""; position: absolute; inset: 0; background: transparent; transition: background-color 0.15s; }
+.tile-chip:hover { background: #fff; }
+.tile-chip:hover::after { background: rgba(12, 15, 65, 0.05); }
+.tile-chip:active { transform: none; background: #fff; }
+.tile-chip:active::after { background: rgba(13, 17, 64, 0.1); }
+
+/* Side rail = a full-height buttonIcon · Tertiary · Brand: no fill, stroke/weak divider,
+   20px brand icon, count in Tiny/Bold (14/20 Semibold, text/weak) */
+.widget .flex-rail {
+  width: 36px; gap: 4px;
+  background: transparent;
+  border-left: 1px solid rgba(13, 17, 64, 0.1);
+}
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="rail"] .pcard { right: 36px; }
+.flex-rail:hover { background: rgba(12, 15, 65, 0.05); }
+.flex-rail:active { background: rgba(13, 17, 64, 0.1); }
+.rail-count { font-size: 14px; line-height: 20px; font-weight: 600; color: #565a86; }
+
+/* Page dots: no Design Library component, so built from tokens (stroke/disabled + text/brand) */
+.pager-dots i { background: #d0d3e1; }
+.pager-dots i.on { background: #4754eb; }
+
+/* ---------- Paged tile · count under the purse icon (no next control) ---------- */
+.tile-count { display: none; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="caption"] .tile-side { gap: 6px; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="caption"] .tile-hint { display: none; }
+.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="caption"] .tile-count {
+  display: block; font-size: 12px; line-height: 16px; font-weight: 500; color: #696d9b;
+  white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Paged tile · stepper (Figma 2691:18061) ----------
+   12px padding (11 + 1px stroke) · top row: 2-line label + 28px icon · bottom row: value + 28×40 stepper. */
+.flex-stepper { display: none; }
+.tile--flex[data-stepper="1"] { height: 104px; }
+.tile--flex[data-stepper="1"] .pcard { flex-direction: column; }
+.stp { flex-direction: column; justify-content: space-between; }
+.stp-top { display: flex; align-items: flex-start; gap: 4px; }
+.stp-label {
+  flex: 1; min-width: 0;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+  font-size: 16px; line-height: 20px; font-weight: 600; color: var(--text-weak);
+}
+.stp-value { height: 40px; display: flex; align-items: center; padding-right: 36px; }
+.tile--flex[data-stepper="1"] .flex-stepper {
+  display: flex; flex-direction: column;
+  position: absolute; z-index: 5; right: 11px; bottom: 11px;
+  width: 28px; border-radius: 16px; background: #dadcf8; overflow: hidden;
+}
+.stp-btn { display: flex; align-items: center; justify-content: center; height: 20px; padding: 0 6px; transition: background-color 0.15s; }
+.stp-btn:first-child { padding-top: 4px; height: 20px; }
+.stp-btn:last-child { padding-bottom: 4px; height: 20px; }
+.stp-btn:hover { background: rgba(12, 15, 65, 0.05); }
+.stp-btn:active { background: rgba(13, 17, 64, 0.1); }
+.stp-btn img { display: block; }
+/* Pressing the stepper shouldn't tint the whole card */
+.tile--flex[data-stepper="1"]:has(.stp-btn:active):active { background: var(--fill-brandveryweak); }
+
+/* Stepper: the corner icon stays in place and morphs (cross-fade + scale) between purse icons */
+.tile--flex[data-stepper="1"] .pcard .tile-icon { visibility: hidden; }
+.stp-icon { display: none; }
+.tile--flex[data-stepper="1"] .stp-icon { display: block; position: absolute; z-index: 5; top: 11px; right: 11px; }
+.stp-icon img {
+  position: absolute; left: 6px; top: 6px;
+  opacity: 0; transform: scale(0.6) rotate(-20deg);
+  transition: opacity 0.22s var(--ease-standard), transform 0.32s var(--ease-emphasized);
+}
+.stp-icon img.on { opacity: 1; transform: none; transition-delay: 0.08s; }
+
+/* Archive snapshot banner */
+.archive-banner { margin-bottom: 16px; padding: 10px 12px; border-radius: 12px; background: #fff4d6; color: #5c4400; font-size: 13px; line-height: 18px; }
+.archive-banner a { color: #4754eb; font-weight: 600; }
