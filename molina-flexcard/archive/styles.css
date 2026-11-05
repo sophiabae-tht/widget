@@ -169,7 +169,6 @@ html, body { overflow: hidden; }
   border-radius: 6px;
   transition: color 0.15s;
 }
-.link:hover { color: var(--text-brand); }
 
 .chat-frame { position: relative; width: 100%; display: flex; flex-direction: column; }
 
@@ -305,7 +304,6 @@ html, body { overflow: hidden; }
   border-radius: 16px;
   transition: background-color 0.2s, opacity 0.2s;
 }
-.tile-next:hover { background: var(--fill-brandveryweak); }
 .tile-next img { display: block; }
 .pcard.is-last .tile-next img { transform: rotate(180deg); } /* last purse: arrow points back to the first */
 
@@ -411,7 +409,6 @@ html, body { overflow: hidden; }
 }
 .app-back[hidden] { display: none; }
 .app-back img { display: block; }
-.app-back:hover { background: var(--fill-weaker); }
 .app-title { font-weight: 600; font-size: 20px; line-height: 28px; color: #0c0f41; }
 .app-body { padding: 8px 16px; display: flex; flex-direction: column; gap: 12px; }
 .app-hero {
@@ -475,8 +472,9 @@ html, body { overflow: hidden; }
 
 /* ---------- Side notes ---------- */
 .notes {
-  flex: 0 1 460px;
+  flex: 1 1 auto;
   min-width: 320px;
+  max-width: 540px; /* same column as the main page (~70 characters a line) */
   max-height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -511,9 +509,29 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 .hint-group label { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
 .hint-group input { margin-top: 3px; accent-color: #4754eb; }
 .hint-group em { font-style: normal; color: #8b8eb1; }
-.notes-cut { margin-top: 16px; color: #565a86; }
-.notes-cut summary { cursor: pointer; font-weight: 600; color: #3b3e66; }
-.notes-cut p { margin-top: 8px; }
+/* "Dropped" callout: its own red container */
+.notes-cut {
+  margin-top: 24px; padding: 12px 14px; border-radius: 12px;
+  background: #fdeeee; border: 1px solid #f3c4c4; color: #7a2a2a;
+}
+.notes-cut summary { cursor: pointer; font-weight: 600; color: #b42318; }
+.notes-cut summary { list-style: none; display: flex; align-items: center; gap: 10px; }
+.notes-cut summary::-webkit-details-marker { display: none; }
+.notes-cut summary::before {
+  content: ""; flex: none; width: 0; height: 0;
+  border-left: 6px solid #b42318; border-top: 4.5px solid transparent; border-bottom: 4.5px solid transparent;
+  transition: transform 0.15s;
+}
+.notes-cut[open] summary::before { transform: rotate(90deg); }
+.notes-cut summary + p { margin-top: 14px; }
+.notes-cut p { position: relative; margin-top: 8px; padding-left: 26px; }
+.notes-cut p::before {
+  content: "✕"; position: absolute; left: 0; top: 1px;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #f9d2d2; color: #b42318; font-size: 10px; font-weight: 700; line-height: 1;
+}
+.notes-cut b { color: #7a1f1a; }
 .notes-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
 .reset.reset--primary { background: #4754eb; color: #fff; border-color: #4754eb; }
 .notes li { margin-bottom: 8px; }
@@ -693,7 +711,6 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
   display: flex; opacity: 1; pointer-events: auto;
   background: var(--text-brand);
 }
-.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:hover { background: #3742c9; }
 .tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next img { filter: brightness(0) invert(1); }
 
 /* Counter chip: "1/3 ⌄" pill, bottom-right, sharing the row with the amount */
@@ -712,7 +729,6 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
   font-variant-numeric: tabular-nums;
   transition: background-color 0.15s, transform 0.15s;
 }
-.tile-chip:hover { background: #f1f2fd; }
 .tile-chip:active { transform: scale(0.94); background: #e6e8fc; }
 .tile-chip img { display: block; }
 
@@ -727,7 +743,6 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
   background: var(--fill-brandweaker);
   transition: background-color 0.15s;
 }
-.flex-rail:hover { background: rgba(71, 84, 235, 0.15); }
 .flex-rail:active { background: rgba(71, 84, 235, 0.22); }
 .flex-rail img { display: block; transition: transform 0.3s var(--ease-standard); }
 .tile--flex.on-last .flex-rail img { transform: rotate(180deg); }
@@ -789,7 +804,6 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 .purse-amount { font-weight: 600; font-size: 16px; color: var(--text-strong); font-variant-numeric: tabular-nums; }
 .app-foot { font-size: 12px; line-height: 16px; color: #8b8eb1; }
 button.app-row { width: 100%; text-align: left; cursor: pointer; }
-.app-row--link:hover { border-color: rgba(71, 84, 235, 0.4); }
 
 /* ---------- Core App Experience pages: Care hub (Figma 6283:1802) + Flex card (6287:23451) ---------- */
 .app-screen { display: flex; flex-direction: column; }
@@ -845,7 +859,6 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 
 /* Flex card entry (cardNavigationItem) */
 .ch-nav-card { display: block; width: 100%; padding: 20px 16px; text-align: left; transition: box-shadow 0.15s; }
-.ch-nav-card:hover { box-shadow: 0 2px 12px rgba(12, 15, 65, 0.1); }
 .ch-nav-main { display: flex; align-items: center; gap: 16px; padding-bottom: 20px; }
 .ch-nav-text { flex: 1; min-width: 0; }
 .ch-nav-title { display: block; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); }
@@ -899,13 +912,9 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .phone:not([data-answer="pager"]) .tile-row #callTile .tile-text { flex: 1; width: auto; }
 .phone:not([data-answer="pager"]) .tile-row #callTile .tile-face { position: absolute; height: auto; }
 .phone:not([data-answer="pager"]) .tile-row #callTile .tile-icon { margin-left: 0; }
-.notes:not([data-answer="pager"]) .pager-only { opacity: 0.45; transition: opacity 0.2s; }
-.notes:not([data-answer="pager"]) .pager-only:hover { opacity: 0.8; }
+.notes:not([data-answer="pager"]) .pager-only { display: none; }
 
 /* Link tile copy: "no" = count + freshness; "yes" (separate widget) = ticket copy */
-#flexLinkTile .link-copy--ticket { display: none; }
-.phone[data-answer="yes"] #flexLinkTile .link-copy--ticket { display: flex; }
-.phone[data-answer="yes"] #flexLinkTile .link-copy--count { display: none; }
 .tile-caption { display: block; margin-top: 2px; font-size: 12px; line-height: 16px; font-weight: 500; color: #696d9b; white-space: nowrap; }
 
 /* "Yes": separate Flex Card widget under the Thrive widget */
@@ -960,8 +969,6 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit; background: transparent; transition: background-color 0.15s;
 }
-.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:hover { background: #4754eb; }
-.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:hover::after { background: rgba(255, 255, 255, 0.1); }
 .tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:active::after { background: rgba(255, 255, 255, 0.2); }
 
 /* Counter chip = chip · default · unselected, label only (leftIcon/rightIcon off) */
@@ -977,8 +984,6 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
   overflow: hidden;
 }
 .tile-chip::after { content: ""; position: absolute; inset: 0; background: transparent; transition: background-color 0.15s; }
-.tile-chip:hover { background: #fff; }
-.tile-chip:hover::after { background: rgba(12, 15, 65, 0.05); }
 .tile-chip:active { transform: none; background: #fff; }
 .tile-chip:active::after { background: rgba(13, 17, 64, 0.1); }
 
@@ -990,7 +995,6 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
   border-left: 1px solid rgba(13, 17, 64, 0.1);
 }
 .tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="rail"] .pcard { right: 36px; }
-.flex-rail:hover { background: rgba(12, 15, 65, 0.05); }
 .flex-rail:active { background: rgba(13, 17, 64, 0.1); }
 .rail-count { font-size: 14px; line-height: 20px; font-weight: 600; color: #565a86; }
 
@@ -1028,7 +1032,6 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .stp-btn { display: flex; align-items: center; justify-content: center; height: 20px; padding: 0 6px; transition: background-color 0.15s; }
 .stp-btn:first-child { padding-top: 4px; height: 20px; }
 .stp-btn:last-child { padding-bottom: 4px; height: 20px; }
-.stp-btn:hover { background: rgba(12, 15, 65, 0.05); }
 .stp-btn:active { background: rgba(13, 17, 64, 0.1); }
 .stp-btn img { display: block; }
 /* Pressing the stepper shouldn't tint the whole card */
@@ -1048,3 +1051,75 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 /* Archive snapshot banner */
 .archive-banner { margin-bottom: 16px; padding: 10px 12px; border-radius: 12px; background: #fff4d6; color: #5c4400; font-size: 13px; line-height: 18px; }
 .archive-banner a { color: #4754eb; font-weight: 600; }
+
+/* ---------- Notes styled like the main page ---------- */
+/* Top of the notes: title, intro and the Android toggle on one card */
+.notes-intro {
+  padding: 20px; border-radius: 16px; background: #fff;
+  box-shadow: 0 2px 8px rgba(12, 15, 65, 0.05);
+}
+.notes-intro .notes-h2 { margin-top: 16px; }
+.notes-intro + .widget-section { border-top: 0; padding-top: 0; }
+
+/* Sections: tag on top, name underneath, a divider between them */
+.widget-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(12, 15, 65, 0.1); }
+.widget-section-title { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; font-size: 18px; line-height: 24px; font-weight: 600; color: #0c0f41; }
+.widget-num { padding: 1px 7px; border-radius: 6px; font-size: 11px; line-height: 18px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: #4754eb; background: rgba(71, 84, 235, 0.1); }
+.widget-section .notes-sub { margin-top: 8px; }
+.widget-section .notes-android { margin-top: 12px; }
+.notes ul.widget-points { margin: 12px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; color: #1f2247; font-size: 15px; line-height: 22px; }
+.notes ul.widget-points li { margin: 0; padding-left: 2px; }
+.notes ul.widget-points li::marker { color: #8b8eb1; }
+
+/* Android engineering notes: hidden until the toggle is on (shares the main page's setting) */
+.notes:not(.show-android) .opt-android,
+.notes:not(.show-android) .notes-android { display: none; }
+.android-toggle { display: inline-flex; align-items: center; gap: 12px; margin-top: 12px; font-size: 13px; line-height: 18px; font-weight: 500; color: #3b3e66; cursor: pointer; }
+.android-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.android-toggle-track { position: relative; flex: none; width: 32px; height: 18px; border-radius: 9px; background: #d0d3e1; transition: background-color 0.2s; }
+.android-toggle-track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(12, 15, 65, 0.2); transition: transform 0.2s var(--ease-emphasized); }
+.android-toggle input:checked + .android-toggle-track { background: #1e7e3e; }
+.android-toggle input:checked + .android-toggle-track::after { transform: translateX(14px); }
+.android-toggle input:focus-visible + .android-toggle-track { outline: 2px solid #4754eb; outline-offset: 2px; }
+.hint-group[hidden] { display: none; }
+
+/* Widget 1 / 2 / 3 switch, like the main page's Widget 1 / Widget 2 switch */
+.widget-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 14px; padding: 4px; border-radius: 12px; background: rgba(12, 15, 65, 0.06); }
+.widget-switch label { cursor: pointer; }
+.widget-switch input { position: absolute; opacity: 0; pointer-events: none; }
+.widget-switch span { display: flex; flex-direction: column; height: 100%; padding: 6px 10px; border-radius: 9px; color: #565a86; font-size: 13px; line-height: 18px; }
+.widget-switch b { font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: #8b8eb1; }
+.widget-switch input:checked + span { background: #fff; color: #0c0f41; box-shadow: 0 1px 3px rgba(12, 15, 65, 0.12); }
+.widget-switch input:checked + span b { color: #4754eb; }
+.widget-switch input:focus-visible + span { outline: 2px solid #4754eb; outline-offset: 1px; }
+/* Only the active widget's section shows */
+.notes[data-answer="pager"] .w2-only { display: none; }
+.notes-intro ~ .widget-section { border-top: 0; padding-top: 0; }
+.widget-section .widget-points + .hint-group { margin-top: 20px; }
+
+/* Built with: AdapterViewFlipper / StackView as tabs; only the picked one's details show */
+.mode-switch { grid-template-columns: 1fr 1fr; margin-top: 0; }
+/* Inside .hint-group, labels are flex rows; tabs need to fill their half */
+.mode-switch label { display: block; gap: 0; }
+.mode-switch span { width: 100%; font-weight: 600; padding: 8px 12px; text-align: center; align-items: center; }
+.mode-panel { display: flex; flex-direction: column; gap: 10px; }
+#modeControls:has(input[name="mode"][value="flipper"]:checked) .mode-panel[data-for="stack"],
+#modeControls:has(input[name="mode"][value="stack"]:checked) .mode-panel[data-for="flipper"] { display: none; }
+
+/* Purse names (same as the current prototype) are longer than the old labels: a step smaller to fit */
+#flexTile .page-text .tile-line:not(.tile-line--strong),
+#flexTile .pcard:not([data-i="0"]) .stp-label { font-size: 14px; }
+
+/* Next control: options as cards in a grid; the whole card is the radio */
+.card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 4px 0 8px; padding-left: 0; border-left: 0; }
+.card-grid .sub-label { grid-column: 1 / -1; }
+.card-grid label {
+  position: relative; display: block; padding: 12px; border-radius: 12px;
+  background: #fff; border: 1.5px solid transparent; box-shadow: 0 1px 3px rgba(12, 15, 65, 0.06);
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.card-grid label input { position: absolute; opacity: 0; pointer-events: none; }
+.card-grid label:has(input:checked) { border-color: #4754eb; background: #f6f7ff; }
+.card-grid label:has(input:focus-visible) { outline: 2px solid #4754eb; outline-offset: 2px; }
+.card-grid .opt-title .opt-tag { margin-left: 4px; }
+.widget-points + .card-grid { margin-top: 16px; }

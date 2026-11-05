@@ -18,11 +18,13 @@ const FLEX_PURSES = [
 ];
 // Purses as named on the Nations portal (Core App Experience, Figma 6287:23451)
 const C = "../assets/carehub/";
+// Same purses, names and icons as the current prototype.
+// short: the portal name, trimmed only where it doesn't fit the widget tile's 2-line label
 const NATIONS_PURSES = [
-  { name: "2026 Health Screening Rewards",    amount: "$375.00", icon: "icon-heartbeat.svg" },
-  { name: "Over the Counter, Food & Produce", amount: "$143.00", icon: "icon-fork-knife.svg" },
-  { name: "Post Discharge Incentives",        amount: "$50.00",  icon: "icon-hospital.svg" },
-  { name: "Health Risk Assessment Rewards",   amount: "$25.00",  icon: "icon-list-checks.svg" },
+  { name: "2026 Health Screening Rewards",    short: ["Health", "Screening"],      amount: "$375.00", icon: "icon-heartbeat.svg" },
+  { name: "Over the Counter, Food & Produce", short: ["OTC, Food", "& Produce"],    amount: "$143.00", icon: "icon-basket.svg" },
+  { name: "Post Discharge Incentives",        short: ["Post", "Discharge"],         amount: "$50.00",  icon: "icon-hospital.svg" },
+  { name: "Health Risk Assessment Rewards",   short: ["Health Risk", "Assessment"], amount: "$25.00",  icon: "icon-clipboard-text.svg" },
 ];
 let careHubNoteSeen = false; // Android: a SharedPreferences flag, set by "Got it"
 // How the Flex card page tells widget users it lives in Care hub: "line" | "note" | "none"
@@ -256,11 +258,8 @@ const DURATION = 450;
 
 // Each card is one collection item: label, icon AND hint (arrow / dots) are drawn inside it,
 // so they stay correct even when the launcher advances the widget on its own.
-// Purse labels on the widget: "short" = the Figma widget frames (3 purses, 2-line labels),
-// "portal" = the Nations portal names from the Flex card page (4 purses, name clamped to 2 lines).
-const widgetPurses = (names) => names === "portal"
-  ? NATIONS_PURSES.map((p) => ({ name: p.name, amount: p.amount, icon: `../assets/carehub/${p.icon}` }))
-  : FLEX_PURSES.map((p) => ({ ...p, icon: `../assets/${p.icon}` }));
+// Purse labels on the widget: the Nations portal names, shortened to 2 lines (same as the current prototype)
+const widgetPurses = () => NATIONS_PURSES.map((p) => ({ line1: p.short[0], line2: p.short[1], amount: p.amount, icon: `../assets/carehub/${p.icon}` }));
 let cards = [];
 let railCount = null;
 // Stepper tile (Figma 2691:18061): an overview card ("Flex Card / Balance / 4 balances"), then
@@ -269,7 +268,7 @@ const stepperCard = (p, i) => `
   <div class="pcard" data-i="${i}" aria-label="${p.overview ? "Overview" : `${i} of ${N - 1}`}">
     <div class="pcard-body stp">
       <div class="stp-top">
-        <span class="stp-label">${p.overview ? "Flex Card<br>Balance" : (p.name || p.stepLabel || `${p.line1} ${p.line2}`)}</span>
+        <span class="stp-label">${p.overview ? "Flex Card<br>Balance" : (p.name || p.stepLabel || `${p.line1}<br>${p.line2}`)}</span>
         <span class="tile-icon"><img src="${p.overview ? "../assets/icon-cardholder.svg" : p.icon}" width="16" height="16" alt="" draggable="false" /></span>
       </div>
       <span class="tile-line tile-line--strong stp-value">${p.overview ? `${p.count} balances` : p.amount}</span>
@@ -326,7 +325,7 @@ function buildCards(list, { stepper = false } = {}) {
   cards = [...flexTile.querySelectorAll(".pcard")];
   railCount = document.getElementById("railCount");
 }
-buildCards(widgetPurses("short"));
+buildCards(widgetPurses());
 
 let page = 0;
 let step = 0; // prism: unbounded turn count, so 3 → 1 keeps turning forward instead of rewinding
@@ -564,7 +563,7 @@ function setMode(mode) {
     flexTile.dataset.stepper = stepperOn ? "1" : "";
     page = 0;
     step = 0;
-    buildCards(widgetPurses(document.querySelector('input[name="names"]:checked').value), { stepper: stepperOn });
+    buildCards(widgetPurses(), { stepper: stepperOn });
   }
   withoutAnim(cards, () => {
     cards.forEach((c) => { c.classList.remove("exit-up", "enter-top"); c.style.cssText = ""; });
@@ -620,24 +619,26 @@ function setCtl(value) {
 ctlInputs.forEach((r) => r.addEventListener("change", () => setCtl(r.value)));
 function setFlip(value) { flipInputs.forEach((r) => (r.checked = r.value === value)); }
 hintInputs.forEach((inp) => inp.addEventListener("change", applyHints));
-document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCtl("stepper"); setHints([]); });
-document.getElementById("hintFigma").addEventListener("click", () => { setFlip("slide"); setCtl("dots"); setHints([]); });
 
 /* Question 1: "No" swaps the purse pager for a plain link tile; "Yes" keeps it. */
 const answerInputs = [...document.querySelectorAll('input[name="answer"]')];
-const nameInputs = [...document.querySelectorAll('input[name="names"]')];
 const notes = document.querySelector(".notes");
+// Widget 1 = the paged tile ("pager"); Widget 2 = a link tile ("no") or a separate list widget ("yes")
+const widgetInputs = [...document.querySelectorAll('input[name="widget"]')];
+let lastW2 = "no";
 function setAnswer(value) {
   answerInputs.forEach((r) => (r.checked = r.value === value));
   phone.dataset.answer = value;
   notes.dataset.answer = value;
+  if (value !== "pager") lastW2 = value;
+  widgetInputs.forEach((r) => (r.checked = r.value === (value === "pager" ? "1" : "2")));
   if (value === "pager") startAuto(); else stopAuto();
 }
+widgetInputs.forEach((r) => r.addEventListener("change", () => setAnswer(r.value === "1" ? "pager" : lastW2)));
 answerInputs.forEach((r) => r.addEventListener("change", () => setAnswer(r.value)));
 // Touching any "Yes" option switches back to Yes
-document.querySelectorAll("#modeControls, #hintControls, #namesControls").forEach((f) =>
+document.querySelectorAll("#modeControls, #hintControls").forEach((f) =>
   f.addEventListener("change", () => { if (phone.dataset.answer !== "pager") setAnswer("pager"); }));
-document.querySelectorAll("#hintRecommended, #hintFigma").forEach((b) => b.addEventListener("click", () => setAnswer("pager")));
 
 /* ---------- "Yes": separate Flex Card widget ----------
    Android: ListView rows from a RemoteViewsService, one per purse (full Nations name + balance). */
@@ -653,12 +654,6 @@ fcList.addEventListener("click", (e) => {
 });
 const fcSeeAll = document.getElementById("fcSeeAll");
 fcSeeAll.addEventListener("click", () => openApp("flex", fcSeeAll.closest(".fc-widget"), { source: "widget" }));
-nameInputs.forEach((r) => r.addEventListener("change", () => {
-  page = 0;
-  step = 0;
-  buildCards(widgetPurses(r.value), { stepper: flexTile.dataset.stepper === "1" });
-  setMode(flexTile.dataset.mode);
-}));
 const flexLinkTile = document.getElementById("flexLinkTile");
 flexLinkTile.addEventListener("click", () => openApp("flex", flexLinkTile, { source: "widget" }));
 
@@ -697,10 +692,13 @@ document.getElementById("gestureBar").addEventListener("click", goHome);
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") goHome();
 });
-document.getElementById("reset").addEventListener("click", () => {
-  goHome();
-  page = 0;
-  used = false;
-  careHubNoteSeen = false;
-  setMode(flexTile.dataset.mode);
-});
+
+/* ---------- Android engineering notes toggle (same setting as the main page) ---------- */
+const androidToggle = document.getElementById("androidToggle");
+const setAndroidNotes = (on) => {
+  androidToggle.checked = on;
+  notes.classList.toggle("show-android", on);
+  try { localStorage.setItem("molina-flexcard:android-notes", on ? "1" : "0"); } catch {}
+};
+androidToggle.addEventListener("change", () => setAndroidNotes(androidToggle.checked));
+setAndroidNotes((() => { try { return localStorage.getItem("molina-flexcard:android-notes") === "1"; } catch { return false; } })());

@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=32a" />
+  <link rel="stylesheet" href="styles.css?v=43" />
 </head>
 <body>
   <main class="stage">
@@ -59,18 +59,13 @@
                 </div>
               </div>
 
-              <!-- Answer "No": a plain link tile, no balances on the widget -->
+              <!-- Widget 2: a plain link tile, no balances on the widget (same copy as the current prototype) -->
               <button class="tile" id="flexLinkTile" type="button">
                 <span class="tile-text">
-                  <span class="tile-face link-copy--ticket">
-                    <span class="tile-line">Check your</span>
+                  <span class="tile-face">
+                    <span class="tile-line">View your</span>
                     <span class="tile-line">Flex Card</span>
                     <span class="tile-line">balance</span>
-                  </span>
-                  <span class="tile-face link-copy--count">
-                    <span class="tile-line">Flex Card</span>
-                    <span class="tile-line tile-line--strong">4 balances</span>
-                    <span class="tile-caption">Updated today</span>
                   </span>
                 </span>
                 <span class="tile-icon"><img src="../assets/icon-cardholder.svg" width="16" height="16" alt="" /></span>
@@ -154,64 +149,114 @@
     </div>
 
     <aside class="notes">
-      <p class="archive-banner"><b>Archive</b> · Earlier iterations, as presented on Nov 5 before Nicole's feedback. <a href="../">Back to the current prototype</a></p>
+      <p class="archive-banner"><b>Archive</b> · Earlier iterations, before the Nov 5 feedback. <a href="../">Back to the current prototype</a></p>
+      <div class="notes-intro">
       <h1>Widget prototype</h1>
-      <p>Figma <code>v2/link</code> · Android Large 360×800</p>
-      <h2 class="notes-h2">Flex Card on the widget · Android</h2>
-      <p class="notes-sub">Both answers to the first question, built only with what a real Android home-screen widget can do. Under each title is how Android builds it.</p>
+      <p>Android Large 360×800</p>
+      <h2 class="notes-h2">Flex Card on the widget</h2>
+      <p class="notes-sub">Two widget directions, built only with what a real Android home-screen widget can do. Tap a Flex Card tile to see the full list.</p>
+      <label class="android-toggle">
+        <input type="checkbox" id="androidToggle" role="switch" />
+        <span class="android-toggle-track" aria-hidden="true"></span>
+        <span>Show Android engineering notes</span>
+      </label>
 
-      <fieldset class="hint-group" id="answerControls">
-        <legend>Can the widget show multiple balances?</legend>
-        <label><input type="radio" name="answer" value="no" />
-          <span class="opt">
-            <b class="opt-title">No · link to Care hub</b>
-            <span class="opt-android"><i>Android</i>A plain tile (TextView + ImageView) with setOnClickPendingIntent → deep link to Care hub › Flex card. No collection widget and no balance data on the widget.</span>
-            <span class="opt-desc">One tile, one action: "Flex Card / 4 balances / Updated today". It says there's something to check without showing or adding up any amounts, and tapping it opens the Flex card page with every purse broken out. The count and "updated" time come from the backend.</span>
-          </span>
-        </label>
-        <label><input type="radio" name="answer" value="yes" />
-          <span class="opt">
-            <b class="opt-title">Yes · separate Flex Card widget <span class="opt-tag">recommended</span></b>
-            <span class="opt-android"><i>Android</i>A second AppWidgetProvider the member adds below the Thrive widget (4×2, resizable to 4×3). A &lt;ListView&gt; fed by a RemoteViewsService shows one row per purse and scrolls vertically, which is the scrolling widgets support. "See all" → setOnClickPendingIntent; each row → setPendingIntentTemplate + fill-in intent. Members can remove it without losing the Thrive widget.</span>
-            <span class="opt-desc">Every purse with its full Nations name and balance, in a short list with room to read. "See all" and any row open the Flex card page. The Thrive widget keeps a single link tile with the ticket copy, "Check your Flex Card balance", since the balances now live in their own widget.</span>
-          </span>
-        </label>
-        <label><input type="radio" name="answer" value="pager" checked />
-          <span class="opt">
-            <b class="opt-title">Yes · paged tile in the Thrive widget</b>
-            <span class="opt-desc">Balances page inside the Flex Card tile. The options below only apply to it; the default is the stepper tile from Figma 2691:18061.</span>
-          </span>
-        </label>
-      </fieldset>
+      <div class="widget-switch" id="answerControls" role="radiogroup" aria-label="Widget">
+        <label><input type="radio" name="widget" value="1" checked /><span><b>Widget 1</b>Flippable</span></label>
+        <label><input type="radio" name="widget" value="2" /><span><b>Widget 2</b>Static, tap-only</span></label>
+      </div>
+      </div>
 
-      <h2 class="notes-h2 pager-only">Paged tile options</h2>
-      <fieldset class="hint-group pager-only" id="namesControls">
-        <legend>Purse labels on the widget</legend>
-        <label><input type="radio" name="names" value="short" checked />
-          <span class="opt">
-            <b class="opt-title">Short labels</b>
-            <span class="opt-android"><i>Android</i>Needs a short display name per purse from Molina / Nations, since the API names are long.</span>
-            <span class="opt-desc">The 3 purses from the Figma widget frames, with 2-line labels that fit the tile.</span>
-          </span>
-        </label>
-        <label><input type="radio" name="names" value="portal" />
-          <span class="opt">
-            <b class="opt-title">Nations portal names</b>
-            <span class="opt-android"><i>Android</i>Names from the Nations API as-is, in a TextView with maxLines="2" and ellipsize="end".</span>
-            <span class="opt-desc">The same 4 purses and names as the Flex card page. At this tile width most names get cut off.</span>
-          </span>
-        </label>
-      </fieldset>
+      <section class="widget-section w2-only" aria-labelledby="w2Title">
+        <h2 class="widget-section-title" id="w2Title"><span class="widget-num">Widget 2</span>Static, tap-only</h2>
+        <ul class="widget-points">
+          <li>Back-pocket option if Molina doesn't want balances on the widget.</li>
+          <li>No flipping and no amounts: one tile, "View your Flex Card balance".</li>
+          <li>A tap opens the Flex card page in Care hub.</li>
+        </ul>
+        <div class="sub-options card-grid" id="w2Options" role="radiogroup" aria-label="Widget 2 version">
+          <span class="sub-label">Version</span>
+          <label><input type="radio" name="answer" value="no" />
+            <span class="opt">
+              <b class="opt-title">Link tile</b>
+              <span class="opt-android"><i>Android</i>A plain tile (TextView + ImageView) with setOnClickPendingIntent → deep link to Care hub › Flex card. No collection widget and no balance data on the widget.</span>
+              <span class="opt-desc">Just the tile. The balances live on the Flex card page.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="answer" value="yes" />
+            <span class="opt">
+              <b class="opt-title">Separate list widget <span class="opt-tag">recommended</span></b>
+              <span class="opt-android"><i>Android</i>A second AppWidgetProvider the member adds below the Thrive widget (4×2, resizable to 4×3). A &lt;ListView&gt; fed by a RemoteViewsService shows one row per purse and scrolls vertically, which is the scrolling widgets support. "See all" → setOnClickPendingIntent; each row → setPendingIntentTemplate + fill-in intent. Members can remove it without losing the Thrive widget.</span>
+              <span class="opt-desc">The tile, plus a separate Flex Card widget below the Thrive widget: every purse with its full Nations name and balance, in a short list with room to read. "See all" and any row open the Flex card page.</span>
+            </span>
+          </label>
+          <input type="radio" name="answer" value="pager" checked hidden />
+        </div>
+      </section>
 
-      <fieldset class="hint-group pager-only" id="modeControls">
+      <section class="widget-section pager-only" aria-labelledby="pagerTitle">
+      <h2 class="widget-section-title" id="pagerTitle"><span class="widget-num">Widget 1</span>Flippable</h2>
+      <ul class="widget-points">
+        <li>Balances page inside the Flex Card tile, one purse at a time.</li>
+        <li>The default is the stepper tile from Figma 2691:18061.</li>
+      </ul>
+
+      <fieldset class="hint-group" id="modeControls">
         <legend>Built with</legend>
-        <label><input type="radio" name="mode" value="flipper" checked />
+        <div class="widget-switch mode-switch" role="radiogroup" aria-label="Built with">
+          <label><input type="radio" name="mode" value="flipper" checked /><span>AdapterViewFlipper</span></label>
+          <label><input type="radio" name="mode" value="stack" /><span>StackView</span></label>
+        </div>
+        <div class="mode-panel" data-for="flipper">
           <span class="opt">
-            <b class="opt-title">AdapterViewFlipper <span class="opt-tag">default</span></b>
             <span class="opt-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService. Next tap → setOnClickFillInIntent → broadcast → showNext(). Card tap → opens Flex Card balances in Care hub.</span>
             <span class="opt-desc">One purse at a time. A small control moves to the next purse; tapping anywhere else on the card opens the full list. Swiping isn't possible.</span>
           </span>
-        </label>
+        <div class="sub-options card-grid" id="ctlOptions">
+          <span class="sub-label">Next control <em id="ctlNote"></em></span>
+          <label><input type="radio" name="ctl" value="stepper" checked />
+            <span class="opt">
+              <b class="opt-title">Stepper tile <span class="opt-tag">Figma 2691:18061</span></b>
+              <span class="opt-android"><i>Android</i>The flipper's first item is an overview ("Flex Card / Balance / N balances"), then one item per purse. The ⌃/⌄ stepper is two ImageButtons outside the flipper: each tap → broadcast → partiallyUpdateAppWidget() with showPrevious() / showNext(). Nothing in the stepper changes. The corner icon is a second ViewFlipper of icons with fade animators that gets the same showNext() / showPrevious(), so it stays in place and cross-fades. Auto-advance is off, since the icon couldn't follow the flipper's own flips. Card tap → Care hub › Flex card.</span>
+              <span class="opt-desc">The tile starts as a summary, "4 balances", and the up/down stepper steps through each purse and back. Tapping the rest of the tile opens the full list. The tile is 104px tall, so the Call tile grows to match.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="caption" />
+            <span class="opt">
+              <b class="opt-title">Count under the icon</b>
+              <span class="opt-android"><i>Android</i>A TextView under the purse icon inside each flipper item, set in getViewAt(position) ("2 of 4"), so it always matches the purse shown. android:autoStart="true" + flipInterval="5000". The whole item keeps one fill-in intent that opens Care hub › Flex card.</span>
+              <span class="opt-desc">No next control: "1 of 4" under the purse icon says how many balances there are. Purses change every 5 seconds and a tap opens the full list, so the tile has one action. Members can't pause the rotation on a widget, so keep the interval generous.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="rail" />
+            <span class="opt">
+              <b class="opt-title">Side rail</b>
+              <span class="opt-android"><i>Android</i>Horizontal LinearLayout: the flipper + a static ImageButton/TextView strip outside it. Strip tap → broadcast → partiallyUpdateAppWidget() with showNext(flipperId) + setTextViewText(counter). Expect a short lag (~100–300ms). The counter lives outside the flipper and can't follow its own auto-advance, so auto-advance is off with the rail.</span>
+              <span class="opt-desc">A full-height strip on the right edge, styled as a Design Library tertiary icon button (no fill, divider line, 20px brand arrow, count in Tiny/Bold), is the only "next" target, so the rest of the card clearly opens the list. Its ↓ means "next"; the › after the name means "open the list". No room for the purse icon at this tile width.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="chip" />
+            <span class="opt">
+              <b class="opt-title">Counter chip</b>
+              <span class="opt-android"><i>Android</i>TextView + ImageView on a rounded background inside each item. getViewAt(position) sets its text ("2/3"), so it stays right after auto-advance. Same fill-in intent as the dots.</span>
+              <span class="opt-desc">A Design Library chip (label only) with "1/4" in the bottom-right corner. It looks tappable and says how many balances there are. The full chip with a caret icon doesn't fit next to the amount.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="button" />
+            <span class="opt">
+              <b class="opt-title">Arrow button</b>
+              <span class="opt-android"><i>Android</i>ImageButton with a filled circle background inside each item. Same fill-in intent as the dots.</span>
+              <span class="opt-desc">Design Library buttonIcon (Primary · Brand · Small, 32px) with a down arrow, under the purse icon. Clearly tappable, but it doesn't say how many balances there are.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="dots" />
+            <span class="opt">
+              <b class="opt-title">Page dots <span class="opt-tag opt-tag--muted">previous</span></b>
+              <span class="opt-android"><i>Android</i>3 ImageViews inside each item, highlighted in getViewAt(position). Same fill-in intent.</span>
+              <span class="opt-desc">Dots under the purse icon. Compact, but members may not know to tap them.</span>
+            </span>
+          </label>
+        </div>
         <div class="sub-options" id="flipOptions">
           <span class="sub-label">Flipper animation</span>
           <label><input type="radio" name="flip" value="slide" checked />
@@ -250,61 +295,17 @@
             </span>
           </label>
         </div>
-        <div class="sub-options" id="ctlOptions">
-          <span class="sub-label">Next control <em id="ctlNote"></em></span>
-          <label><input type="radio" name="ctl" value="stepper" checked />
-            <span class="opt">
-              <b class="opt-title">Stepper tile <span class="opt-tag">Figma 2691:18061</span></b>
-              <span class="opt-android"><i>Android</i>The flipper's first item is an overview ("Flex Card / Balance / N balances"), then one item per purse. The ⌃/⌄ stepper is two ImageButtons outside the flipper: each tap → broadcast → partiallyUpdateAppWidget() with showPrevious() / showNext(). Nothing in the stepper changes. The corner icon is a second ViewFlipper of icons with fade animators that gets the same showNext() / showPrevious(), so it stays in place and cross-fades. Auto-advance is off, since the icon couldn't follow the flipper's own flips. Card tap → Care hub › Flex card.</span>
-              <span class="opt-desc">The tile starts as a summary, "4 balances", and the up/down stepper steps through each purse and back. Tapping the rest of the tile opens the full list. The tile is 104px tall, so the Call tile grows to match.</span>
-            </span>
-          </label>
-          <label><input type="radio" name="ctl" value="caption" />
-            <span class="opt">
-              <b class="opt-title">Count under the icon</b>
-              <span class="opt-android"><i>Android</i>A TextView under the purse icon inside each flipper item, set in getViewAt(position) ("2 of 3"), so it always matches the purse shown. android:autoStart="true" + flipInterval="5000". The whole item keeps one fill-in intent that opens Care hub › Flex card.</span>
-              <span class="opt-desc">No next control: "1 of 3" under the purse icon says how many balances there are. Purses change every 5 seconds and a tap opens the full list, so the tile has one action. Members can't pause the rotation on a widget, so keep the interval generous.</span>
-            </span>
-          </label>
-          <label><input type="radio" name="ctl" value="rail" />
-            <span class="opt">
-              <b class="opt-title">Side rail</b>
-              <span class="opt-android"><i>Android</i>Horizontal LinearLayout: the flipper + a static ImageButton/TextView strip outside it. Strip tap → broadcast → partiallyUpdateAppWidget() with showNext(flipperId) + setTextViewText(counter). Expect a short lag (~100–300ms). The counter lives outside the flipper and can't follow its own auto-advance, so auto-advance is off with the rail.</span>
-              <span class="opt-desc">A full-height strip on the right edge, styled as a Design Library tertiary icon button (no fill, divider line, 20px brand arrow, count in Tiny/Bold), is the only "next" target, so the rest of the card clearly opens the list. Its ↓ means "next"; the › after the name means "open the list". No room for the purse icon at this tile width.</span>
-            </span>
-          </label>
-          <label><input type="radio" name="ctl" value="chip" />
-            <span class="opt">
-              <b class="opt-title">Counter chip</b>
-              <span class="opt-android"><i>Android</i>TextView + ImageView on a rounded background inside each item. getViewAt(position) sets its text ("2/3"), so it stays right after auto-advance. Same fill-in intent as the dots.</span>
-              <span class="opt-desc">A Design Library chip (label only) with "1/3" in the bottom-right corner. It looks tappable and says how many balances there are. The full chip with a caret icon doesn't fit next to the amount.</span>
-            </span>
-          </label>
-          <label><input type="radio" name="ctl" value="button" />
-            <span class="opt">
-              <b class="opt-title">Arrow button</b>
-              <span class="opt-android"><i>Android</i>ImageButton with a filled circle background inside each item. Same fill-in intent as the dots.</span>
-              <span class="opt-desc">Design Library buttonIcon (Primary · Brand · Small, 32px) with a down arrow, under the purse icon. Clearly tappable, but it doesn't say how many balances there are.</span>
-            </span>
-          </label>
-          <label><input type="radio" name="ctl" value="dots" />
-            <span class="opt">
-              <b class="opt-title">Page dots <span class="opt-tag opt-tag--muted">previous</span></b>
-              <span class="opt-android"><i>Android</i>3 ImageViews inside each item, highlighted in getViewAt(position). Same fill-in intent.</span>
-              <span class="opt-desc">Dots under the purse icon. Compact, but members may not know to tap them.</span>
-            </span>
-          </label>
         </div>
-        <label><input type="radio" name="mode" value="stack" />
+        <div class="mode-panel" data-for="stack">
           <span class="opt">
-            <b class="opt-title">StackView</b>
             <span class="opt-android"><i>Android</i>&lt;StackView&gt; fed by a RemoteViewsService. The launcher handles the swipe and plays the built-in deck animation, which can't be customized. Card tap → setOnClickFillInIntent → opens the app.</span>
             <span class="opt-desc">Purses are a real deck of cards. Swipe up and the top card flies off while the next one moves forward. Swipe down to bring it back. There's no arrow, because the swipe is the gesture.</span>
           </span>
-        </label>
+        </div>
       </fieldset>
 
-      <fieldset class="hint-group pager-only" id="hintControls">
+      <!-- Hints: removed from the notes; the inputs stay (hidden) because app.js reads their defaults -->
+      <fieldset class="hint-group" id="hintControls" hidden>
         <legend>Hints</legend>
         <label><input type="checkbox" data-hint="cue" checked />
           <span class="opt">
@@ -329,54 +330,15 @@
         </label>
       </fieldset>
 
-      <div class="notes-actions pager-only">
-        <button class="reset reset--primary" id="hintRecommended" type="button">Try recommended</button>
-        <button class="reset" id="hintFigma" type="button">Previous version (dots)</button>
-      </div>
-
-      <h2 class="notes-h2">Full list in Care hub</h2>
-      <p class="notes-sub">Tapping the card opens the <b>Flex card</b> page (Figma 6287:23451): every purse with its Nations portal name and available balance, nothing else. Care hub (6283:1802) links to it from <b>Your benefits</b>.</p>
-      <fieldset class="hint-group" id="orientControls">
-        <legend>Care hub orientation · only when opened from the widget</legend>
-        <label><input type="radio" name="orient" value="line" checked />
-          <span class="opt">
-            <b class="opt-title">Header line <span class="opt-tag">recommended</span></b>
-            <span class="opt-android"><i>Android</i>The widget's PendingIntent carries an extra (source=widget); the page shows the line only for that source.</span>
-            <span class="opt-desc">One quiet line under the heading: "You can always find this in Care hub". Nothing to dismiss, and it never shows when the member came from Care hub, so it isn't repetitive.</span>
-          </span>
-        </label>
-        <label><input type="radio" name="orient" value="note" />
-          <span class="opt">
-            <b class="opt-title">One-time note</b>
-            <span class="opt-android"><i>Android</i>Same extra, plus a "seen" flag in SharedPreferences after Got it. Reset brings it back.</span>
-            <span class="opt-desc">A card saying "Your balances always live in Care hub" with Got it. More noticeable, but one more thing to tap.</span>
-          </span>
-        </label>
-        <label><input type="radio" name="orient" value="none" />
-          <span class="opt">
-            <b class="opt-title">No copy</b>
-            <span class="opt-desc">Relies on the navigation alone (below).</span>
-          </span>
-        </label>
-      </fieldset>
-      <p class="notes-android"><i>Android</i>In every option the page opens with Care hub underneath (TaskStackBuilder, Care hub as parent): the Care hub tab is selected and Back goes to Care hub, so members see where the page lives without being told.</p>
+      </section>
 
       <details class="notes-cut">
         <summary>Dropped: not possible on Android widgets</summary>
         <p><b>Content peek</b>: widgets have no fade masks or snap-scrolling, so the half-visible next page would land at random scroll positions.</p>
         <p><b>Nudge animation</b>: widgets can't run custom animations. Auto-advance is the closest supported way to show motion.</p>
       </details>
-
-      <ul>
-        <li>Tap the Flex Card tile (not the next control) → Flex card page</li>
-        <li><b>See more</b> → Care hub → <b>Flex card</b> (no note)</li>
-        <li><b>Explore your benefits</b> → benefits page</li>
-        <li><b>Call Member Services</b> → call confirmation sheet</li>
-        <li><b>Gesture bar</b> or <kbd>Esc</kbd> → back to home screen</li>
-      </ul>
-      <button class="reset" id="reset" type="button">Reset</button>
     </aside>
   </main>
-  <script src="app.js?v=32"></script>
+  <script src="app.js?v=38"></script>
 </body>
 </html>
