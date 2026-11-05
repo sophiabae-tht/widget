@@ -15,10 +15,10 @@ const toastEl = document.getElementById("toast");
 // (16px semibold, 116px wide with the link-out icon beside line 1). Same words and casing as the portal.
 const C = "assets/carehub/";
 const NATIONS_PURSES = [
-  { name: "2026 Health Screening Rewards",    short: ["Health", "Screening"],      amount: "$375.00", icon: "icon-heartbeat.svg" },
-  { name: "Over the Counter, Food & Produce", short: ["OTC, Food", "& Produce"],    amount: "$143.00", icon: "icon-basket.svg" },
-  { name: "Post Discharge Incentives",        short: ["Post", "Discharge"],         amount: "$50.00",  icon: "icon-hospital.svg" },
-  { name: "Health Risk Assessment Rewards",   short: ["Health Risk", "Assessment"], amount: "$25.00",  icon: "icon-clipboard-text.svg" },
+  { name: "2026 Health Screening Rewards",    short: ["Health", "Screening"],      amount: "$375.00", icon: "icon-heartbeat.svg", icon16: "icon-gift-16.svg" },
+  { name: "Over the Counter, Food & Produce", short: ["OTC, Food", "& Produce"],    amount: "$143.00", icon: "icon-basket.svg", icon16: "icon-basket-16.svg" },
+  { name: "Post Discharge Incentives",        short: ["Post", "Discharge"],         amount: "$50.00",  icon: "icon-hospital.svg", icon16: "icon-hospital-16.svg" },
+  { name: "Health Risk Assessment Rewards",   short: ["Health Risk", "Assessment"], amount: "$25.00",  icon: "icon-clipboard-text.svg" , icon16: "icon-clipboard-text-16.svg" },
 ];
 
 const pageHeader = (title, body) => `
@@ -311,8 +311,8 @@ const DURATION = 450;
 // Purse labels on the widget: "short" = the Figma widget frames (3 purses, 2-line labels),
 // "portal" = the Nations portal names from the Flex card page (4 purses, name clamped to 2 lines).
 const widgetPurses = (names) => names === "portal"
-  ? NATIONS_PURSES.map((p) => ({ name: p.name, amount: p.amount, icon: `${C}${p.icon}` }))
-  : NATIONS_PURSES.map((p) => ({ line1: p.short[0], line2: p.short[1], amount: p.amount, icon: `${C}${p.icon}` }));
+  ? NATIONS_PURSES.map((p) => ({ name: p.name, amount: p.amount, icon: `${C}${p.icon}`, icon16: `assets/v4/${p.icon16}` }))
+  : NATIONS_PURSES.map((p) => ({ line1: p.short[0], line2: p.short[1], amount: p.amount, icon: `${C}${p.icon}`, icon16: `assets/v4/${p.icon16}` }));
 let cards = [];
 let railCount = null;
 // Stepper tile (Figma 2691:18061): one card per purse, starting on the first purse (no overview,
@@ -327,8 +327,55 @@ const stepperCard = (p, i) => `
       <span class="tile-line tile-line--strong stp-value">${p.amount}</span>
     </div>
   </div>`;
-function buildCards(list, { stepper = false } = {}) {
-  if (stepper) {
+/* ---------- Widget 1 · v4 looks (Figma Molina_Widget_v4, frames v4/w1) ----------
+   All four: label (2 lines, cut off with … like Figma), amount, and "1 of 4" in each flipper item;
+   flipping is next-only and wraps from the last purse to the first. Tap anywhere else → Care hub.
+   · v4-right  Right caret: static cardholder icon top right; bottom half (count + ›) flips.
+   · v4-strip  Caret flipper: right strip split in two; top cell shows the purse icon, bottom cell's ⌄ flips.
+   · v4-tab    Caret flipper, corner tab: same, no dividers; the ⌄ sits on a raised corner tab.
+   · v4-page   Page turn: card with a folded bottom-right corner; bottom half flips.            */
+const V4_LOOKS = ["v4-right", "v4-strip", "v4-tab", "v4-page"];
+const v4Card = (look) => (p, i) => {
+  const [l1, l2] = p.name ? [p.name, ""] : [p.line1, p.line2];
+  const purseIcon = look === "v4-strip" || look === "v4-tab"
+    ? `<span class="v4-purse tile-icon"><img src="${p.icon16}" width="16" height="16" alt="" draggable="false" /></span>` : "";
+  return `
+  <div class="pcard" data-i="${i}" aria-label="${i + 1} of ${N}">
+    <div class="pcard-body v4-body">
+      <span class="v4-label"><span>${l1}</span>${l2 ? `<span>${l2}</span>` : ""}</span>
+      <span class="v4-amount">${p.amount}</span>
+      <span class="v4-count">${i + 1} of ${N}</span>
+    </div>
+    ${purseIcon}
+  </div>`;
+};
+const v4Chrome = {
+  // Android: ImageView outside the flipper (opens Care hub with the card); the bottom half is a
+  // separate view whose fill-in intent → broadcast → showNext().
+  "v4-right": `
+  <span class="v4-icon tile-icon" aria-hidden="true"><img src="assets/icon-cardholder.svg" width="16" height="16" alt="" draggable="false" /></span>
+  <button class="v4-next v4-next--half" data-next type="button" aria-label="Next balance"><span class="v4-caret"><img src="assets/v4/icon-caret-right-16.svg" width="16" height="16" alt="" draggable="false" /></span></button>`,
+  "v4-strip": `
+  <span class="v4-strip" aria-hidden="true"><span class="v4-strip-top"></span></span>
+  <button class="v4-next v4-next--cell" data-next type="button" aria-label="Next balance"><span class="v4-circle"><img src="assets/v4/icon-caret-down-16.svg" width="16" height="16" alt="" draggable="false" /></span></button>`,
+  "v4-tab": `
+  <button class="v4-next v4-next--tab" data-next type="button" aria-label="Next balance"><span class="v4-circle v4-circle--bare"><img src="assets/v4/icon-caret-down-16.svg" width="16" height="16" alt="" draggable="false" /></span></button>`,
+  "v4-page": `
+  <img class="v4-surface" src="assets/v4/card-surface.svg?v=2" width="156" height="124" alt="" draggable="false" />
+  <span class="v4-icon tile-icon" aria-hidden="true"><img src="assets/icon-cardholder.svg" width="16" height="16" alt="" draggable="false" /></span>
+  <button class="v4-next v4-next--half" data-next type="button" aria-label="Next balance"><img class="v4-corner" src="assets/v4/page-corner.svg?v=2" width="40" height="40" alt="" draggable="false" /></button>`,
+};
+
+function buildCards(list, { look = "" } = {}) {
+  if (V4_LOOKS.includes(look)) {
+    N = list.length;
+    flexTile.innerHTML = list.map(v4Card(look)).join("") + v4Chrome[look] + `
+  <span hidden id="railCount"></span>`;
+    cards = [...flexTile.querySelectorAll(".pcard")];
+    railCount = document.getElementById("railCount");
+    return;
+  }
+  if (look === "stepper") {
     N = list.length;
     // Link-out icon: static, outside the flipper. Android: an ImageView with the same
     // setOnClickPendingIntent as the card (→ Care hub › Flex card).
@@ -489,6 +536,10 @@ flexTile.addEventListener("click", (e) => {
 
 const CTL_TIP = {
   stepper: "Widgets can't swipe. Use the up and down arrows",
+  "v4-right": "Widgets can't swipe. Tap the bottom half for the next balance",
+  "v4-strip": "Widgets can't swipe. Tap the arrow for the next balance",
+  "v4-tab": "Widgets can't swipe. Tap the corner tab for the next balance",
+  "v4-page": "Widgets can't swipe. Tap the folded corner for the next balance",
   caption: "Widgets can't swipe. Balances change every 5 seconds",
   dots: "Tap the dots for the next balance",
   button: "Tap the arrow button for the next balance",
@@ -606,13 +657,16 @@ const ctlNote = document.getElementById("ctlNote");
 
 function setMode(mode) {
   modeInputs.forEach((r) => (r.checked = r.value === mode));
-  const stepperOn = mode === "flipper" && flipInputs.find((r) => r.checked).value !== "prism"
-    && ctlInputs.find((r) => r.checked).value === "stepper";
-  if (stepperOn !== (flexTile.dataset.stepper === "1")) {
-    flexTile.dataset.stepper = stepperOn ? "1" : "";
+  const ctlNow = ctlInputs.find((r) => r.checked).value;
+  // Look = the stepper tile or one of the v4 tiles (flipper only); "" = the earlier pager controls
+  const look = mode === "flipper" && flipInputs.find((r) => r.checked).value !== "prism"
+    && (ctlNow === "stepper" || V4_LOOKS.includes(ctlNow)) ? ctlNow : "";
+  if (look !== (flexTile.dataset.look || "")) {
+    flexTile.dataset.look = look;
+    flexTile.dataset.stepper = look === "stepper" ? "1" : "";
     page = 0;
     step = 0;
-    buildCards(widgetPurses(document.querySelector('input[name="names"]:checked').value), { stepper: stepperOn });
+    buildCards(widgetPurses(document.querySelector('input[name="names"]:checked').value), { look });
   }
   withoutAnim(cards, () => {
     cards.forEach((c) => { c.classList.remove("exit-up", "enter-top"); c.style.cssText = ""; });
@@ -636,7 +690,7 @@ function setMode(mode) {
   const railOn = mode === "flipper" && !isPrism() && flexTile.dataset.ctl === "rail";
   // Caption: no next control, so the flipper always auto-advances
   const captionOn = mode === "flipper" && !isPrism() && flexTile.dataset.ctl === "caption";
-  const stepOn = flexTile.dataset.stepper === "1";
+  const stepOn = !!flexTile.dataset.look; // stepper / v4 looks: no auto-advance
   autoInput.disabled = railOn || captionOn || stepOn;
   if (railOn || stepOn) autoInput.checked = false;
   if (captionOn) autoInput.checked = true;
@@ -697,7 +751,7 @@ document.querySelectorAll("#hintRecommended, #hintFigma").forEach((b) => b.addEv
 nameInputs.forEach((r) => r.addEventListener("change", () => {
   page = 0;
   step = 0;
-  buildCards(widgetPurses(r.value), { stepper: flexTile.dataset.stepper === "1" });
+  buildCards(widgetPurses(r.value), { look: flexTile.dataset.look || "" });
   setMode(flexTile.dataset.mode);
 }));
 const flexLinkTile = document.getElementById("flexLinkTile");

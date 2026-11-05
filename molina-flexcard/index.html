@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=66" />
+  <link rel="stylesheet" href="styles.css?v=72" />
 </head>
 <body>
   <main class="stage">
@@ -156,22 +156,100 @@
       </div>
 
       <section class="widget-section w1-only" aria-labelledby="w1Title">
-        <h2 class="widget-section-title" id="w1Title"><span class="widget-num">Widget 1</span>Flippable</h2>
-        <ul class="widget-points">
-          <li>The Flex Card tile pages through each purse with the up/down stepper, one purse at a time.</li>
-          <li>No total and no balance count.</li>
-          <li>Tapping anywhere else on the tile opens the full list.</li>
-          <li>A link-out icon in the corner, the same on every purse, signals that the tile opens the list.</li>
-          <li>Purse names are the Nations portal names, shortened only where they don't fit two lines:
-            <ul>
-              <li><b>Health Screening</b> (2026 Health Screening Rewards)</li>
-              <li><b>OTC, Food &amp; Produce</b> (Over the Counter, Food &amp; Produce)</li>
-              <li><b>Post Discharge</b> (Post Discharge Incentives)</li>
-              <li><b>Health Risk Assessment</b> (Health Risk Assessment Rewards)</li>
-            </ul>
-          </li>
-        </ul>
-        <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse (name + amount), vertical slide in/out. The ⌃/⌄ stepper is two ImageButtons outside the flipper: each tap → broadcast → partiallyUpdateAppWidget() with showPrevious() / showNext(). The link-out icon is a static ImageView outside the flipper with the same setOnClickPendingIntent as the card → Care hub › Flex card.</p>
+        <div class="widget-section-head">
+          <h2 class="widget-section-title" id="w1Title"><span class="widget-num">Widget 1</span>Flippable</h2>
+          <div class="look-chips" id="lookControls" role="radiogroup" aria-label="Widget 1 look">
+            <label title="Right caret"><input type="radio" name="ctl" value="v4-right" checked /><span>Right caret</span></label>
+            <label title="Caret flipper · dividers"><input type="radio" name="ctl" value="v4-strip" /><span>Dividers</span></label>
+            <label title="Caret flipper · corner tab"><input type="radio" name="ctl" value="v4-tab" /><span>Corner tab</span></label>
+            <label title="Page turn"><input type="radio" name="ctl" value="v4-page" /><span>Page turn</span></label>
+            <label title="Stepper"><input type="radio" name="ctl" value="stepper" /><span>Stepper</span></label>
+          </div>
+        </div>
+        <div class="look-points" data-for="v4-right">
+          <ul class="widget-points">
+            <li>Each purse shows its amount and &ldquo;1 of 4&rdquo;, one purse at a time. No total.</li>
+            <li>Tapping the bottom half, with the &rsaquo; in the corner, goes to the next balance. After the last purse it wraps to the first.</li>
+            <li>Tapping the top half, with the card icon, opens the full list.</li>
+            <li>Purse names are the Nations portal names, shortened only where they don't fit two lines:
+              <ul>
+                <li><b>Health Screening</b> (2026 Health Screening Rewards)</li>
+                <li><b>OTC, Food &amp; Produce</b> (Over the Counter, Food &amp; Produce)</li>
+                <li><b>Post Discharge</b> (Post Discharge Incentives)</li>
+                <li><b>Health Risk Assessment</b> (Health Risk Assessment Rewards)</li>
+              </ul>
+            </li>
+          </ul>
+          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, vertical slide in/out. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext() (the stepper also has showPrevious()). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. Two views stacked in the tile: the top half carries the Care hub PendingIntent, the bottom half a fill-in intent → showNext(). "1 of 4" is set per item in getViewAt().</p>
+        </div>
+        <div class="look-points" data-for="v4-strip">
+          <ul class="widget-points">
+            <li>Each purse shows its amount and &ldquo;1 of 4&rdquo;, one purse at a time. No total.</li>
+            <li>A strip down the right edge is split in two: the purse's icon on top, a &#8964; button below.</li>
+            <li>The &#8964; goes to the next balance. After the last purse it wraps to the first.</li>
+            <li>Tapping anywhere else on the tile opens the full list.</li>
+            <li>Purse names are the Nations portal names, shortened only where they don't fit two lines:
+              <ul>
+                <li><b>Health Screening</b> (2026 Health Screening Rewards)</li>
+                <li><b>OTC, Food &amp; Produce</b> (Over the Counter, Food &amp; Produce)</li>
+                <li><b>Post Discharge</b> (Post Discharge Incentives)</li>
+                <li><b>Health Risk Assessment</b> (Health Risk Assessment Rewards)</li>
+              </ul>
+            </li>
+          </ul>
+          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, vertical slide in/out. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext() (the stepper also has showPrevious()). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. The strip is a static LinearLayout outside the flipper; only its bottom cell (an ImageButton) gets the showNext() intent. The purse icon is part of each flipper item.</p>
+        </div>
+        <div class="look-points" data-for="v4-tab">
+          <ul class="widget-points">
+            <li>Each purse shows its amount and &ldquo;1 of 4&rdquo;, one purse at a time. No total.</li>
+            <li>The &#8964; sits on a raised tab in the bottom-right corner, with the purse's icon above it. No divider lines.</li>
+            <li>The tab goes to the next balance. After the last purse it wraps to the first.</li>
+            <li>Tapping anywhere else on the tile opens the full list.</li>
+            <li>Purse names are the Nations portal names, shortened only where they don't fit two lines:
+              <ul>
+                <li><b>Health Screening</b> (2026 Health Screening Rewards)</li>
+                <li><b>OTC, Food &amp; Produce</b> (Over the Counter, Food &amp; Produce)</li>
+                <li><b>Post Discharge</b> (Post Discharge Incentives)</li>
+                <li><b>Health Risk Assessment</b> (Health Risk Assessment Rewards)</li>
+              </ul>
+            </li>
+          </ul>
+          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, vertical slide in/out. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext() (the stepper also has showPrevious()). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. Same views as the dividers version; the bottom cell gets a raised tab background (shape drawable) instead of divider lines.</p>
+        </div>
+        <div class="look-points" data-for="v4-page">
+          <ul class="widget-points">
+            <li>Each purse shows its amount and &ldquo;1 of 4&rdquo;, one purse at a time. No total.</li>
+            <li>The card's bottom-right corner is folded like a page.</li>
+            <li>Tapping the bottom half, or the folded corner, turns to the next balance. After the last purse it wraps to the first.</li>
+            <li>Tapping the top half, with the card icon, opens the full list.</li>
+            <li>Purse names are the Nations portal names, shortened only where they don't fit two lines:
+              <ul>
+                <li><b>Health Screening</b> (2026 Health Screening Rewards)</li>
+                <li><b>OTC, Food &amp; Produce</b> (Over the Counter, Food &amp; Produce)</li>
+                <li><b>Post Discharge</b> (Post Discharge Incentives)</li>
+                <li><b>Health Risk Assessment</b> (Health Risk Assessment Rewards)</li>
+              </ul>
+            </li>
+          </ul>
+          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, vertical slide in/out. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext() (the stepper also has showPrevious()). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. The notched card and folded corner are static drawables. Widgets can't animate a real page curl, so the next purse uses the same slide as the other looks.</p>
+        </div>
+        <div class="look-points" data-for="stepper">
+          <ul class="widget-points">
+            <li>The Flex Card tile pages through each purse with the up/down stepper, one purse at a time.</li>
+            <li>No total and no balance count.</li>
+            <li>Tapping anywhere else on the tile opens the full list.</li>
+            <li>A link-out icon in the corner, the same on every purse, signals that the tile opens the list.</li>
+            <li>Purse names are the Nations portal names, shortened only where they don't fit two lines:
+              <ul>
+                <li><b>Health Screening</b> (2026 Health Screening Rewards)</li>
+                <li><b>OTC, Food &amp; Produce</b> (Over the Counter, Food &amp; Produce)</li>
+                <li><b>Post Discharge</b> (Post Discharge Incentives)</li>
+                <li><b>Health Risk Assessment</b> (Health Risk Assessment Rewards)</li>
+              </ul>
+            </li>
+          </ul>
+          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, vertical slide in/out. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext() (the stepper also has showPrevious()). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. The ⌃/⌄ stepper is two ImageButtons outside the flipper (showPrevious() / showNext()). The link-out icon is a static ImageView with the card's PendingIntent.</p>
+        </div>
 
         <!-- Earlier Widget 1 iterations (labels, StackView, other animations and next controls).
              Kept wired up so the defaults still apply; browse them at archive/. -->
@@ -244,13 +322,6 @@
         </div>
         <div class="sub-options" id="ctlOptions">
           <span class="sub-label">Next control <em id="ctlNote"></em></span>
-          <label><input type="radio" name="ctl" value="stepper" checked />
-            <span class="opt">
-              <b class="opt-title">Stepper tile <span class="opt-tag">Figma 2691:18061</span></b>
-              <span class="opt-android"><i>Android</i>One flipper item per purse (name + amount). The ⌃/⌄ stepper is two ImageButtons outside the flipper: each tap → broadcast → partiallyUpdateAppWidget() with showPrevious() / showNext(). The link-out icon in the corner is a static ImageView outside the flipper, with the same setOnClickPendingIntent as the card. Nothing outside the flipper changes. Card tap → Care hub › Flex card.</span>
-              <span class="opt-desc">The tile opens on the first purse, with no total or balance count. The up/down stepper steps through each purse and back, and tapping the rest of the tile opens the full list. The tile is 104px tall, so the Call tile grows to match.</span>
-            </span>
-          </label>
           <label><input type="radio" name="ctl" value="caption" />
             <span class="opt">
               <b class="opt-title">Count under the icon</b>
@@ -352,6 +423,6 @@
 
     </aside>
   </main>
-  <script src="app.js?v=67"></script>
+  <script src="app.js?v=72"></script>
 </body>
 </html>

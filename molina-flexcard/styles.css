@@ -1085,3 +1085,96 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 /* The cue only sits beside the first line of the purse name, so a float clears it there
    and the second line gets the full tile width (fits "assessment"). */
 .stp-clear { float: right; width: 27px; height: 20px; } /* clears the 28px icon; its circle pads the glyph, so text can sit right up to it */
+
+/* ---------- Widget 1 · v4 looks (Figma Molina_Widget_v4, frames v4/w1) ----------
+   Shared: 12px padding (11 + 1px stroke), 2-line label cut off with …, amount, "1 of 4". */
+.tile--flex[data-look="v4-right"], .tile--flex[data-look="v4-page"] { height: 108px; }
+.tile--flex[data-look="v4-strip"], .tile--flex[data-look="v4-tab"] { height: 104px; }
+.v4-body { flex-direction: column; }
+.v4-label { display: flex; flex-direction: column; min-width: 0; font-size: 16px; line-height: 20px; font-weight: 600; color: var(--text-weak); }
+.v4-label > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v4-amount { font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.v4-count { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); white-space: nowrap; font-variant-numeric: tabular-nums; }
+/* Static chrome sits above the sliding purses */
+.v4-icon, .v4-strip, .widget .v4-next { position: absolute; z-index: 5; } /* beats the shared .widget button rule */
+.v4-icon { top: 11px; right: 11px; pointer-events: none; }
+.widget .v4-next { display: flex; align-items: center; justify-content: center; }
+.v4-next img { display: block; }
+/* Pressing the flip control shouldn't tint the whole card */
+.tile--flex[data-look^="v4"]:has(.v4-next:active):active { background: var(--fill-brandveryweak); }
+
+/* Right caret + Page turn: the icon sits beside both label lines; the bottom half flips */
+.tile--flex[data-look="v4-right"] .v4-label,
+.tile--flex[data-look="v4-page"] .v4-label { padding-right: 32px; }
+.widget .v4-next--half { left: 0; right: 0; bottom: 0; height: 50%; border-radius: 0 0 15px 15px; }
+.widget .v4-next--half:active { transform: none; }
+.v4-caret {
+  position: absolute; right: 10px; bottom: 6px; width: 28px; height: 28px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center; transition: background-color 0.15s;
+}
+.v4-next--half:hover .v4-caret { background: var(--fill-brandweaker); }
+.v4-next--half:active .v4-caret { background: rgba(71, 84, 235, 0.18); }
+
+/* Caret flipper: purses leave room for the 48px strip; the purse icon sits in the strip's top cell */
+.tile--flex[data-look="v4-strip"] .pcard, .tile--flex[data-look="v4-tab"] .pcard { padding-right: 55px; }
+.tile--flex[data-look="v4-strip"] .v4-amount, .tile--flex[data-look="v4-tab"] .v4-amount { line-height: 20px; }
+.v4-purse { position: absolute; top: 11px; right: 10px; }
+.v4-strip { top: 0; right: 0; bottom: 0; width: 48px; border-left: 1px solid var(--stroke-brandweaker); pointer-events: none; }
+.v4-strip-top { display: block; height: 50%; border-bottom: 1px solid var(--stroke-brandweaker); }
+.widget .v4-next--cell, .widget .v4-next--tab { right: 0; bottom: 0; width: 48px; height: 50%; }
+.widget .v4-next--cell { border-radius: 0 0 15px 0; }
+.v4-circle {
+  width: 28px; height: 28px; border-radius: 16px; background: var(--fill-brandweaker);
+  display: flex; align-items: center; justify-content: center; transition: background-color 0.15s;
+}
+.v4-next--cell:hover .v4-circle { background: rgba(71, 84, 235, 0.16); }
+.v4-next--cell:active .v4-circle { background: rgba(71, 84, 235, 0.22); }
+/* Corner tab: no dividers; the ⌄ sits on a raised tab in the bottom-right corner */
+.widget .v4-next--tab {
+  width: 49px; height: calc(50% + 1px);
+  background: var(--fill-brandveryweak);
+  border-left: 1px solid var(--stroke-brandweaker); border-top: 1px solid var(--stroke-brandweaker);
+  border-radius: 16px 0 15px 0;
+  box-shadow: 0 2px 8px 0 var(--shadow-weaker);
+}
+.v4-circle--bare { background: transparent; }
+.v4-next--tab:hover { background: var(--fill-brandweaker); }
+.v4-next--tab:active { background: rgba(71, 84, 235, 0.18); }
+
+/* Page turn: the card itself is drawn by card-surface.svg (notched corner), with the folded flap on top */
+/* No tile border here: the tile clips just inside its border, which would cut off the SVG's 1px outline */
+.tile--flex[data-look="v4-page"] {
+  background: transparent; border-width: 0; box-shadow: none;
+  filter: drop-shadow(0 2px 4px rgba(12, 15, 65, 0.05));
+}
+.tile--flex[data-look="v4-page"]:active,
+.tile--flex[data-look="v4-page"]:has(.v4-next:active):active { background: transparent; }
+.v4-surface { position: absolute; z-index: 0; left: -8px; top: -6px; width: 156px; height: 124px; pointer-events: none; }
+.tile--flex[data-look="v4-page"] .pcard { z-index: 1; padding: 12px; }
+.tile--flex[data-look="v4-page"] .v4-icon { top: 12px; right: 12px; }
+.tile--flex[data-look="v4-page"] .v4-next--half { border-radius: 0 0 16px 16px; }
+.v4-corner { position: absolute; right: -3px; bottom: -3px; transition: transform 0.2s var(--ease-emphasized); transform-origin: 100% 100%; }
+.v4-next--half:hover .v4-corner { transform: scale(1.12); }
+.v4-next--half:active .v4-corner { transform: scale(0.94); }
+
+/* Widget 1 looks: chips to the right of the title; only the selected look's description shows */
+.widget-section-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.widget-section-head .widget-section-title { flex: none; }
+.look-chips { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; padding-top: 2px; }
+.look-chips label { cursor: pointer; }
+.look-chips input { position: absolute; opacity: 0; pointer-events: none; }
+.look-chips span {
+  display: block; padding: 4px 10px; border-radius: 999px;
+  border: 1px solid #d0d3e1; background: #fff;
+  font-size: 12px; line-height: 16px; font-weight: 600; color: #565a86; white-space: nowrap;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+.look-chips label:hover span { border-color: #4754eb; color: #4754eb; }
+.look-chips input:checked + span { background: #4754eb; border-color: #4754eb; color: #fff; }
+.look-chips input:focus-visible + span { outline: 2px solid #4754eb; outline-offset: 2px; }
+.look-points { display: none; }
+.w1-only:has(#lookControls input[value="stepper"]:checked) .look-points[data-for="stepper"],
+.w1-only:has(#lookControls input[value="v4-right"]:checked) .look-points[data-for="v4-right"],
+.w1-only:has(#lookControls input[value="v4-strip"]:checked) .look-points[data-for="v4-strip"],
+.w1-only:has(#lookControls input[value="v4-tab"]:checked) .look-points[data-for="v4-tab"],
+.w1-only:has(#lookControls input[value="v4-page"]:checked) .look-points[data-for="v4-page"] { display: block; }
