@@ -1166,12 +1166,15 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
    Android (~700ms, all with AdapterViewFlipper animations, advanced by the same showNext()):
    · corner flipper (the fold ImageView, one item per purse): outAnimation scaleX/scaleY 1 → 2.5 with
      pivot at the bottom-right corner, then alpha 1 → 0; inAnimation alpha 0 → 1 with a startOffset.
-   · content flipper: outAnimation alpha 1 → 0 (~250ms); inAnimation alpha 0 → 1, startOffset ~350ms. */
+   · content flipper: outAnimation alpha 1 → 0 (~250ms); inAnimation alpha 0 → 1, startOffset ~350ms.
+   · the card's cut corner grows with the fold. A widget can't animate a clip, so on Android this is a
+     triangle in the widget background colour inside the corner flipper's item, under the fold: it scales
+     and fades with it. It only blends in if the widget background behind the tile is a flat colour. */
 .tile--flex[data-mode="flipper"][data-look="v4-page"] .pcard { opacity: 0; transform: none; transition: none; }
 .tile--flex[data-mode="flipper"][data-look="v4-page"] .pcard[data-depth="0"] { opacity: 1; }
 .tile--flex[data-mode="flipper"][data-look="v4-page"] .pcard.exit-up {
   z-index: 2; opacity: 1;
-  animation: v4-page-out 0.7s ease-out forwards;
+  animation: v4-page-out 0.7s ease-out forwards, v4-page-cut 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 @keyframes v4-page-out {
   0%   { opacity: 1; }
@@ -1180,7 +1183,7 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 }
 /* The next purse fades in once the peel has lifted away */
 .tile--flex[data-mode="flipper"][data-look="v4-page"]:has(.pcard.exit-up) .pcard[data-depth="0"] {
-  animation: v4-page-in 0.7s ease-out both;
+  animation: v4-page-in 0.7s ease-out both, v4-page-cut 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 @keyframes v4-page-in {
   0%, 50% { opacity: 0; }
@@ -1200,6 +1203,22 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 }
 /* The peeling flap covers everything on the page, including the purse icon */
 .tile--flex[data-look="v4-page"]:has(.pcard.exit-up) .v4-next { z-index: 6; }
+/* The card follows the fold: its cut corner grows along the fold line (whatever folded over is no
+   longer on the card), then fills back in as the flap lifts away. Same timing and keyframes as the
+   fold, so the cut stays on the fold line: fold line x + y = 254 − 38·scale (tile coordinates). */
+.tile--flex[data-look="v4-page"]:has(.pcard.exit-up) .v4-surface {
+  animation: v4-surface-cut 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes v4-surface-cut { /* card-surface.svg sits at (−8, −6) in the tile */
+  0%       { clip-path: polygon(0 0, 156px 0, 156px 74px, 106px 124px, 0 124px); }
+  45%, 50% { clip-path: polygon(0 0, 156px 0, 156px 17px, 49px 124px, 0 124px); }
+  75%      { clip-path: polygon(0 0, 156px 0, 156px 74px, 106px 124px, 0 124px); }
+}
+@keyframes v4-page-cut { /* the purse content on the page is cut with it */
+  0%       { clip-path: polygon(0 0, 140px 0, 140px 76px, 108px 108px, 0 108px); }
+  45%, 50% { clip-path: polygon(0 0, 140px 0, 140px 19px, 51px 108px, 0 108px); }
+  75%      { clip-path: polygon(0 0, 140px 0, 140px 76px, 108px 108px, 0 108px); }
+}
 @keyframes v4-corner-peel {
   0%   { transform: scale(1);   opacity: 1; }
   45%  { transform: scale(2.5); opacity: 1; }

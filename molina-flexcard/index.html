@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=86" />
+  <link rel="stylesheet" href="styles.css?v=87" />
 </head>
 <body>
   <main class="stage">
@@ -236,7 +236,7 @@
           <ul class="widget-points">
             <li>Each purse shows its amount and &ldquo;1 of 4&rdquo;, one purse at a time. No total.</li>
             <li>The card's bottom-right corner is folded like a page.</li>
-            <li>Tapping the bottom half, or the folded corner, turns the page from that corner: the page peels off from that corner: the fold grows across the card as the purse fades, then lifts away and the next balance fades in. After the last purse it wraps to the first.</li>
+            <li>Tapping the bottom half, or the folded corner, turns the page from that corner: the fold grows across the card and the card's corner folds away with it as the purse fades, then the flap lifts away and the next balance fades in. After the last purse it wraps to the first.</li>
             <li>Tapping the top half opens the full list. The icon in the top-right corner stays put and changes to the current purse's icon.</li>
             <li>Purse names are the Nations portal names, shortened only where they don't fit two lines:
               <ul>
@@ -247,7 +247,8 @@
               </ul>
             </li>
           </ul>
-          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, vertical slide in/out. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. The notched card and folded corner are static drawables. The purse icon is a static ImageView outside the flipper, updated with setImageViewResource() in the same partiallyUpdateAppWidget() call as showNext(). The peel uses two flippers advanced by the same showNext() (~700ms): a corner flipper whose fold ImageView scales up from the bottom-right corner (scaleX/scaleY 1 → 2.5, pivot bottom-right) and then fades, and the content flipper, which fades the old purse out and the next one in. Nothing tilts, so nothing warps. A real paper curl, where the page bends, isn't possible in a widget.</p>
+          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. The notched card and folded corner are static drawables. The purse icon is a static ImageView outside the flipper, updated with setImageViewResource() in the same partiallyUpdateAppWidget() call as showNext(). The peel uses two flippers advanced by the same showNext() (~700ms): a corner flipper whose fold ImageView scales up from the bottom-right corner (scaleX/scaleY 1 → 2.5, pivot bottom-right) and then fades, and the content flipper, which fades the old purse out and the next one in. Nothing tilts, so nothing warps. A real paper curl, where the page bends, isn't possible in a widget.</p>
+          <p class="notes-android"><i>Android</i>Card corner following the fold: in the prototype, the card's cut corner grows along the fold line as the fold grows, then fills back in as the flap lifts away. A widget can't animate a clip, so Android can only fake it: put a triangle in the widget's background colour inside the corner flipper's item, under the fold ImageView, so it scales (pivot bottom-right) and fades with the fold. That only blends in if the widget background behind the Flex Card tile is a flat colour. Today the blue gradient sits behind the tile, so the triangle would show as a patch: either flatten the background there or drop this part and keep the card's small notch fixed.</p>
         </div>
 
         <!-- Earlier Widget 1 iterations (labels, StackView, other animations and next controls).
