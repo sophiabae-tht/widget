@@ -1121,5 +1121,198 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .card-grid label input { position: absolute; opacity: 0; pointer-events: none; }
 .card-grid label:has(input:checked) { border-color: #4754eb; background: #f6f7ff; }
 .card-grid label:has(input:focus-visible) { outline: 2px solid #4754eb; outline-offset: 2px; }
-.card-grid .opt-title .opt-tag { margin-left: 4px; }
+.card-grid .opt-title .opt-tag { margin-left: 4px; white-space: nowrap; display: inline-block; } /* a tag wraps as a whole */
 .widget-points + .card-grid { margin-top: 16px; }
+
+
+/* ==================== Nov 5 looks (copied from the current prototype) ==================== */
+/* ---------- Widget 1 · v4 looks (Figma Molina_Widget_v4, frames v4/w1) ----------
+   Shared: 12px padding (11 + 1px stroke), 2-line label cut off with …, amount, "1 of 4". */
+.tile--flex[data-look="v4-right"], .tile--flex[data-look="v4-bottom"], .tile--flex[data-look="v4-page"] { height: 108px; }
+.tile--flex[data-look="v4-strip"], .tile--flex[data-look="v4-tab"] { height: 104px; }
+.v4-body { flex-direction: column; }
+.v4-label { display: flex; flex-direction: column; min-width: 0; font-size: 16px; line-height: 20px; font-weight: 600; color: var(--text-weak); }
+.v4-label > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v4-amount { font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.v4-count { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); white-space: nowrap; font-variant-numeric: tabular-nums; }
+/* Static chrome sits above the sliding purses */
+.v4-icon, .v4-strip, .widget .v4-next { position: absolute; z-index: 5; } /* beats the shared .widget button rule */
+.v4-icon { top: 11px; right: 11px; pointer-events: none; }
+.widget .v4-next { display: flex; align-items: center; justify-content: center; }
+.v4-next img { display: block; }
+/* Pressing the flip control shouldn't tint the whole card */
+.tile--flex[data-look^="v4"]:has(.v4-next:active):active { background: var(--fill-brandveryweak); }
+
+/* Right caret: purses slide left (in from the right, out to the left), matching the ›.
+   Android: AdapterViewFlipper inAnimation / outAnimation = objectAnimators on translationX. */
+.tile--flex[data-mode="flipper"][data-flip="slide"][data-look="v4-right"] .pcard { transform: translateX(100%); }
+.tile--flex[data-mode="flipper"][data-flip="slide"][data-look="v4-right"] .pcard[data-depth="0"] { transform: none; }
+.tile--flex[data-mode="flipper"][data-flip="slide"][data-look="v4-right"] .pcard.exit-up { transform: translateX(-100%); }
+
+/* Right caret: as a purse slides in from the right, its text fades out where it meets the purse icon
+   (top right) and the › (bottom right) instead of running under them. The purses slide inside
+   .v4-clip, which stays put and is masked with a soft round hole around each: clear under the 28px
+   circle, back to full strength 5px out by the icon (where a label cut off with … ends, so it rests
+   at ~80%) and 8px out by the › (nothing rests near it).
+   Android: a widget can't mask the flipper; draw the same holes as radial gradient shape drawables
+   in the tile's colour, in ImageViews outside the flipper (under the icon and the ›). */
+.v4-clip {
+  position: absolute; inset: 0; border-radius: 15px; overflow: hidden;
+  /* icon: 11px in from the top/right, so its centre is 25px in · ›: 10px from the right and 6px
+     from the bottom (.v4-caret), so its centre is 24px / 20px in */
+  -webkit-mask-image:
+    radial-gradient(circle at calc(100% - 25px) 25px, transparent 14px, #000 19px),
+    radial-gradient(circle at calc(100% - 24px) calc(100% - 20px), transparent 14px, #000 22px);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    radial-gradient(circle at calc(100% - 25px) 25px, transparent 14px, #000 19px),
+    radial-gradient(circle at calc(100% - 24px) calc(100% - 20px), transparent 14px, #000 22px);
+  mask-composite: intersect;
+}
+
+/* Right caret: "1 of 4" stays put outside the sliding purses; only its text changes. Each purse
+   keeps an invisible copy so its label and amount sit exactly where they did. */
+.tile--flex[data-look="v4-right"] .pcard .v4-count { visibility: hidden; }
+.v4-count--static { position: absolute; z-index: 5; left: 11px; bottom: 11px; pointer-events: none; }
+
+/* Right caret + Page turn: the icon sits beside both label lines; the bottom half flips */
+.tile--flex[data-look="v4-right"] .v4-label,
+.tile--flex[data-look="v4-bottom"] .v4-label,
+.tile--flex[data-look="v4-page"] .v4-label { padding-right: 32px; }
+.widget .v4-next--half { left: 0; right: 0; bottom: 0; height: 50%; border-radius: 0 0 15px 15px; }
+.widget .v4-next--half:active { transform: none; }
+.v4-caret {
+  position: absolute; right: 10px; bottom: 6px; width: 28px; height: 28px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center; transition: background-color 0.15s;
+}
+.v4-next--half:active .v4-caret { background: rgba(71, 84, 235, 0.18); }
+
+/* Caret flipper: purses leave room for the 48px strip; the purse icon sits in the strip's top cell */
+.tile--flex[data-look="v4-strip"] .pcard, .tile--flex[data-look="v4-tab"] .pcard { padding-right: 55px; }
+.tile--flex[data-look="v4-strip"] .v4-amount, .tile--flex[data-look="v4-tab"] .v4-amount { line-height: 20px; }
+.v4-purse { position: absolute; z-index: 5; top: 11px; right: 10px; pointer-events: none; } /* static, outside the flipper */
+.v4-strip { top: 0; right: 0; bottom: 0; width: 48px; border-left: 1px solid var(--stroke-brandweaker); pointer-events: none; }
+.v4-strip-top { display: block; height: 50%; border-bottom: 1px solid var(--stroke-brandweaker); }
+.widget .v4-next--cell, .widget .v4-next--tab { right: 0; bottom: 0; width: 48px; height: 50%; }
+.widget .v4-next--cell { border-radius: 0 0 15px 0; }
+.v4-circle {
+  width: 28px; height: 28px; border-radius: 16px; background: var(--fill-brandweaker);
+  display: flex; align-items: center; justify-content: center; transition: background-color 0.15s;
+}
+.v4-next--cell:active .v4-circle { background: rgba(71, 84, 235, 0.22); }
+/* Corner tab: no dividers; the ⌄ sits on a raised tab in the bottom-right corner */
+.widget .v4-next--tab {
+  width: 49px; height: calc(50% + 1px);
+  background: var(--fill-brandveryweak);
+  border-left: 1px solid var(--stroke-brandweaker); border-top: 1px solid var(--stroke-brandweaker);
+  border-radius: 16px 0 15px 0;
+  box-shadow: 0 2px 8px 0 var(--shadow-weaker);
+}
+.v4-circle--bare { background: transparent; }
+.v4-next--tab:active { background: rgba(71, 84, 235, 0.18); }
+
+/* Page turn: the card itself is drawn by card-surface.svg (notched corner), with the folded flap on top */
+/* No tile border here: the tile clips just inside its border, which would cut off the SVG's 1px outline */
+.tile--flex[data-look="v4-page"] {
+  background: transparent; border-width: 0; box-shadow: none;
+  filter: drop-shadow(0 2px 4px rgba(12, 15, 65, 0.05));
+}
+.tile--flex[data-look="v4-page"]:active,
+.tile--flex[data-look="v4-page"]:has(.v4-next:active):active { background: transparent; }
+.v4-surface { position: absolute; z-index: 0; left: -8px; top: -6px; width: 156px; height: 124px; pointer-events: none; }
+.tile--flex[data-look="v4-page"] .pcard { z-index: 1; padding: 12px; }
+.tile--flex[data-look="v4-page"] .v4-icon { top: 12px; right: 12px; }
+.tile--flex[data-look="v4-page"] .v4-next--half { border-radius: 0 0 16px 16px; }
+.v4-corner { position: absolute; right: -3px; bottom: -3px; transition: transform 0.2s var(--ease-emphasized); transform-origin: 100% 100%; }
+.v4-next--half:active .v4-corner { transform: scale(0.94); }
+
+
+/* Page turn: the page peels off from the folded bottom-right corner. The fold itself grows from the
+   corner across the card, so the fold line sweeps diagonally toward the top-left, while the old
+   purse fades out; the big flap then lifts away (fades) and the next purse fades in, and the small
+   resting fold comes back. Nothing on the page tilts or warps.
+   Android (~700ms, all with AdapterViewFlipper animations, advanced by the same showNext()):
+   · corner flipper (the fold ImageView, one item per purse): outAnimation scaleX/scaleY 1 → 2.5 with
+     pivot at the bottom-right corner, then alpha 1 → 0; inAnimation alpha 0 → 1 with a startOffset.
+   · content flipper: outAnimation alpha 1 → 0 (~250ms); inAnimation alpha 0 → 1, startOffset ~350ms.
+   · the card's cut corner grows with the fold. A widget can't animate a clip, so on Android this is a
+     triangle in the widget background colour inside the corner flipper's item, under the fold: it scales
+     and fades with it. It only blends in if the widget background behind the tile is a flat colour. */
+.tile--flex[data-mode="flipper"][data-look="v4-page"] .pcard { opacity: 0; transform: none; transition: none; }
+.tile--flex[data-mode="flipper"][data-look="v4-page"] .pcard[data-depth="0"] { opacity: 1; }
+.tile--flex[data-mode="flipper"][data-look="v4-page"] .pcard.exit-up {
+  z-index: 2; opacity: 1;
+  animation: v4-page-out 0.7s ease-out forwards, v4-page-cut 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes v4-page-out {
+  0%   { opacity: 1; }
+  35%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+/* The next purse fades in once the peel has lifted away */
+.tile--flex[data-mode="flipper"][data-look="v4-page"]:has(.pcard.exit-up) .pcard[data-depth="0"] {
+  animation: v4-page-in 0.7s ease-out both, v4-page-cut 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes v4-page-in {
+  0%, 50% { opacity: 0; }
+  100%    { opacity: 1; }
+}
+/* The fold grows from the corner (the peel), lifts away, and the resting fold returns */
+.tile--flex[data-look="v4-page"]:has(.pcard.exit-up) .v4-corner {
+  animation: v4-corner-peel 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* The purse icon belongs to the page being peeled: it fades as the fold sweeps over that corner and
+   comes back with the next purse (its image swaps while hidden, see layout() in app.js) */
+.tile--flex[data-look="v4-page"]:has(.pcard.exit-up) .v4-icon { animation: v4-icon-peel 0.7s ease-in-out; }
+@keyframes v4-icon-peel {
+  0%       { opacity: 1; }
+  28%, 50% { opacity: 0; }
+  100%     { opacity: 1; }
+}
+/* The peeling flap covers everything on the page, including the purse icon */
+.tile--flex[data-look="v4-page"]:has(.pcard.exit-up) .v4-next { z-index: 6; }
+/* The card follows the fold: its cut corner grows along the fold line (whatever folded over is no
+   longer on the card), then fills back in as the flap lifts away. Same timing and keyframes as the
+   fold, so the cut stays on the fold line: fold line x + y = 254 − 38·scale (tile coordinates). */
+.tile--flex[data-look="v4-page"]:has(.pcard.exit-up) .v4-surface {
+  animation: v4-surface-cut 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes v4-surface-cut { /* card-surface.svg sits at (−8, −6) in the tile */
+  0%       { clip-path: polygon(0 0, 156px 0, 156px 74px, 106px 124px, 0 124px); }
+  45%, 50% { clip-path: polygon(0 0, 156px 0, 156px 17px, 49px 124px, 0 124px); }
+  75%      { clip-path: polygon(0 0, 156px 0, 156px 74px, 106px 124px, 0 124px); }
+}
+@keyframes v4-page-cut { /* the purse content on the page is cut with it */
+  0%       { clip-path: polygon(0 0, 140px 0, 140px 76px, 108px 108px, 0 108px); }
+  45%, 50% { clip-path: polygon(0 0, 140px 0, 140px 19px, 51px 108px, 0 108px); }
+  75%      { clip-path: polygon(0 0, 140px 0, 140px 76px, 108px 108px, 0 108px); }
+}
+@keyframes v4-corner-peel {
+  0%   { transform: scale(1);   opacity: 1; }
+  45%  { transform: scale(2.5); opacity: 1; }
+  68%  { transform: scale(2.6); opacity: 0; }
+  80%  { transform: scale(1);   opacity: 0; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+
+/* Flipper animation: selectable chips in a row above Next control; only the picked one's notes show */
+.flip-options { margin: 4px 0 12px; padding-left: 0; border-left: 0; }
+.flip-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.hint-group .flip-chips label { display: block; cursor: pointer; }
+.flip-chips input { position: absolute; opacity: 0; pointer-events: none; }
+.flip-chips span {
+  display: block; padding: 4px 10px; border-radius: 999px;
+  border: 1px solid #d0d3e1; background: #fff;
+  font-size: 12px; line-height: 16px; font-weight: 600; color: #565a86; white-space: nowrap;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+.flip-chips label:hover span { border-color: #4754eb; color: #4754eb; }
+.flip-chips input:checked + span { background: #4754eb; border-color: #4754eb; color: #fff; }
+.flip-chips input:focus-visible + span { outline: 2px solid #4754eb; outline-offset: 2px; }
+.flip-detail { display: none; }
+.flip-options:has(input[value="slide"]:checked) .flip-detail[data-for="slide"],
+.flip-options:has(input[value="fade"]:checked) .flip-detail[data-for="fade"],
+.flip-options:has(input[value="pop"]:checked) .flip-detail[data-for="pop"],
+.flip-options:has(input[value="prism"]:checked) .flip-detail[data-for="prism"],
+.flip-options:has(input[value="rise"]:checked) .flip-detail[data-for="rise"] { display: flex; }

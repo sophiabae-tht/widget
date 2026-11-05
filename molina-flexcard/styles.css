@@ -1141,6 +1141,7 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 /* Widget 1 looks: chips below the title; only the selected look's description shows */
 .widget-section-head { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
 .look-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.look-chips[hidden] { display: none; } /* one look left on the main page; the rest are in archive/ */
 .look-chips label { cursor: pointer; }
 .look-chips input { position: absolute; opacity: 0; pointer-events: none; }
 .look-chips span {

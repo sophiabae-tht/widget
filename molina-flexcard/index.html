@@ -158,13 +158,8 @@
       <section class="widget-section w1-only" aria-labelledby="w1Title">
         <div class="widget-section-head">
           <h2 class="widget-section-title" id="w1Title"><span class="widget-num">Widget 1</span>Flippable</h2>
-          <div class="look-chips" id="lookControls" role="radiogroup" aria-label="Widget 1 look">
-            <label title="Right caret"><input type="radio" name="ctl" value="v4-right" checked /><span>Right caret</span></label>
-            <label title="Bottom caret"><input type="radio" name="ctl" value="v4-bottom" /><span>Bottom caret</span></label>
-            <label title="Caret flipper · dividers"><input type="radio" name="ctl" value="v4-strip" /><span>Dividers</span></label>
-            <label title="Caret flipper · corner tab"><input type="radio" name="ctl" value="v4-tab" /><span>Corner tab</span></label>
-            <label title="Page turn"><input type="radio" name="ctl" value="v4-page" /><span>Page turn</span></label>
-          </div>
+          <!-- Other Widget 1 looks (Bottom caret, Dividers, Corner tab, Page turn) moved to archive/ (cards under Next control) -->
+          <div class="look-chips" id="lookControls" hidden><label><input type="radio" name="ctl" value="v4-right" checked /></label></div>
         </div>
         <div class="look-points" data-for="v4-right">
           <ul class="widget-points">
@@ -182,75 +177,6 @@
           </ul>
           <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, horizontal slide: inAnimation and outAnimation are objectAnimator XMLs on translationX (in from the right, out to the left), set on the flipper in the widget layout. The fades by the icon and the &rsaquo; are ImageViews with radial gradient shape drawables (tile colour → transparent), placed outside the flipper, under the icon and the &rsaquo;. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. Two views stacked in the tile: the top half carries the Care hub PendingIntent, the bottom half a fill-in intent → showNext(). "1 of 4" is a static TextView outside the flipper, updated with setTextViewText() in the same partiallyUpdateAppWidget() call as showNext(). The wallet icon is a static ImageView outside the flipper and never changes.</p>
         </div>
-        <div class="look-points" data-for="v4-bottom">
-          <ul class="widget-points">
-            <li>Each purse shows its amount and &ldquo;1 of 4&rdquo;, one purse at a time. No total.</li>
-            <li>Tapping the bottom half, with the &#8964; in the corner, goes to the next balance. After the last purse it wraps to the first.</li>
-            <li>Tapping the top half opens the full list. The icon in the top-right corner stays put and changes to the current purse's icon.</li>
-            <li>Purse names are the Nations portal names, shortened only where they don't fit two lines:
-              <ul>
-                <li><b>Health Screening</b> (2026 Health Screening Rewards)</li>
-                <li><b>OTC, Food &amp; Produce</b> (Over the Counter, Food &amp; Produce)</li>
-                <li><b>Post Discharge</b> (Post Discharge Incentives)</li>
-                <li><b>Health Risk Assessment</b> (Health Risk Assessment Rewards)</li>
-              </ul>
-            </li>
-          </ul>
-          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, vertical slide in/out. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. Two views stacked in the tile: the top half carries the Care hub PendingIntent, the bottom half a fill-in intent → showNext(). "1 of 4" is set per item in getViewAt(). The purse icon is a static ImageView outside the flipper, updated with setImageViewResource() in the same partiallyUpdateAppWidget() call as showNext().</p>
-        </div>
-        <div class="look-points" data-for="v4-strip">
-          <ul class="widget-points">
-            <li>Each purse shows its amount and &ldquo;1 of 4&rdquo;, one purse at a time. No total.</li>
-            <li>A strip down the right edge is split in two: the purse's icon on top, a &#8964; button below.</li>
-            <li>The &#8964; goes to the next balance. After the last purse it wraps to the first.</li>
-            <li>Tapping anywhere else on the tile opens the full list.</li>
-            <li>Purse names are the Nations portal names, shortened only where they don't fit two lines:
-              <ul>
-                <li><b>Health Screening</b> (2026 Health Screening Rewards)</li>
-                <li><b>OTC, Food &amp; Produce</b> (Over the Counter, Food &amp; Produce)</li>
-                <li><b>Post Discharge</b> (Post Discharge Incentives)</li>
-                <li><b>Health Risk Assessment</b> (Health Risk Assessment Rewards)</li>
-              </ul>
-            </li>
-          </ul>
-          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, vertical slide in/out. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. The strip is a static LinearLayout outside the flipper; only its bottom cell (an ImageButton) gets the showNext() intent. The purse icon is a static ImageView outside the flipper, updated with setImageViewResource() in the same partiallyUpdateAppWidget() call as showNext().</p>
-        </div>
-        <div class="look-points" data-for="v4-tab">
-          <ul class="widget-points">
-            <li>Each purse shows its amount and &ldquo;1 of 4&rdquo;, one purse at a time. No total.</li>
-            <li>The &#8964; sits on a raised tab in the bottom-right corner, with the purse's icon above it. No divider lines.</li>
-            <li>The tab goes to the next balance. After the last purse it wraps to the first.</li>
-            <li>Tapping anywhere else on the tile opens the full list.</li>
-            <li>Purse names are the Nations portal names, shortened only where they don't fit two lines:
-              <ul>
-                <li><b>Health Screening</b> (2026 Health Screening Rewards)</li>
-                <li><b>OTC, Food &amp; Produce</b> (Over the Counter, Food &amp; Produce)</li>
-                <li><b>Post Discharge</b> (Post Discharge Incentives)</li>
-                <li><b>Health Risk Assessment</b> (Health Risk Assessment Rewards)</li>
-              </ul>
-            </li>
-          </ul>
-          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, vertical slide in/out. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. Same views as the dividers version; the bottom cell gets a raised tab background (shape drawable) instead of divider lines.</p>
-        </div>
-        <div class="look-points" data-for="v4-page">
-          <ul class="widget-points">
-            <li>Each purse shows its amount and &ldquo;1 of 4&rdquo;, one purse at a time. No total.</li>
-            <li>The card's bottom-right corner is folded like a page.</li>
-            <li>Tapping the bottom half, or the folded corner, turns the page from that corner: the fold grows across the card and the card's corner folds away with it as the purse fades, then the flap lifts away and the next balance fades in. After the last purse it wraps to the first.</li>
-            <li>Tapping the top half opens the full list. The icon in the top-right corner stays put and changes to the current purse's icon.</li>
-            <li>Purse names are the Nations portal names, shortened only where they don't fit two lines:
-              <ul>
-                <li><b>Health Screening</b> (2026 Health Screening Rewards)</li>
-                <li><b>OTC, Food &amp; Produce</b> (Over the Counter, Food &amp; Produce)</li>
-                <li><b>Post Discharge</b> (Post Discharge Incentives)</li>
-                <li><b>Health Risk Assessment</b> (Health Risk Assessment Rewards)</li>
-              </ul>
-            </li>
-          </ul>
-          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. The notched card and folded corner are static drawables. The purse icon is a static ImageView outside the flipper, updated with setImageViewResource() in the same partiallyUpdateAppWidget() call as showNext(). The peel uses two flippers advanced by the same showNext() (~700ms): a corner flipper whose fold ImageView scales up from the bottom-right corner (scaleX/scaleY 1 → 2.5, pivot bottom-right) and then fades, and the content flipper, which fades the old purse out and the next one in. Nothing tilts, so nothing warps. A real paper curl, where the page bends, isn't possible in a widget.</p>
-          <p class="notes-android"><i>Android</i>Card corner following the fold: in the prototype, the card's cut corner grows along the fold line as the fold grows, then fills back in as the flap lifts away. A widget can't animate a clip, so Android can only fake it: put a triangle in the widget's background colour inside the corner flipper's item, under the fold ImageView, so it scales (pivot bottom-right) and fades with the fold. That only blends in if the widget background behind the Flex Card tile is a flat colour. Today the blue gradient sits behind the tile, so the triangle would show as a patch: either flatten the background there or drop this part and keep the card's small notch fixed.</p>
-        </div>
-
         <!-- Earlier Widget 1 iterations (labels, StackView, other animations and next controls).
              Kept wired up so the defaults still apply; browse them at archive/. -->
         <div class="archived-controls" hidden>
@@ -417,12 +343,12 @@
         <p><b>Nudge animation</b>: widgets can't run custom animations. Auto-advance is the closest supported way to show motion.</p>
       </details>
       <div class="notes-archive">
-        <a class="archive-btn" href="archive/" aria-describedby="archiveHint">Archive</a>
-        <span class="archive-hint" id="archiveHint" role="tooltip">Earlier iterations: other controls, animations, StackView, separate Flex Card widget</span>
+        <a class="archive-btn" href="archive/" aria-describedby="archiveHint">Experimental archive</a>
+        <span class="archive-hint" id="archiveHint" role="tooltip">Earlier iterations: other Widget 1 looks, other controls, animations, StackView, separate Flex Card widget</span>
       </div>
 
     </aside>
   </main>
-  <script src="app.js?v=87"></script>
+  <script src="app.js?v=88"></script>
 </body>
 </html>

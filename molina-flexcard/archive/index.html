@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Archive · Widget prototype · v2/link</title>
+  <title>Experimental archive · Widget prototype · v2/link</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=43" />
+  <link rel="stylesheet" href="styles.css?v=46" />
 </head>
 <body>
   <main class="stage">
@@ -149,7 +149,7 @@
     </div>
 
     <aside class="notes">
-      <p class="archive-banner"><b>Archive</b> · Earlier iterations, before the Nov 5 feedback. <a href="../">Back to the current prototype</a></p>
+      <p class="archive-banner"><b>Experimental archive</b> · Earlier iterations, before the Nov 5 feedback. <a href="../">Back to the current prototype</a></p>
       <div class="notes-intro">
       <h1>Widget prototype</h1>
       <p>Android Large 360×800</p>
@@ -212,86 +212,106 @@
             <span class="opt-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService. Next tap → setOnClickFillInIntent → broadcast → showNext(). Card tap → opens Flex Card balances in Care hub.</span>
             <span class="opt-desc">One purse at a time. A small control moves to the next purse; tapping anywhere else on the card opens the full list. Swiping isn't possible.</span>
           </span>
+        <div class="sub-options flip-options" id="flipOptions">
+          <span class="sub-label">Flipper animation</span>
+          <div class="flip-chips" role="radiogroup" aria-label="Flipper animation">
+            <label><input type="radio" name="flip" value="slide" checked /><span>Vertical slide</span></label>
+            <label><input type="radio" name="flip" value="fade" /><span>Crossfade</span></label>
+            <label><input type="radio" name="flip" value="pop" /><span>Pop / zoom</span></label>
+            <label><input type="radio" name="flip" value="prism" /><span>Prism revolve</span></label>
+            <label><input type="radio" name="flip" value="rise" /><span>Combo · Rise + fade</span></label>
+          </div>
+          <span class="opt flip-detail" data-for="slide">
+            <span class="opt-desc">The purse slides up and out, and the next one slides in from below.</span>
+            <span class="opt-android"><i>Android</i>inAnimation: translationY 88dp → 0 · outAnimation: translationY 0 → −88dp · 450ms</span>
+          </span>
+          <span class="opt flip-detail" data-for="fade">
+            <span class="opt-desc">The old purse fades out while the next fades in, with no movement.</span>
+            <span class="opt-android"><i>Android</i>inAnimation: alpha 0 → 1 · outAnimation: alpha 1 → 0 · 350ms</span>
+          </span>
+          <span class="opt flip-detail" data-for="pop">
+            <span class="opt-desc">The old purse shrinks away and the next grows in with a small bounce.</span>
+            <span class="opt-android"><i>Android</i>out: scaleX/Y 1 → 0.8 + alpha 1 → 0 (180ms) · in: scaleX/Y 0.8 → 1 + alpha 0 → 1 (340ms, startOffset 120ms, overshoot interpolator)</span>
+          </span>
+          <span class="opt flip-detail" data-for="prism">
+            <span class="opt-desc">The purses are the faces of a turning prism joined at their top and bottom edges (3 purses make a triangle, 4 a square). Tap the top half to go back, the bottom half (or the dots) to go forward, or the purse icon to open the app.</span>
+            <span class="opt-android"><i>Android</i>out: pivotY bottom, rotationX 0 → 120 · in: pivotY top, rotationX −120 → 0, plus translationY/scale keyframes to fake depth (widgets have no z). Tap zones: 3 views per item (top / bottom / icon), each with its own fill-in intent. Approximate. Going back needs a second, reversed flipper.</span>
+          </span>
+          <span class="opt flip-detail" data-for="rise">
+            <span class="opt-desc">A short lift while fading. A subtler slide.</span>
+            <span class="opt-android"><i>Android</i>in: translationY 12dp → 0 + alpha 0 → 1 (startOffset 80ms) · out: translationY 0 → −12dp + alpha 1 → 0 · ~320ms</span>
+          </span>
+        </div>
         <div class="sub-options card-grid" id="ctlOptions">
           <span class="sub-label">Next control <em id="ctlNote"></em></span>
+          <label><input type="radio" name="ctl" value="v4-bottom" />
+            <span class="opt">
+              <b class="opt-title">Bottom caret <span class="opt-tag opt-tag--muted">Nov 5</span></b>
+              <span class="opt-android"><i>Android</i>Same views as Right caret on the current prototype: &lt;AdapterViewFlipper&gt;, one item per purse, vertical slide in/out. Two views stacked in the tile: the top half carries the Care hub PendingIntent, the bottom half a fill-in intent → broadcast → partiallyUpdateAppWidget() with showNext(). "1 of 4" is set per item in getViewAt(). The purse icon is a static ImageView outside the flipper, updated with setImageViewResource() in the same call. Auto-advance is off, since the icon couldn't follow the flipper's own flips.</span>
+              <span class="opt-desc">Each purse shows its amount and "1 of 4". Tapping the bottom half, with the &#8964; in the corner, goes to the next balance and wraps after the last. Tapping the top half opens the full list. The icon in the top-right corner stays put and changes to the current purse's icon.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="v4-strip" />
+            <span class="opt">
+              <b class="opt-title">Dividers <span class="opt-tag opt-tag--muted">Nov 5</span></b>
+              <span class="opt-android"><i>Android</i>&lt;AdapterViewFlipper&gt;, one item per purse, vertical slide in/out. The strip is a static LinearLayout outside the flipper; only its bottom cell (an ImageButton) gets the showNext() intent. The purse icon is a static ImageView outside the flipper, updated with setImageViewResource() in the same partiallyUpdateAppWidget() call. Everything else → Care hub › Flex card.</span>
+              <span class="opt-desc">A strip down the right edge is split in two by divider lines: the purse's icon on top, a &#8964; button below that goes to the next balance. Tapping anywhere else on the tile opens the full list.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="v4-tab" />
+            <span class="opt">
+              <b class="opt-title">Corner tab <span class="opt-tag opt-tag--muted">Nov 5</span></b>
+              <span class="opt-android"><i>Android</i>Same views as Dividers; the bottom cell gets a raised tab background (shape drawable) instead of divider lines.</span>
+              <span class="opt-desc">The &#8964; sits on a raised tab in the bottom-right corner, with the purse's icon above it. No divider lines. The tab goes to the next balance; anywhere else opens the full list.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="v4-page" />
+            <span class="opt">
+              <b class="opt-title">Page turn <span class="opt-tag opt-tag--muted">Nov 5</span></b>
+              <span class="opt-android"><i>Android</i>The notched card and folded corner are static drawables. The peel uses two flippers advanced by the same showNext() (~700ms): a corner flipper whose fold ImageView scales up from the bottom-right corner (1 → 2.5) and then fades, and the content flipper, which fades the old purse out and the next one in. The purse icon is a static ImageView outside the flipper, swapped with setImageViewResource() partway through. The card's cut corner following the fold can only be faked with a triangle in the background colour, which needs a flat widget background behind the tile.</span>
+              <span class="opt-desc">The card's bottom-right corner is folded like a page. Tapping the bottom half or the fold turns the page from that corner: the fold grows across the card as the purse fades, then lifts away and the next balance fades in. Tapping the top half opens the full list.</span>
+            </span>
+          </label>
           <label><input type="radio" name="ctl" value="stepper" checked />
             <span class="opt">
-              <b class="opt-title">Stepper tile <span class="opt-tag">Figma 2691:18061</span></b>
+              <b class="opt-title">Stepper tile <span class="opt-tag opt-tag--muted">Nov 4</span> <span class="opt-tag">Figma 2691:18061</span></b>
               <span class="opt-android"><i>Android</i>The flipper's first item is an overview ("Flex Card / Balance / N balances"), then one item per purse. The ⌃/⌄ stepper is two ImageButtons outside the flipper: each tap → broadcast → partiallyUpdateAppWidget() with showPrevious() / showNext(). Nothing in the stepper changes. The corner icon is a second ViewFlipper of icons with fade animators that gets the same showNext() / showPrevious(), so it stays in place and cross-fades. Auto-advance is off, since the icon couldn't follow the flipper's own flips. Card tap → Care hub › Flex card.</span>
               <span class="opt-desc">The tile starts as a summary, "4 balances", and the up/down stepper steps through each purse and back. Tapping the rest of the tile opens the full list. The tile is 104px tall, so the Call tile grows to match.</span>
             </span>
           </label>
           <label><input type="radio" name="ctl" value="caption" />
             <span class="opt">
-              <b class="opt-title">Count under the icon</b>
+              <b class="opt-title">Count under the icon <span class="opt-tag opt-tag--muted">Nov 4</span></b>
               <span class="opt-android"><i>Android</i>A TextView under the purse icon inside each flipper item, set in getViewAt(position) ("2 of 4"), so it always matches the purse shown. android:autoStart="true" + flipInterval="5000". The whole item keeps one fill-in intent that opens Care hub › Flex card.</span>
               <span class="opt-desc">No next control: "1 of 4" under the purse icon says how many balances there are. Purses change every 5 seconds and a tap opens the full list, so the tile has one action. Members can't pause the rotation on a widget, so keep the interval generous.</span>
             </span>
           </label>
           <label><input type="radio" name="ctl" value="rail" />
             <span class="opt">
-              <b class="opt-title">Side rail</b>
+              <b class="opt-title">Side rail <span class="opt-tag opt-tag--muted">Nov 3</span></b>
               <span class="opt-android"><i>Android</i>Horizontal LinearLayout: the flipper + a static ImageButton/TextView strip outside it. Strip tap → broadcast → partiallyUpdateAppWidget() with showNext(flipperId) + setTextViewText(counter). Expect a short lag (~100–300ms). The counter lives outside the flipper and can't follow its own auto-advance, so auto-advance is off with the rail.</span>
               <span class="opt-desc">A full-height strip on the right edge, styled as a Design Library tertiary icon button (no fill, divider line, 20px brand arrow, count in Tiny/Bold), is the only "next" target, so the rest of the card clearly opens the list. Its ↓ means "next"; the › after the name means "open the list". No room for the purse icon at this tile width.</span>
             </span>
           </label>
           <label><input type="radio" name="ctl" value="chip" />
             <span class="opt">
-              <b class="opt-title">Counter chip</b>
+              <b class="opt-title">Counter chip <span class="opt-tag opt-tag--muted">Nov 3</span></b>
               <span class="opt-android"><i>Android</i>TextView + ImageView on a rounded background inside each item. getViewAt(position) sets its text ("2/3"), so it stays right after auto-advance. Same fill-in intent as the dots.</span>
               <span class="opt-desc">A Design Library chip (label only) with "1/4" in the bottom-right corner. It looks tappable and says how many balances there are. The full chip with a caret icon doesn't fit next to the amount.</span>
             </span>
           </label>
           <label><input type="radio" name="ctl" value="button" />
             <span class="opt">
-              <b class="opt-title">Arrow button</b>
+              <b class="opt-title">Arrow button <span class="opt-tag opt-tag--muted">Nov 3</span></b>
               <span class="opt-android"><i>Android</i>ImageButton with a filled circle background inside each item. Same fill-in intent as the dots.</span>
               <span class="opt-desc">Design Library buttonIcon (Primary · Brand · Small, 32px) with a down arrow, under the purse icon. Clearly tappable, but it doesn't say how many balances there are.</span>
             </span>
           </label>
           <label><input type="radio" name="ctl" value="dots" />
             <span class="opt">
-              <b class="opt-title">Page dots <span class="opt-tag opt-tag--muted">previous</span></b>
+              <b class="opt-title">Page dots <span class="opt-tag opt-tag--muted">Nov 3</span> <span class="opt-tag opt-tag--muted">previous</span></b>
               <span class="opt-android"><i>Android</i>3 ImageViews inside each item, highlighted in getViewAt(position). Same fill-in intent.</span>
               <span class="opt-desc">Dots under the purse icon. Compact, but members may not know to tap them.</span>
-            </span>
-          </label>
-        </div>
-        <div class="sub-options" id="flipOptions">
-          <span class="sub-label">Flipper animation</span>
-          <label><input type="radio" name="flip" value="slide" checked />
-            <span class="opt">
-              <b class="opt-title">Vertical slide</b>
-              <span class="opt-android"><i>Android</i>inAnimation: translationY 88dp → 0 · outAnimation: translationY 0 → −88dp · 450ms</span>
-              <span class="opt-desc">The purse slides up and out, and the next one slides in from below.</span>
-            </span>
-          </label>
-          <label><input type="radio" name="flip" value="fade" />
-            <span class="opt">
-              <b class="opt-title">Crossfade</b>
-              <span class="opt-android"><i>Android</i>inAnimation: alpha 0 → 1 · outAnimation: alpha 1 → 0 · 350ms</span>
-              <span class="opt-desc">The old purse fades out while the next fades in, with no movement.</span>
-            </span>
-          </label>
-          <label><input type="radio" name="flip" value="pop" />
-            <span class="opt">
-              <b class="opt-title">Pop / zoom</b>
-              <span class="opt-android"><i>Android</i>out: scaleX/Y 1 → 0.8 + alpha 1 → 0 (180ms) · in: scaleX/Y 0.8 → 1 + alpha 0 → 1 (340ms, startOffset 120ms, overshoot interpolator)</span>
-              <span class="opt-desc">The old purse shrinks away and the next grows in with a small bounce.</span>
-            </span>
-          </label>
-          <label><input type="radio" name="flip" value="prism" />
-            <span class="opt">
-              <b class="opt-title">Prism revolve</b>
-              <span class="opt-android"><i>Android</i>out: pivotY bottom, rotationX 0 → 120 · in: pivotY top, rotationX −120 → 0, plus translationY/scale keyframes to fake depth (widgets have no z). Tap zones: 3 views per item (top / bottom / icon), each with its own fill-in intent. Approximate. Going back needs a second, reversed flipper.</span>
-              <span class="opt-desc">The purses are the faces of a turning prism joined at their top and bottom edges (3 purses make a triangle, 4 a square). Tap the top half to go back, the bottom half (or the dots) to go forward, or the purse icon to open the app.</span>
-            </span>
-          </label>
-          <label><input type="radio" name="flip" value="rise" />
-            <span class="opt">
-              <b class="opt-title">Combo · Rise + fade</b>
-              <span class="opt-android"><i>Android</i>in: translationY 12dp → 0 + alpha 0 → 1 (startOffset 80ms) · out: translationY 0 → −12dp + alpha 1 → 0 · ~320ms</span>
-              <span class="opt-desc">A short lift while fading. A subtler slide.</span>
             </span>
           </label>
         </div>
@@ -339,6 +359,6 @@
       </details>
     </aside>
   </main>
-  <script src="app.js?v=38"></script>
+  <script src="app.js?v=40"></script>
 </body>
 </html>
