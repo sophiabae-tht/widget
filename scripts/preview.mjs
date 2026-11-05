@@ -2,9 +2,9 @@
 //
 //   node scripts/preview.mjs <slug> [selector]
 //
-// Opens explorations/<slug>/index.html in headless Chrome (no server needed) and saves a 2x PNG
+// Opens <slug>/index.html in headless Chrome (no server needed) and saves a 2x PNG
 // of the element matching <selector> (default: .widget-frame, or the whole viewport if not found)
-// to explorations/<slug>/preview.png.
+// to <slug>/preview.png.
 // Requires Node 22+ and Google Chrome. Set CHROME_PATH if Chrome is not in the default macOS location.
 
 import { spawn } from "node:child_process";
@@ -20,8 +20,8 @@ if (!slug) {
 }
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const page = join(root, "explorations", slug, "index.html");
-const out = join(root, "explorations", slug, "preview.png");
+const page = join(root, slug, "index.html");
+const out = join(root, slug, "preview.png");
 if (!existsSync(page)) {
   console.error(`Not found: ${page}`);
   process.exit(1);

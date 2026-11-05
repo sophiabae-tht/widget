@@ -55,7 +55,7 @@
   </main>
 
   <script>
-    // To add an exploration: create explorations/<slug>/index.html, then add an entry here.
+    // To add an exploration: create <slug>/index.html, then add an entry here.
     // preview = screenshot inside that folder (optional). started = date of its first commit, updated = date of its latest commit (YYYY-MM-DD). Newest first.
     const EXPLORATIONS = [
       {
@@ -78,10 +78,10 @@
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     document.getElementById("list").innerHTML = EXPLORATIONS.map((e) => `
       <li>
-        <a class="card" href="explorations/${esc(e.slug)}/">
+        <a class="card" href="${esc(e.slug)}/">
           <h2>${esc(e.title)}</h2>
           <p>${esc(e.description || "")}</p>
-          ${e.preview ? `<img class="preview" src="explorations/${esc(e.slug)}/${esc(e.preview)}" alt="Preview of ${esc(e.title)}" loading="lazy" />` : ""}
+          ${e.preview ? `<img class="preview" src="${esc(e.slug)}/${esc(e.preview)}" alt="Preview of ${esc(e.title)}" loading="lazy" />` : ""}
           ${e.started ? `<span class="date">${esc(range(e.started, e.updated))}</span>` : ""}
         </a>
       </li>`).join("");
