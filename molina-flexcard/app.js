@@ -319,7 +319,7 @@ let railCount = null;
 /* ---------- Widget 1 · v4 looks (Figma Molina_Widget_v4, frames v4/w1) ----------
    All five: label (2 lines, cut off with … like Figma), amount, and "1 of 4" in each flipper item;
    flipping is next-only and wraps from the last purse to the first. Tap anywhere else → Care hub.
-   · v4-right  Right caret: purse icon top right (fixed spot, image swaps per purse); bottom half (count + ›) flips.
+   · v4-right  Right caret: wallet icon top right and "1 of 4" bottom left are both fixed (only the count's text changes); bottom half (count + ›) flips.
    · v4-bottom Bottom caret: same as Right caret, with ⌄ instead of › in the corner.
    · v4-strip  Caret flipper: right strip split in two; top cell shows the purse icon, bottom cell's ⌄ flips.
    · v4-tab    Caret flipper, corner tab: same, no dividers; the ⌄ sits on a raised corner tab.
@@ -344,12 +344,16 @@ const v4PurseIcon = `
   <span class="v4-purse tile-icon" aria-hidden="true"><img id="v4PurseImg" width="16" height="16" alt="" draggable="false" /></span>`;
 let purseIcons = [];
 let purseImg = null;
+let v4Count = null;
 let iconSwapTimer = null;
 const v4Chrome = {
   // Android: ImageView outside the flipper (opens Care hub with the card); the bottom half is a
   // separate view whose fill-in intent → broadcast → showNext().
+  // Right caret keeps the wallet icon for every purse (no per-purse swap).
+  // Its "1 of 4" also sits outside the flipper, so it stays put and only its text changes.
   "v4-right": `
-  <span class="v4-icon tile-icon" aria-hidden="true"><img id="v4PurseImg" width="16" height="16" alt="" draggable="false" /></span>
+  <span class="v4-icon tile-icon" aria-hidden="true"><img src="assets/icon-cardholder.svg" width="16" height="16" alt="" draggable="false" /></span>
+  <span class="v4-count v4-count--static" id="v4Count" aria-hidden="true"></span>
   <button class="v4-next v4-next--half" data-next type="button" aria-label="Next balance"><span class="v4-caret"><img src="assets/v4/icon-caret-right-16.svg" width="16" height="16" alt="" draggable="false" /></span></button>`,
   "v4-bottom": `
   <span class="v4-icon tile-icon" aria-hidden="true"><img id="v4PurseImg" width="16" height="16" alt="" draggable="false" /></span>
@@ -368,6 +372,7 @@ const v4Chrome = {
 function buildCards(list, { look = "" } = {}) {
   purseIcons = list.map((p) => p.icon16);
   purseImg = null;
+  v4Count = null;
   if (V4_LOOKS.includes(look)) {
     N = list.length;
     const items = list.map(v4Card(look)).join("");
@@ -378,6 +383,7 @@ function buildCards(list, { look = "" } = {}) {
     cards = [...flexTile.querySelectorAll(".pcard")];
     railCount = document.getElementById("railCount");
     purseImg = document.getElementById("v4PurseImg");
+    v4Count = document.getElementById("v4Count");
     return;
   }
   N = list.length;
@@ -425,6 +431,9 @@ function layout() {
   cards.forEach((c, i) => (c.dataset.depth = mod(i - page)));
   // Side rail sits outside the flipper, so its counter is updated separately (setTextViewText).
   railCount.textContent = `${page + 1}/${N}`;
+  // Right caret: the static "1 of 4" outside the flipper. Android: setTextViewText() in the same
+  // partiallyUpdateAppWidget() call as showNext().
+  if (v4Count) v4Count.textContent = `${page + 1} of ${N}`;
   if (purseImg) {
     const src = purseIcons[page];
     // Page turn: the icon belongs to the page being peeled. It fades under the fold (styles.css), and

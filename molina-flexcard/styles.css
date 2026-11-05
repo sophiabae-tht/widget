@@ -1082,6 +1082,11 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
   mask-composite: intersect;
 }
 
+/* Right caret: "1 of 4" stays put outside the sliding purses; only its text changes. Each purse
+   keeps an invisible copy so its label and amount sit exactly where they did. */
+.tile--flex[data-look="v4-right"] .pcard .v4-count { visibility: hidden; }
+.v4-count--static { position: absolute; z-index: 5; left: 11px; bottom: 11px; pointer-events: none; }
+
 /* Right caret + Page turn: the icon sits beside both label lines; the bottom half flips */
 .tile--flex[data-look="v4-right"] .v4-label,
 .tile--flex[data-look="v4-bottom"] .v4-label,
