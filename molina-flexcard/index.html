@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=41" />
+  <link rel="stylesheet" href="styles.css?v=44" />
 </head>
 <body>
   <main class="stage">
@@ -334,30 +334,7 @@
 
       <h2 class="notes-h2">Both widgets · Full list in Care hub</h2>
       <p class="notes-sub">Tapping the card opens the <b>Flex card</b> page (Figma 6287:23451): every purse with its Nations portal name and available balance, nothing else (confirmed on DES-88). Care hub (6283:1802) links to it from <b>Your benefits</b>.</p>
-      <fieldset class="hint-group" id="orientControls">
-        <legend>Care hub orientation · only when opened from the widget</legend>
-        <label><input type="radio" name="orient" value="line" checked />
-          <span class="opt">
-            <b class="opt-title">Header line <span class="opt-tag">recommended</span></b>
-            <span class="opt-android"><i>Android</i>The widget's PendingIntent carries an extra (source=widget); the page shows the line only for that source.</span>
-            <span class="opt-desc">One quiet line under the heading: "You can always find this in Care hub". Nothing to dismiss, and it never shows when the member came from Care hub, so it isn't repetitive.</span>
-          </span>
-        </label>
-        <label><input type="radio" name="orient" value="note" />
-          <span class="opt">
-            <b class="opt-title">One-time note</b>
-            <span class="opt-android"><i>Android</i>Same extra, plus a "seen" flag in SharedPreferences after Got it. Reset brings it back.</span>
-            <span class="opt-desc">A card saying "Your balances always live in Care hub" with Got it. More noticeable, but one more thing to tap.</span>
-          </span>
-        </label>
-        <label><input type="radio" name="orient" value="none" />
-          <span class="opt">
-            <b class="opt-title">No copy</b>
-            <span class="opt-desc">Relies on the navigation alone (below).</span>
-          </span>
-        </label>
-      </fieldset>
-      <p class="notes-android"><i>Android</i>In every option the page opens with Care hub underneath (TaskStackBuilder, Care hub as parent): the Care hub tab is selected and Back goes to Care hub, so members see where the page lives without being told.</p>
+      <p class="notes-android"><i>Android</i>The page opens with Care hub underneath (TaskStackBuilder, Care hub as parent): the Care hub tab is selected and Back goes to Care hub, so members see where the page lives without being told.</p>
 
       <details class="notes-cut">
         <summary>Dropped: not possible on Android widgets</summary>
@@ -375,6 +352,6 @@
       <button class="reset" id="reset" type="button">Reset</button>
     </aside>
   </main>
-  <script src="app.js?v=39"></script>
+  <script src="app.js?v=45"></script>
 </body>
 </html>

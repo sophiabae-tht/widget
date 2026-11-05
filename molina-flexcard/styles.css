@@ -765,18 +765,6 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 /* ---------- Flex Card balances (in Care Hub) ---------- */
 .app-crumb { font-size: 13px; line-height: 18px; color: #8b8eb1; }
 .app-crumb b { font-weight: 500; color: var(--text-weak); }
-.app-note {
-  padding: 14px 16px; border-radius: 16px;
-  background: #eef0fd; border: 1px solid var(--stroke-brandweaker);
-  transition: opacity 0.2s, transform 0.2s;
-}
-.app-note.is-leaving { opacity: 0; transform: translateY(-4px); }
-.app-note-title { font-weight: 600; font-size: 15px; line-height: 20px; color: #0c0f41; }
-.app-note-text { margin-top: 4px; font-size: 14px; line-height: 20px; color: var(--text-weak); }
-.app-note-btn {
-  margin-top: 10px; padding: 6px 14px; border-radius: 16px;
-  background: var(--text-brand); color: #fff; font-weight: 600; font-size: 14px;
-}
 .purse-list { display: flex; flex-direction: column; gap: 8px; }
 .purse-row {
   display: flex; align-items: center; gap: 12px;
@@ -844,15 +832,14 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .ch-member-id { display: block; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); }
 
 /* Flex card entry (cardNavigationItem) */
-.ch-nav-card { display: block; width: 100%; padding: 20px 16px; text-align: left; transition: box-shadow 0.15s; }
+.ch-nav-card { display: block; width: 100%; padding: 16px; text-align: left; transition: box-shadow 0.15s; }
 .ch-nav-card:hover { box-shadow: 0 2px 12px rgba(12, 15, 65, 0.1); }
-.ch-nav-main { display: flex; align-items: center; gap: 16px; padding-bottom: 20px; }
+.ch-nav-main { display: flex; align-items: center; gap: 16px; }
 .ch-nav-text { flex: 1; min-width: 0; }
 .ch-nav-title { display: block; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); }
 .ch-nav-body { display: block; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
-.ch-nav-foot { display: flex; justify-content: space-between; padding-top: 16px; border-top: 1px solid rgba(13, 17, 64, 0.1); font-size: 14px; line-height: 20px; }
-.ch-nav-foot b { font-weight: 600; color: var(--text-weak); }
-.ch-nav-foot span { font-weight: 500; color: #696d9b; }
+/* Figma 2737:10808: "Last updated" line under the card content, no divider */
+.ch-nav-foot { display: block; padding-top: 8px; font-size: 14px; line-height: 20px; font-weight: 500; color: #696d9b; }
 
 /* Horizontal scrollers */
 .ch-hscroll { display: flex; gap: 16px; padding: 16px 16px 4px; overflow-x: auto; scrollbar-width: none; }
@@ -875,18 +862,23 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .ch-resource-title { font-size: 16px; line-height: 24px; font-weight: 500; color: var(--text-strong); text-decoration: underline; text-underline-position: from-font; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ch-resource-desc { font-size: 16px; line-height: 24px; font-weight: 500; color: var(--text-weak); }
 .ch-resource img { flex: none; }
+/* Resources skeleton: grey bars in place of title / description / link-out icon */
+.ch-resource--skeleton > span { flex: 1; gap: 8px; padding: 4px 0; }
+.skel { display: block; border-radius: 8px; background: rgba(12, 15, 65, 0.08); }
+.skel--title { height: 16px; }
+.skel--line { height: 12px; background: rgba(12, 15, 65, 0.05); }
+.skel--icon { flex: none; width: 20px; height: 20px; border-radius: 6px; margin-top: 2px; }
 
 /* Flex card purses (cardPerk) */
-.ch-perk { display: flex; align-items: center; }
-.ch-perk > .ch-circle { margin-left: 16px; }
+.ch-perk { display: flex; align-items: flex-start; }
+.ch-perk > .ch-circle { margin: 16px 0 0 16px; }
 .ch-perk-text { flex: 1; min-width: 0; padding: 16px; }
 .ch-perk-name { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text-weak); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ch-perk-amount { margin-top: 4px; font-size: 24px; line-height: 32px; font-weight: 600; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+.ch-perk-amount { margin-top: 4px; font-size: 24px; line-height: 32px; font-weight: 700; color: var(--text-strong); font-variant-numeric: tabular-nums; }
 .ch-perk-label { margin-top: 4px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
-.ch-updated { padding: 12px 16px 0; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
+.ch-updated { padding: 16px 16px 0; font-size: 14px; line-height: 20px; font-weight: 500; color: #696d9b; }
 
 /* Widget → Flex card: one-time "lives in Care hub" note */
-.app-screen--core .app-note { background: #fff; border-color: rgba(71, 84, 235, 0.3); }
 .app-screen--core .app-body > * { flex-shrink: 0; }
 
 /* ---------- Widget 1 = "pager" (flippable tile); Widget 2 = "no" / "yes" (static link tile) ---------- */
@@ -928,14 +920,6 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
   font-size: 14px; line-height: 18px; font-weight: 600; color: var(--text-weak);
 }
-
-/* Flex card page, from the widget: quiet "lives in Care hub" line */
-.ch-orient {
-  display: flex; align-items: center; gap: 6px;
-  margin: 4px 16px 0;
-  font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);
-}
-.ch-orient img { flex: none; }
 
 /* ---------- Next controls on Design Library components (Figma "Design Library") ----------
    Tokens: text/brand #4754eb, text/weak #565a86, stroke/weak rgba(13,17,64,.1),

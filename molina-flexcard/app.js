@@ -16,13 +16,10 @@ const toastEl = document.getElementById("toast");
 const C = "assets/carehub/";
 const NATIONS_PURSES = [
   { name: "2026 Health Screening Rewards",    short: ["Health", "Screening"],      amount: "$375.00", icon: "icon-heartbeat.svg" },
-  { name: "Over the Counter, Food & Produce", short: ["OTC, Food", "& Produce"],    amount: "$143.00", icon: "icon-fork-knife.svg" },
+  { name: "Over the Counter, Food & Produce", short: ["OTC, Food", "& Produce"],    amount: "$143.00", icon: "icon-basket.svg" },
   { name: "Post Discharge Incentives",        short: ["Post", "Discharge"],         amount: "$50.00",  icon: "icon-hospital.svg" },
-  { name: "Health Risk Assessment Rewards",   short: ["Health Risk", "Assessment"], amount: "$25.00",  icon: "icon-list-checks.svg" },
+  { name: "Health Risk Assessment Rewards",   short: ["Health Risk", "Assessment"], amount: "$25.00",  icon: "icon-clipboard-text.svg" },
 ];
-let careHubNoteSeen = false; // Android: a SharedPreferences flag, set by "Got it"
-// How the Flex card page tells widget users it lives in Care hub: "line" | "note" | "none"
-let orient = "line";
 
 const pageHeader = (title, body) => `
   <div class="ch-page-header"><h2 class="ch-h2">${title}</h2><p class="ch-body">${body}</p></div>`;
@@ -35,22 +32,15 @@ const CONTACTS = [
 ];
 const APPS = [
   { name: "My Molina", desc: "See your ID card, benefits, and doctors near you", molina: true },
-  { name: "Benefits pro", desc: "Check your Flex Card balance and shop eligible items", img: "app-benefits-pro.png" },
   { name: "CVS Caremark", desc: "Access prescriptions, compare prices, find pharmacies in one app", img: "app-cvs.png" },
-  { name: "Teladoc", desc: "Connect with doctors, therapists, and health professionals virtually", img: "app-teladoc.png" },
-  { name: "Maven Clinic", desc: "24/7 fertility, pregnancy, parenting &amp; menopause support", img: "app-maven.png" },
 ];
-const RESOURCES = [
-  ["Aetna Better Health of OK", "Find out more about what is available to you through your Aetna Oklahoma health plan"],
-  ["Member Handbook", "Learn about your health care benefits"],
-  ["Member Portal", "Find care, manage benefits, handle claims, get quotes, and find forms through Aetna’s Member Portal"],
-  ["SoonerQuit Program", "Need support in quitting tobacco? Connect with a team that can support your tobacco cessation journey"],
-  ["OK WIC / SNAP", "Pregnant, Breastfeeding or Post-Partum? Find out if you are eligible for WIC benefits"],
-  ["HeadStart", "Do you have children 5 years old or younger? You may be eligible for support in their health and education"],
-  ["Oklahoma 211", "Find out what social service resources are available to you through Oklahoma 211"],
-  ["Krames Online", "Have questions about your healthcare. Find answers through Krames Online’s digital library"],
-  ["KidsHealth", "Have children? Get advice on your child’s health, behavior, and growth through KidsHealth"],
-  ["HRS Link", "Complete your Health Risk Screen here"],
+// Resources: skeleton rows until Molina's real resource list is decided.
+// Each entry = widths of the title bar and the description lines.
+const RESOURCE_SKELETONS = [
+  { title: "58%", lines: ["100%", "72%"] },
+  { title: "42%", lines: ["84%"] },
+  { title: "50%", lines: ["100%", "64%"] },
+  { title: "36%", lines: ["90%", "48%"] },
 ];
 
 const DESTINATIONS = {
@@ -63,22 +53,13 @@ const DESTINATIONS = {
       <div class="app-row"><span>Rides to appointments</span><span>24 left</span></div>
       <div class="app-row"><span>Over-the-counter items</span><span>$50 / qtr</span></div>`,
   },
-  // Flex card (Figma 6287:23451): purse name + available balance only, named as on the Nations
-  // portal. Opened from the widget → one-time note that this page always lives in Care hub.
-  // Opened from Care hub itself → no note.
+  // Flex card (Figma 2737:10925): purse name + available balance only, named as on the Nations
+  // portal. No "lives in Care hub" copy: it opens with Care hub underneath, which shows where it lives.
   flex: {
     title: "Flex card",
     core: true,
-    html: ({ source } = {}) => `
+    html: () => `
       ${pageHeader("Flex card", "View your available balance for each benefit.")}
-      ${source === "widget" && orient === "line" ? `
-      <p class="ch-orient"><img src="${C}nav-bookmark.svg" width="16" height="16" alt="" />You can always find this in Care hub</p>` : ""}
-      ${source === "widget" && orient === "note" && !careHubNoteSeen ? `
-      <div class="ch-pad"><div class="app-note" id="careHubNote">
-        <p class="app-note-title">Your balances always live in Care hub</p>
-        <p class="app-note-text">Find them anytime in Care hub › Flex card. The widget is a shortcut to this page.</p>
-        <button class="app-note-btn" data-dismiss-note type="button">Got it</button>
-      </div></div>` : ""}
       ${NATIONS_PURSES.map((p) => `
       <div class="ch-pad"><div class="ch-perk">
         <span class="ch-circle ch-circle--32"><img src="${C}${p.icon}" width="20" height="20" alt="" /></span>
@@ -88,7 +69,7 @@ const DESTINATIONS = {
           <p class="ch-perk-label">Available balance</p>
         </div>
       </div></div>`).join("")}
-      <p class="ch-updated">Updated today, 9:30 AM</p>`,
+      <p class="ch-updated">Last updated today, 9:30 AM</p>`,
   },
   // Care hub (Figma 6283:1802): tab root, so no back arrow
   home: {
@@ -109,7 +90,7 @@ const DESTINATIONS = {
             <span class="ch-nav-text"><span class="ch-nav-title">Flex card</span><span class="ch-nav-body">Check your card’s balances</span></span>
             <img src="${C}icon-caret-right-20.svg" width="20" height="20" alt="" />
           </span>
-          <span class="ch-nav-foot"><b>2 new balances</b><span>Updated today, 9:30 AM</span></span>
+          <span class="ch-nav-foot">Last updated at 9:30 AM</span>
         </button>
       </div>
       <div class="ch-spacer"></div>
@@ -138,11 +119,14 @@ const DESTINATIONS = {
       </div>
       <div class="ch-spacer"></div>
       ${section("Resources")}
-      <div class="ch-resources">
-        ${RESOURCES.map(([t, d]) => `
-        <div class="ch-resource">
-          <span><span class="ch-resource-title">${t}</span><span class="ch-resource-desc">${d}</span></span>
-          <img src="${C}icon-arrow-square-out.svg" width="20" height="20" alt="" />
+      <div class="ch-resources" aria-hidden="true">
+        ${RESOURCE_SKELETONS.map((r) => `
+        <div class="ch-resource ch-resource--skeleton">
+          <span>
+            <i class="skel skel--title" style="width: ${r.title}"></i>
+            ${r.lines.map((w) => `<i class="skel skel--line" style="width: ${w}"></i>`).join("")}
+          </span>
+          <i class="skel skel--icon"></i>
         </div>`).join("")}
       </div>`,
   },
@@ -236,12 +220,6 @@ appBody.addEventListener("click", (e) => {
   const link = e.target.closest("[data-goto]");
   if (link) { appStack.push({ key: link.dataset.goto, opts: { source: "carehub" } }); renderApp(); return; }
   if (e.target.closest("[data-call]")) { phone.classList.add("sheet-open"); return; }
-  if (e.target.closest("[data-dismiss-note]")) {
-    careHubNoteSeen = true;
-    const note = document.getElementById("careHubNote");
-    note.classList.add("is-leaving");
-    setTimeout(() => note.remove(), 200);
-  }
 });
 
 /* ---------- Flex Card purses ----------
@@ -653,7 +631,6 @@ nameInputs.forEach((r) => r.addEventListener("change", () => {
 const flexLinkTile = document.getElementById("flexLinkTile");
 flexLinkTile.addEventListener("click", () => openApp("flex", flexLinkTile, { source: "widget" }));
 
-document.querySelectorAll('input[name="orient"]').forEach((r) => r.addEventListener("change", () => (orient = r.value)));
 
 setMode("flipper");
 applyHints();
@@ -692,6 +669,5 @@ document.getElementById("reset").addEventListener("click", () => {
   goHome();
   page = 0;
   used = false;
-  careHubNoteSeen = false;
   setMode(flexTile.dataset.mode);
 });
