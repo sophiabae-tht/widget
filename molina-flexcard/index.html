@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=83" />
+  <link rel="stylesheet" href="styles.css?v=84" />
 </head>
 <body>
   <main class="stage">
@@ -169,7 +169,7 @@
         <div class="look-points" data-for="v4-right">
           <ul class="widget-points">
             <li>Each purse shows its amount and &ldquo;1 of 4&rdquo;, one purse at a time. No total.</li>
-            <li>Tapping the bottom half, with the &rsaquo; in the corner, goes to the next balance: it slides in from the right as the current one slides out to the left. Where the incoming text reaches the purse icon, it fades out instead of running under it. After the last purse it wraps to the first.</li>
+            <li>Tapping the bottom half, with the &rsaquo; in the corner, goes to the next balance: it slides in from the right as the current one slides out to the left. Where the incoming text reaches the purse icon or the &rsaquo;, it fades out instead of running under them. After the last purse it wraps to the first.</li>
             <li>Tapping the top half opens the full list. The icon in the top-right corner stays put and changes to the current purse's icon.</li>
             <li>Purse names are the Nations portal names, shortened only where they don't fit two lines:
               <ul>
@@ -180,7 +180,7 @@
               </ul>
             </li>
           </ul>
-          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, horizontal slide: inAnimation and outAnimation are objectAnimator XMLs on translationX (in from the right, out to the left), set on the flipper in the widget layout. The fade by the icon is an ImageView with a gradient shape drawable (tile colour → transparent), placed outside the flipper, under the icon. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. Two views stacked in the tile: the top half carries the Care hub PendingIntent, the bottom half a fill-in intent → showNext(). "1 of 4" is set per item in getViewAt(). The purse icon is a static ImageView outside the flipper, updated with setImageViewResource() in the same partiallyUpdateAppWidget() call as showNext().</p>
+          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, horizontal slide: inAnimation and outAnimation are objectAnimator XMLs on translationX (in from the right, out to the left), set on the flipper in the widget layout. The fades by the icon and the &rsaquo; are ImageViews with gradient shape drawables (tile colour → transparent), placed outside the flipper, under the icon and the &rsaquo;. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. Two views stacked in the tile: the top half carries the Care hub PendingIntent, the bottom half a fill-in intent → showNext(). "1 of 4" is set per item in getViewAt(). The purse icon is a static ImageView outside the flipper, updated with setImageViewResource() in the same partiallyUpdateAppWidget() call as showNext().</p>
         </div>
         <div class="look-points" data-for="v4-bottom">
           <ul class="widget-points">
@@ -422,6 +422,6 @@
 
     </aside>
   </main>
-  <script src="app.js?v=83"></script>
+  <script src="app.js?v=84"></script>
 </body>
 </html>

@@ -1062,9 +1062,9 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .tile--flex[data-mode="flipper"][data-flip="slide"][data-look="v4-right"] .pcard.exit-up { transform: translateX(-100%); }
 
 /* Right caret: as a purse slides in from the right, its text fades out where it meets the purse icon
-   instead of running under it. A static scrim in the tile's colour sits above the flipper, under the
-   icon: clear where the label ends at rest, solid under the icon, so text at rest isn't touched.
-   Android: an ImageView with a gradient shape drawable, outside the flipper. */
+   (top right) and the › (bottom right) instead of running under them. A static scrim in the tile's colour sits above the flipper, under the
+   icon / caret: clear where the text ends at rest, solid under the icon / caret, so text at rest isn't
+   touched. Android: an ImageView with a gradient shape drawable for each, outside the flipper. */
 .v4-fade { display: none; }
 .tile--flex[data-look="v4-right"] .v4-fade {
   display: block; position: absolute; z-index: 5; top: 0; right: 0; width: 43px; height: 52px;
@@ -1072,6 +1072,13 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
   background: linear-gradient(to right, rgba(240, 241, 250, 0), #f0f1fa 12px); /* #f0f1fa = tile colour, opaque */
   -webkit-mask-image: linear-gradient(to bottom, #000 40px, transparent);
   mask-image: linear-gradient(to bottom, #000 40px, transparent);
+}
+/* Under the ›: it sits 10px from the right and 6px from the bottom (.v4-caret), 28px round */
+.tile--flex[data-look="v4-right"] .v4-fade--caret {
+  top: auto; bottom: 0; width: 50px; height: 44px;
+  border-radius: 0 0 15px 0;
+  -webkit-mask-image: linear-gradient(to top, #000 34px, transparent);
+  mask-image: linear-gradient(to top, #000 34px, transparent);
 }
 
 /* Right caret + Page turn: the icon sits beside both label lines; the bottom half flips */
@@ -1176,6 +1183,14 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 /* The fold grows from the corner (the peel), lifts away, and the resting fold returns */
 .tile--flex[data-look="v4-page"]:has(.pcard.exit-up) .v4-corner {
   animation: v4-corner-peel 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* The purse icon belongs to the page being peeled: it fades as the fold sweeps over that corner and
+   comes back with the next purse (its image swaps while hidden, see layout() in app.js) */
+.tile--flex[data-look="v4-page"]:has(.pcard.exit-up) .v4-icon { animation: v4-icon-peel 0.7s ease-in-out; }
+@keyframes v4-icon-peel {
+  0%       { opacity: 1; }
+  28%, 50% { opacity: 0; }
+  100%     { opacity: 1; }
 }
 /* The peeling flap covers everything on the page, including the purse icon */
 .tile--flex[data-look="v4-page"]:has(.pcard.exit-up) .v4-next { z-index: 6; }

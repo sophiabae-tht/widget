@@ -344,11 +344,13 @@ const v4PurseIcon = `
   <span class="v4-purse tile-icon" aria-hidden="true"><img id="v4PurseImg" width="16" height="16" alt="" draggable="false" /></span>`;
 let purseIcons = [];
 let purseImg = null;
+let iconSwapTimer = null;
 const v4Chrome = {
   // Android: ImageView outside the flipper (opens Care hub with the card); the bottom half is a
   // separate view whose fill-in intent → broadcast → showNext().
   "v4-right": `
   <span class="v4-fade" aria-hidden="true"></span>
+  <span class="v4-fade v4-fade--caret" aria-hidden="true"></span>
   <span class="v4-icon tile-icon" aria-hidden="true"><img id="v4PurseImg" width="16" height="16" alt="" draggable="false" /></span>
   <button class="v4-next v4-next--half" data-next type="button" aria-label="Next balance"><span class="v4-caret"><img src="assets/v4/icon-caret-right-16.svg" width="16" height="16" alt="" draggable="false" /></span></button>`,
   "v4-bottom": `
@@ -422,7 +424,19 @@ function layout() {
   cards.forEach((c, i) => (c.dataset.depth = mod(i - page)));
   // Side rail sits outside the flipper, so its counter is updated separately (setTextViewText).
   railCount.textContent = `${page + 1}/${N}`;
-  if (purseImg) purseImg.src = purseIcons[page];
+  if (purseImg) {
+    const src = purseIcons[page];
+    // Page turn: the icon belongs to the page being peeled. It fades under the fold (styles.css), and
+    // only swaps to the next purse's icon once it's hidden. Android: the same setImageViewResource(),
+    // sent partway through instead of with showNext().
+    clearTimeout(iconSwapTimer);
+    if (flexTile.dataset.look === "v4-page" && flexTile.querySelector(".pcard.exit-up")) {
+      const img = purseImg;
+      iconSwapTimer = setTimeout(() => (img.src = src), PAGE_TURN_MS * 0.42);
+    } else {
+      purseImg.src = src;
+    }
+  }
   flexTile.classList.toggle("on-last", page === N - 1);
 }
 function withoutAnim(els, fn) {

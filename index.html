@@ -71,6 +71,7 @@
 
   <script>
     // To add an exploration: create <slug>/index.html, then add an entry here.
+    // url = where the card links (optional; defaults to <slug>/).
     // tags = issue names, e.g. ["DES-88"] (optional; shown only here, not on the exploration page).
     // live = CSS selector of the element to show on the card, rendered live from the exploration page
     //        so the card is always the latest version (optional). preview = screenshot inside that folder,
@@ -79,6 +80,7 @@
       {
         slug: "molina-flexcard",
         title: "Molina: Flex card",
+        url: "https://tht-widget.vercel.app/molina-flexcard/",
         tags: ["DES-88"],
         description: "Android home-screen widget for Molina members, with Flex Card balances and Care hub screens.",
         live: ".widget-frame",
@@ -98,7 +100,7 @@
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     document.getElementById("list").innerHTML = EXPLORATIONS.map((e) => `
       <li>
-        <a class="card" href="${esc(e.slug)}/">
+        <a class="card" href="${esc(e.url || `${e.slug}/`)}">
           ${e.tags?.length ? `<span class="tags">${e.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</span>` : ""}
           <h2>${esc(e.title)}</h2>
           <p>${esc(e.description || "")}</p>
