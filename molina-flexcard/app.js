@@ -132,14 +132,78 @@ const DESTINATIONS = {
   },
 };
 
-/* ---------- App launch: expand from the tapped element ---------- */
-let launchRect = null;
+/* ---------- App launch from a widget (Android 12+ launcher) ----------
+   Tapping anything on a widget launches the app from the WHOLE widget, not the tapped tile:
+   Launcher3 morphs the widget's background view (@android:id/background on the widget root) into
+   the app window. During the morph the app window is scaled down to the widget's width and
+   cropped to its height, the corner radius goes from the widget's (16dp) to the screen's, the
+   widget's own content fades out first, then the app's content fades in. The rest of the home
+   screen scales down a little and fades. Going home plays the same morph in reverse, back into
+   the widget. */
+const LAUNCH = { open: 500, close: 420, ease: "cubic-bezier(0.2, 0, 0, 1)" };
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+let launchFrom = null; // the widget root the app launched from
+let launchAnims = [];
 
-function insetFor(el) {
+// Widget root's rect in phone coordinates (the 360×800 frame may be scaled to fit the window)
+function phoneRect(el) {
   const p = phone.getBoundingClientRect();
   const r = el.getBoundingClientRect();
-  const k = phone.offsetWidth / p.width; // screen px → phone px (the frame may be scaled to fit)
-  return `inset(${(r.top - p.top) * k}px ${(p.right - r.right) * k}px ${(p.bottom - r.bottom) * k}px ${(r.left - p.left) * k}px round 16px)`;
+  const k = phone.offsetWidth / p.width;
+  return { x: (r.left - p.left) * k, y: (r.top - p.top) * k, w: r.width * k, h: r.height * k };
+}
+// The app window (360×800) scaled to the widget's width and cropped to its height
+function windowAt(el) {
+  const W = appScreen.offsetWidth, H = appScreen.offsetHeight;
+  const r = phoneRect(el);
+  const k = r.w / W;
+  return {
+    transform: `translate(${r.x}px, ${r.y}px) scale(${k})`,
+    clipPath: `inset(0px 0px ${Math.max(0, H - r.h / k)}px 0px round ${16 / k}px)`,
+  };
+}
+const FULL = { transform: "translate(0px, 0px) scale(1)", clipPath: "inset(0px 0px 0px 0px round 32px)" };
+const appLayers = () => [...appScreen.children];
+const homeLayers = () => [...phone.querySelectorAll(".widget-frame")];
+
+function stopLaunch() {
+  launchAnims.forEach((a) => a.cancel());
+  launchAnims = [];
+}
+function playLaunch(opening) {
+  stopLaunch();
+  const from = windowAt(launchFrom);
+  if (reduceMotion.matches) {
+    launchAnims.push(appScreen.animate([{ opacity: opening ? 0 : 1 }, { opacity: opening ? 1 : 0 }], { duration: 150 }));
+    return;
+  }
+  const d = opening ? LAUNCH.open : LAUNCH.close;
+  const opts = { duration: d, easing: LAUNCH.ease };
+  // Window: morphs between the widget's bounds and the full screen
+  launchAnims.push(appScreen.animate(opening ? [from, FULL] : [FULL, from], opts));
+  // Window surface: covers the widget at its exact bounds, so fading it is the widget → app cross-fade
+  launchAnims.push(appScreen.animate(opening
+    ? [{ opacity: 0 }, { opacity: 1, offset: 0.16 }, { opacity: 1 }]
+    : [{ opacity: 1 }, { opacity: 1, offset: 0.8 }, { opacity: 0 }], { duration: d }));
+  // App content: in after the widget content is gone; out first when going home
+  appLayers().forEach((el) => launchAnims.push(el.animate(opening
+    ? [{ opacity: 0 }, { opacity: 0, offset: 0.14 }, { opacity: 1, offset: 0.5 }, { opacity: 1 }]
+    : [{ opacity: 1 }, { opacity: 0, offset: 0.45 }, { opacity: 0 }], { duration: d })));
+  // The launch source stays hidden under the window; the rest of the home screen recedes
+  homeLayers().forEach((el) => {
+    if (el.contains(launchFrom)) {
+      // Stays fully visible until the window surface is opaque on top of it (no wallpaper bleed)
+      launchAnims.push(el.animate(opening
+        ? [{ opacity: 1 }, { opacity: 1, offset: 0.16 }, { opacity: 0, offset: 0.17 }, { opacity: 0 }]
+        : [{ opacity: 0 }, { opacity: 0, offset: 0.79 }, { opacity: 1, offset: 0.8 }, { opacity: 1 }],
+      { duration: d, fill: "forwards" }));
+    } else {
+      launchAnims.push(el.animate(opening
+        ? [{ transform: "scale(1)", opacity: 1 }, { transform: "scale(0.94)", opacity: 0 }]
+        : [{ transform: "scale(0.94)", opacity: 0 }, { transform: "scale(1)", opacity: 1 }],
+      { ...opts, fill: "forwards" }));
+    }
+  });
 }
 
 /* Fit the 360×800 frame: desktop → to the window height (phone left, settings right);
@@ -184,23 +248,21 @@ function openApp(key, fromEl, opts = {}) {
   if (key === "flex" && opts.source === "widget") appStack.unshift({ key: "home", opts: {} });
   renderApp();
 
-  launchRect = insetFor(fromEl);
-  appScreen.style.transition = "none";
-  appScreen.style.clipPath = launchRect;
-  appScreen.getBoundingClientRect(); // commit start frame
-  appScreen.style.transition = "";
+  // Launches from the whole widget (its root background view), whichever tile was tapped
+  launchFrom = fromEl.closest(".widget") || fromEl;
   phone.classList.add("app-open");
   appScreen.setAttribute("aria-hidden", "false");
-  requestAnimationFrame(() => {
-    appScreen.style.clipPath = "inset(0 round 32px)";
-  });
+  playLaunch(true);
 }
 
 function closeApp() {
   if (!phone.classList.contains("app-open")) return;
-  appScreen.style.clipPath = launchRect || "inset(40% 10% 40% 10% round 16px)";
   phone.classList.remove("app-open");
   appScreen.setAttribute("aria-hidden", "true");
+  if (launchFrom) playLaunch(false);
+  // Home screen is back once the window has folded into the widget
+  const done = Promise.all(launchAnims.map((a) => a.finished)).catch(() => {});
+  done.then(() => { if (!phone.classList.contains("app-open")) stopLaunch(); });
 }
 
 document.querySelectorAll("[data-open]").forEach((el) => {
@@ -636,6 +698,16 @@ setMode("flipper");
 applyHints();
 setAnswer(widgetInputs.find((r) => r.checked).value === "1" ? "pager" : w2Version);
 
+/* Android engineering notes: hidden by default; the toggle shows them (remembered on this device) */
+const androidToggle = document.getElementById("androidToggle");
+const setAndroidNotes = (on) => {
+  androidToggle.checked = on;
+  notes.classList.toggle("show-android", on);
+  try { localStorage.setItem("molina-flexcard:android-notes", on ? "1" : "0"); } catch {}
+};
+androidToggle.addEventListener("change", () => setAndroidNotes(androidToggle.checked));
+setAndroidNotes((() => { try { return localStorage.getItem("molina-flexcard:android-notes") === "1"; } catch { return false; } })());
+
 /* ---------- Member Services: call sheet ---------- */
 const openSheet = () => phone.classList.add("sheet-open");
 const closeSheet = () => phone.classList.remove("sheet-open");
@@ -664,10 +736,4 @@ function goHome() {
 document.getElementById("gestureBar").addEventListener("click", goHome);
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") goHome();
-});
-document.getElementById("reset").addEventListener("click", () => {
-  goHome();
-  page = 0;
-  used = false;
-  setMode(flexTile.dataset.mode);
 });

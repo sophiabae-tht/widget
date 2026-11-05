@@ -122,7 +122,7 @@ html, body { overflow: hidden; }
   background: var(--background-base);
   transition: transform 0.35s var(--ease-emphasized), opacity 0.35s;
 }
-.phone.app-open .widget { transform: scale(0.94); opacity: 0; }
+/* While the app is open the home screen sits behind it (the launch morph handles the motion) */
 
 .gradient-bg {
   position: absolute;
@@ -399,9 +399,9 @@ html, body { overflow: hidden; }
   padding-top: 52px;
   opacity: 0;
   pointer-events: none;
-  /* clip-path animated from the tapped element's rect, set in JS */
+  /* Launch / return morph is played in JS (Web Animations), from the widget's bounds */
+  transform-origin: 0 0;
   clip-path: inset(0 round 32px);
-  transition: clip-path 0.45s var(--ease-emphasized), opacity 0.2s;
 }
 .phone.app-open .app-screen { opacity: 1; pointer-events: auto; }
 .app-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
@@ -511,9 +511,15 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 .hint-group label { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
 .hint-group input { margin-top: 3px; accent-color: #4754eb; }
 .hint-group em { font-style: normal; color: #8b8eb1; }
-.notes-cut { margin-top: 16px; color: #565a86; }
-.notes-cut summary { cursor: pointer; font-weight: 600; color: #3b3e66; }
+/* "Dropped" callout: its own red container */
+.notes-cut {
+  margin-top: 24px; padding: 12px 14px; border-radius: 12px;
+  background: #fdeeee; border: 1px solid #f3c4c4; color: #7a2a2a;
+}
+.notes-cut summary { cursor: pointer; font-weight: 600; color: #b42318; }
+.notes-cut summary::marker { color: #b42318; }
 .notes-cut p { margin-top: 8px; }
+.notes-cut b { color: #7a1f1a; }
 .notes-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
 .reset.reset--primary { background: #4754eb; color: #fff; border-color: #4754eb; }
 .notes li { margin-bottom: 8px; }
@@ -895,6 +901,14 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .notes:not([data-answer="pager"]) .w1-only,
 .notes[data-answer="pager"] .w2-only { display: none; }
 
+/* Top of the side notes: title, intro, Android toggle and the widget switch on one card */
+.notes-intro {
+  padding: 20px; border-radius: 16px; background: #fff;
+  box-shadow: 0 2px 8px rgba(12, 15, 65, 0.05);
+}
+.notes-intro .notes-h2 { margin-top: 16px; }
+.notes-intro ~ .widget-section { border-top: 0; padding-top: 0; }
+
 /* Widget 1 / Widget 2 switch + sections in the side notes */
 .widget-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 14px; padding: 4px; border-radius: 12px; background: rgba(12, 15, 65, 0.06); }
 .widget-switch label { cursor: pointer; }
@@ -904,8 +918,41 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .widget-switch input:checked + span { background: #fff; color: #0c0f41; box-shadow: 0 1px 3px rgba(12, 15, 65, 0.12); }
 .widget-switch input:checked + span b { color: #4754eb; }
 .widget-switch input:focus-visible + span { outline: 2px solid #4754eb; outline-offset: 1px; }
-.notes-archive { margin-top: 8px; font-size: 13px; color: #696d9b; }
-.notes-archive a { color: #4754eb; font-weight: 600; }
+/* Archive mode: below "Dropped", in a muted (disabled-looking) style; still opens the archive */
+.notes-archive { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-top: 16px; font-size: 13px; line-height: 18px; color: #8b8eb1; }
+.archive-btn {
+  padding: 8px 16px; border-radius: 10px;
+  background: #f0f1f5; border: 1px solid #d0d3e1;
+  color: #8b8eb1; font-size: 14px; font-weight: 600; text-decoration: none;
+  transition: background-color 0.15s, color 0.15s;
+}
+.archive-btn:hover { background: #e6e8ef; color: #696d9b; }
+/* Tooltip above the button, on hover or keyboard focus */
+.notes-archive { position: relative; }
+.archive-hint {
+  position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 10;
+  width: max-content; max-width: 260px; padding: 6px 10px; border-radius: 8px;
+  background: #1f2247; color: #fff; font-size: 12px; line-height: 16px; font-weight: 500;
+  box-shadow: 0 4px 12px rgba(12, 15, 65, 0.18);
+  opacity: 0; transform: translateY(4px); transition: opacity 0.15s, transform 0.15s; pointer-events: none;
+}
+.archive-hint::after {
+  content: ""; position: absolute; left: 20px; top: 100%;
+  border: 5px solid transparent; border-top-color: #1f2247;
+}
+.notes-archive:has(.archive-btn:hover) .archive-hint,
+.notes-archive:has(.archive-btn:focus-visible) .archive-hint { opacity: 1; transform: none; }
+
+/* Android engineering notes: hidden until the toggle is on */
+.notes:not(.show-android) .opt-android,
+.notes:not(.show-android) .notes-android { display: none; }
+.android-toggle { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 13px; line-height: 18px; font-weight: 500; color: #3b3e66; cursor: pointer; }
+.android-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.android-toggle-track { position: relative; flex: none; width: 32px; height: 18px; border-radius: 9px; background: #d0d3e1; transition: background-color 0.2s; }
+.android-toggle-track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(12, 15, 65, 0.2); transition: transform 0.2s var(--ease-emphasized); }
+.android-toggle input:checked + .android-toggle-track { background: #1e7e3e; }
+.android-toggle input:checked + .android-toggle-track::after { transform: translateX(14px); }
+.android-toggle input:focus-visible + .android-toggle-track { outline: 2px solid #4754eb; outline-offset: 2px; }
 .widget-section .notes-android { margin-top: 10px; }
 .widget-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(12, 15, 65, 0.1); }
 .widget-section-title { display: flex; align-items: baseline; gap: 8px; font-size: 18px; line-height: 24px; font-weight: 600; color: #0c0f41; }

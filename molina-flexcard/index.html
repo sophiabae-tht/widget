@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=44" />
+  <link rel="stylesheet" href="styles.css?v=53" />
 </head>
 <body>
   <main class="stage">
@@ -138,15 +138,21 @@
     </div>
 
     <aside class="notes">
+      <div class="notes-intro">
       <h1>Widget prototype</h1>
-      <p>Figma <code>v2/link</code> · Android Large 360×800</p>
-      <h2 class="notes-h2">Flex Card on the widget · Android</h2>
+      <p>Android Large 360×800</p>
+      <h2 class="notes-h2">Flex Card on the widget</h2>
       <p class="notes-sub">Two widget directions for DES-88, built only with what a real Android home-screen widget can do. Tap a Flex Card tile to see the full list, then Back to see where it lives in Care hub.</p>
-      <p class="notes-archive"><a href="archive/">Archive mode</a> · earlier iterations (other controls, animations, StackView, separate Flex Card widget)</p>
+      <label class="android-toggle">
+        <input type="checkbox" id="androidToggle" role="switch" />
+        <span class="android-toggle-track" aria-hidden="true"></span>
+        <span>Show Android engineering notes</span>
+      </label>
 
       <div class="widget-switch" id="widgetSwitch" role="radiogroup" aria-label="Widget">
         <label><input type="radio" name="widget" value="1" checked /><span><b>Widget 1</b>Flippable</span></label>
         <label><input type="radio" name="widget" value="2" /><span><b>Widget 2</b>Static, tap-only</span></label>
+      </div>
       </div>
 
       <section class="widget-section w1-only" aria-labelledby="w1Title">
@@ -332,26 +338,19 @@
         <input type="radio" name="answer" value="no" checked hidden />
       </section>
 
-      <h2 class="notes-h2">Both widgets · Full list in Care hub</h2>
-      <p class="notes-sub">Tapping the card opens the <b>Flex card</b> page (Figma 6287:23451): every purse with its Nations portal name and available balance, nothing else (confirmed on DES-88). Care hub (6283:1802) links to it from <b>Your benefits</b>.</p>
-      <p class="notes-android"><i>Android</i>The page opens with Care hub underneath (TaskStackBuilder, Care hub as parent): the Care hub tab is selected and Back goes to Care hub, so members see where the page lives without being told.</p>
 
       <details class="notes-cut">
         <summary>Dropped: not possible on Android widgets</summary>
         <p><b>Content peek</b>: widgets have no fade masks or snap-scrolling, so the half-visible next page would land at random scroll positions.</p>
         <p><b>Nudge animation</b>: widgets can't run custom animations. Auto-advance is the closest supported way to show motion.</p>
       </details>
+      <div class="notes-archive">
+        <a class="archive-btn" href="archive/" aria-describedby="archiveHint">Archive</a>
+        <span class="archive-hint" id="archiveHint" role="tooltip">Earlier iterations: other controls, animations, StackView, separate Flex Card widget</span>
+      </div>
 
-      <ul>
-        <li>Tap the Flex Card tile (Widget 1: anywhere but the stepper) → Flex card page, then <b>Back</b> → Care hub home, where Flex card lives under <b>Your benefits</b></li>
-        <li><b>See more</b> → Care hub → <b>Flex card</b> (no note)</li>
-        <li><b>Explore your benefits</b> → benefits page</li>
-        <li><b>Call Member Services</b> → call confirmation sheet</li>
-        <li><b>Gesture bar</b> or <kbd>Esc</kbd> → back to home screen</li>
-      </ul>
-      <button class="reset" id="reset" type="button">Reset</button>
     </aside>
   </main>
-  <script src="app.js?v=45"></script>
+  <script src="app.js?v=49"></script>
 </body>
 </html>
