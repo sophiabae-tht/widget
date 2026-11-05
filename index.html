@@ -26,8 +26,7 @@
     }
     main { max-width: 880px; margin: 0 auto; padding: 72px 24px 96px; }
     header { margin-bottom: 40px; }
-    .eyebrow { display: flex; align-items: center; gap: 8px; color: var(--muted); font-weight: 500; font-size: 13px; letter-spacing: .02em; }
-    .eyebrow img { height: 18px; }
+    .logo { display: block; height: 24px; width: auto; }
     h1 { margin: 12px 0 8px; font-size: 32px; font-weight: 600; letter-spacing: -.01em; }
     header p { margin: 0; color: var(--muted); }
 
@@ -41,44 +40,49 @@
     .card:hover, .card:focus-visible { border-color: var(--brand); box-shadow: 0 6px 20px rgba(20, 22, 26, .06); transform: translateY(-1px); outline: none; }
     .card h2 { margin: 0; font-size: 17px; font-weight: 600; }
     .card p { margin: 0; color: var(--muted); font-size: 14px; flex: 1; }
-    .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; font-size: 12px; color: var(--muted); }
-    .tag { padding: 2px 8px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); }
-    .date { margin-left: auto; }
+    .preview { display: block; width: 100%; aspect-ratio: 360 / 398; object-fit: cover; margin-top: 8px; border-radius: 12px; background: var(--bg); }
+    .date { margin-top: 4px; font-size: 12px; color: var(--muted); }
   </style>
 </head>
 <body>
   <main>
     <header>
-      <div class="eyebrow"><img src="explorations/molina-widget/assets/thrive-symbol.svg" alt="" />Thrive Mobile</div>
-      <h1>Explorations</h1>
-      <p>Prototypes and design experiments.</p>
+      <img class="logo" src="assets/thrive-logo.svg" alt="Thrive Mobile" />
+      <h1>Widget Explorations</h1>
+      <p>Prototypes and experiments for the mobile Android widget.</p>
     </header>
     <ul class="grid" id="list"></ul>
   </main>
 
   <script>
     // To add an exploration: create explorations/<slug>/index.html, then add an entry here.
-    // Newest first.
+    // preview = screenshot inside that folder (optional). started = date of its first commit, updated = date of its latest commit (YYYY-MM-DD). Newest first.
     const EXPLORATIONS = [
       {
         slug: "molina-widget",
-        title: "Molina widget",
+        title: "Molina: Flex card",
         description: "Android home-screen widget for Molina members, with Flex Card balances and Care hub screens.",
-        tags: ["Molina", "Widget", "Android"],
-        date: "Nov 2026",
+        preview: "preview.png",
+        started: "2026-11-03",
+        updated: "2026-11-05",
       },
     ];
 
+    const fmt = (d, withYear) => new Date(d + "T12:00:00").toLocaleDateString("en-US",
+      { month: "short", day: "numeric", ...(withYear && { year: "numeric" }) });
+    const range = (a, b) => {
+      if (!a) return "";
+      if (!b || a === b) return fmt(a, true);
+      return a.slice(0, 4) === b.slice(0, 4) ? `${fmt(a)} – ${fmt(b, true)}` : `${fmt(a, true)} – ${fmt(b, true)}`;
+    };
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     document.getElementById("list").innerHTML = EXPLORATIONS.map((e) => `
       <li>
         <a class="card" href="explorations/${esc(e.slug)}/">
           <h2>${esc(e.title)}</h2>
           <p>${esc(e.description || "")}</p>
-          <div class="meta">
-            ${(e.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}
-            ${e.date ? `<span class="date">${esc(e.date)}</span>` : ""}
-          </div>
+          ${e.preview ? `<img class="preview" src="explorations/${esc(e.slug)}/${esc(e.preview)}" alt="Preview of ${esc(e.title)}" loading="lazy" />` : ""}
+          ${e.started ? `<span class="date">${esc(range(e.started, e.updated))}</span>` : ""}
         </a>
       </li>`).join("");
   </script>
