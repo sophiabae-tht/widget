@@ -30,8 +30,8 @@ body {
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 p, h1, h2 { margin: 0; }
 
-/* Desktop: phone left, settings right, everything inside the window.
-   The phone is scaled to the window height; the settings panel scrolls on its own. */
+/* Desktop: phone left, settings right, everything inside the window (no scrolling).
+   The phone is scaled to the window height; app.js stacks the layout when the notes don't fit. */
 html, body { overflow: hidden; }
 .stage {
   height: 100vh;
@@ -475,12 +475,11 @@ html, body { overflow: hidden; }
 
 /* ---------- Side notes ---------- */
 .notes {
-  flex: 0 1 460px;
+  flex: 1 1 auto;
   min-width: 320px;
-  max-height: 100%;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 4px 12px 24px 4px;
+  max-width: 540px; /* one column: the card, then the widget notes under it (~70 characters a line) */
+  /* Never scrolls on its own: app.js stacks the layout when the notes don't fit the window height */
+  padding: 4px 4px 0;
   color: #3b3e66;
   font-size: 14px;
   line-height: 20px;
@@ -517,8 +516,22 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
   background: #fdeeee; border: 1px solid #f3c4c4; color: #7a2a2a;
 }
 .notes-cut summary { cursor: pointer; font-weight: 600; color: #b42318; }
-.notes-cut summary::marker { color: #b42318; }
-.notes-cut p { margin-top: 8px; }
+.notes-cut summary { list-style: none; display: flex; align-items: center; gap: 10px; }
+.notes-cut summary::-webkit-details-marker { display: none; }
+.notes-cut summary::before {
+  content: ""; flex: none; width: 0; height: 0;
+  border-left: 6px solid #b42318; border-top: 4.5px solid transparent; border-bottom: 4.5px solid transparent;
+  transition: transform 0.15s;
+}
+.notes-cut[open] summary::before { transform: rotate(90deg); }
+.notes-cut summary + p { margin-top: 14px; }
+.notes-cut p { position: relative; margin-top: 8px; padding-left: 26px; }
+.notes-cut p::before {
+  content: "✕"; position: absolute; left: 0; top: 1px;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #f9d2d2; color: #b42318; font-size: 10px; font-weight: 700; line-height: 1;
+}
 .notes-cut b { color: #7a1f1a; }
 .notes-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
 .reset.reset--primary { background: #4754eb; color: #fff; border-color: #4754eb; }
@@ -946,16 +959,26 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 /* Android engineering notes: hidden until the toggle is on */
 .notes:not(.show-android) .opt-android,
 .notes:not(.show-android) .notes-android { display: none; }
-.android-toggle { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 13px; line-height: 18px; font-weight: 500; color: #3b3e66; cursor: pointer; }
+.android-toggle { display: inline-flex; align-items: center; gap: 12px; margin-top: 12px; font-size: 13px; line-height: 18px; font-weight: 500; color: #3b3e66; cursor: pointer; }
 .android-toggle input { position: absolute; opacity: 0; pointer-events: none; }
 .android-toggle-track { position: relative; flex: none; width: 32px; height: 18px; border-radius: 9px; background: #d0d3e1; transition: background-color 0.2s; }
 .android-toggle-track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(12, 15, 65, 0.2); transition: transform 0.2s var(--ease-emphasized); }
 .android-toggle input:checked + .android-toggle-track { background: #1e7e3e; }
 .android-toggle input:checked + .android-toggle-track::after { transform: translateX(14px); }
 .android-toggle input:focus-visible + .android-toggle-track { outline: 2px solid #4754eb; outline-offset: 2px; }
-.widget-section .notes-android { margin-top: 10px; }
+.widget-section .notes-android { margin-top: 12px; }
+/* Widget intro: key points as bullets in the darker text color, then the purse-name note */
+.notes ul.widget-points { margin: 12px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; color: #1f2247; font-size: 15px; line-height: 22px; }
+.notes ul.widget-points li { margin: 0; padding-left: 2px; }
+.notes ul.widget-points li::marker { color: #8b8eb1; }
+/* Sub-bullets (purse names): a step smaller, portal name in the weaker color */
+.notes ul.widget-points ul { margin: 6px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; line-height: 20px; color: #565a86; list-style: circle; }
+.notes ul.widget-points ul li { margin: 0; }
+.notes ul.widget-points ul b { color: #1f2247; font-weight: 600; }
+.widget-section .hint-group { margin-top: 20px; }
 .widget-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(12, 15, 65, 0.1); }
-.widget-section-title { display: flex; align-items: baseline; gap: 8px; font-size: 18px; line-height: 24px; font-weight: 600; color: #0c0f41; }
+/* Widget tag on top, its name underneath */
+.widget-section-title { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; font-size: 18px; line-height: 24px; font-weight: 600; color: #0c0f41; }
 .widget-num { padding: 1px 7px; border-radius: 6px; font-size: 11px; line-height: 18px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: #4754eb; background: rgba(71, 84, 235, 0.1); }
 
 /* Link tile copy: always the ticket copy, "Check your Flex Card balance" (no count, per Molina) */
@@ -1055,17 +1078,10 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 /* Pressing the stepper shouldn't tint the whole card */
 .tile--flex[data-stepper="1"]:has(.stp-btn:active):active { background: var(--fill-brandveryweak); }
 
-/* Stepper: a static "open" cue in the corner (link-out icon or "See all"), outside the flipper.
+/* Stepper: a static link-out icon in the corner, outside the flipper.
    It never changes, so it reads as "this tile opens something", not as the purse's own icon. */
 .stp-open { display: none; }
-.tile--flex[data-stepper="1"][data-cue="icon"] .stp-open--icon,
-.tile--flex[data-stepper="1"][data-cue="text"] .stp-open--text { display: flex; position: absolute; z-index: 5; top: 11px; right: 11px; pointer-events: none; }
-.stp-open--text {
-  height: 28px; align-items: center;
-  font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text-brand, #4754eb);
-  text-decoration: underline; text-underline-offset: 2px;
-}
+.tile--flex[data-stepper="1"] .stp-open--icon { display: flex; position: absolute; z-index: 5; top: 11px; right: 11px; pointer-events: none; }
 /* The cue only sits beside the first line of the purse name, so a float clears it there
    and the second line gets the full tile width (fits "assessment"). */
 .stp-clear { float: right; width: 27px; height: 20px; } /* clears the 28px icon; its circle pads the glyph, so text can sit right up to it */
-.tile--flex[data-cue="text"] .stp-clear { width: 54px; }

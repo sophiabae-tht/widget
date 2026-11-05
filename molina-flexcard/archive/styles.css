@@ -889,7 +889,7 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .app-screen--core .app-note { background: #fff; border-color: rgba(71, 84, 235, 0.3); }
 .app-screen--core .app-body > * { flex-shrink: 0; }
 
-/* ---------- DES-88 answer: "no" / "yes" = link tile, "pager" = purse pager ---------- */
+/* ---------- Answer: "no" / "yes" = link tile, "pager" = purse pager ---------- */
 #flexLinkTile { display: none; }
 .phone:not([data-answer="pager"]) #flexTile { display: none; }
 .phone:not([data-answer="pager"]) #flexLinkTile { display: flex; }

@@ -10,9 +10,9 @@ const toastEl = document.getElementById("toast");
 
 // Destinations the widget deep-links into. html can be a function of how the page was opened.
 // Purses as named on the Nations portal (Core App Experience, Figma 6287:23451). Never summed, and
-// no total or "N balances" summary on the widget (Molina, DES-88 thread 11/5). Members have up to 4.
+// no total or "N balances" summary on the widget (Molina feedback, 11/5). Members have up to 4.
 // short: the portal name, trimmed only where it doesn't fit the widget tile's 2-line label
-// (16px semibold, 116px wide with the open cue beside line 1). Same words and casing as the portal.
+// (16px semibold, 116px wide with the link-out icon beside line 1). Same words and casing as the portal.
 const C = "assets/carehub/";
 const NATIONS_PURSES = [
   { name: "2026 Health Screening Rewards",    short: ["Health", "Screening"],      amount: "$375.00", icon: "icon-heartbeat.svg" },
@@ -210,25 +210,41 @@ function playLaunch(opening) {
    mobile → to the screen width (phone on top, settings below). */
 // Side by side whenever the scaled phone + a readable settings column (320px) fit;
 // otherwise stack them (phone on top). Decided by real space, not a fixed breakpoint.
+// Layout, decided by real space (no fixed breakpoints):
+// · Side by side (two columns): phone scaled to the window height on the left; on the right the notes
+//   in one column (the card, then the widget notes under it), up to 540px wide for readable lines.
+//   The notes never scroll: when they're taller than the window, the notes panel is scaled down
+//   (CSS zoom) just enough to fit.
+// · Stacked: only when the window is too narrow for the notes beside the phone (phones, small
+//   windows): phone on top, notes below, and the page scrolls.
+const NOTES_MIN = 320;   // narrowest readable notes column
+const notesPanel = document.querySelector(".notes");
 function fitDevice() {
   const root = document.documentElement;
-  const sideScale = Math.min(1, (window.innerHeight - 48) / 800);
-  const fitsSideBySide = window.innerWidth >= 360 * sideScale + 40 + 320 + 48;
-  root.classList.toggle("stacked", !fitsSideBySide);
-  const s = fitsSideBySide ? sideScale : Math.min(1, (window.innerWidth - 32) / 360);
-  root.style.setProperty("--s", s.toFixed(4));
+  const availH = window.innerHeight - 48;
+  const sideScale = Math.min(1, availH / 800);
+  const notesW = window.innerWidth - 48 - 40 - 360 * sideScale;
+  notesPanel.style.zoom = "";
+  if (notesW >= NOTES_MIN) {
+    root.classList.remove("stacked");
+    root.style.setProperty("--s", sideScale.toFixed(4));
+    const h = notesPanel.scrollHeight; // natural height at full size
+    if (h > availH) notesPanel.style.zoom = (availH / h).toFixed(4);
+  } else {
+    root.classList.add("stacked");
+    root.style.setProperty("--s", Math.min(1, (window.innerWidth - 32) / 360).toFixed(4));
+  }
 }
-window.addEventListener("resize", fitDevice);
+let fitQueued = false;
+const queueFit = () => {
+  if (fitQueued) return;
+  fitQueued = true;
+  requestAnimationFrame(() => { fitQueued = false; fitDevice(); });
+};
+window.addEventListener("resize", queueFit);
+// Notes content changes height (widget switch, Android notes, Dropped open/closed) → re-fit
+new ResizeObserver(queueFit).observe(notesPanel);
 fitDevice();
-
-// Side by side: scrolling anywhere outside the phone scrolls the settings column,
-// so the phone stays fixed and the text is always reachable.
-const notesPanel = document.querySelector(".notes");
-document.querySelector(".stage").addEventListener("wheel", (e) => {
-  if (document.documentElement.classList.contains("stacked")) return;
-  if (e.target.closest(".notes") || e.target.closest("#phone")) return;
-  notesPanel.scrollBy({ top: e.deltaY });
-}, { passive: true });
 
 let appStack = []; // in-app navigation, so Back from Flex Card returns to Care Hub
 function renderApp() {
@@ -297,15 +313,10 @@ const DURATION = 450;
 const widgetPurses = (names) => names === "portal"
   ? NATIONS_PURSES.map((p) => ({ name: p.name, amount: p.amount, icon: `${C}${p.icon}` }))
   : NATIONS_PURSES.map((p) => ({ line1: p.short[0], line2: p.short[1], amount: p.amount, icon: `${C}${p.icon}` }));
-// How the stepper tile signals "tap to open the full list": "icon" (link-out) | "text" ("See all")
-const openInputs = [...document.querySelectorAll('input[name="open"]')];
-const setCue = (v) => { openInputs.forEach((r) => (r.checked = r.value === v)); flexTile.dataset.cue = v; };
-openInputs.forEach((r) => r.addEventListener("change", () => { setCue(r.value); setCtl("stepper"); }));
-setCue(openInputs.find((r) => r.checked).value);
 let cards = [];
 let railCount = null;
 // Stepper tile (Figma 2691:18061): one card per purse, starting on the first purse (no overview,
-// no count). A static ⌃/⌄ stepper and a static "open" cue (link-out icon or "See all") sit outside
+// no count). A static ⌃/⌄ stepper and a static link-out icon sit outside
 // the flipper, so the only thing that changes is the purse name and amount.
 const stepperCard = (p, i) => `
   <div class="pcard" data-i="${i}" aria-label="${i + 1} of ${N}">
@@ -319,11 +330,10 @@ const stepperCard = (p, i) => `
 function buildCards(list, { stepper = false } = {}) {
   if (stepper) {
     N = list.length;
-    // Open cue: static, outside the flipper. Android: an ImageView / TextView with the same
+    // Link-out icon: static, outside the flipper. Android: an ImageView with the same
     // setOnClickPendingIntent as the card (→ Care hub › Flex card).
     flexTile.innerHTML = list.map(stepperCard).join("") + `
   <span class="stp-open stp-open--icon tile-icon" aria-hidden="true"><img src="assets/icon-arrow-square-out-16.svg" width="16" height="16" alt="" draggable="false" /></span>
-  <span class="stp-open stp-open--text" aria-hidden="true">See all</span>
   <span class="flex-stepper">
     <button class="stp-btn" data-prev type="button" aria-label="Previous balance"><img src="assets/icon-caret-up-16.svg" width="16" height="16" alt="" draggable="false" /></button>
     <button class="stp-btn" data-next type="button" aria-label="Next balance"><img src="assets/icon-caret-down-16.svg" width="16" height="16" alt="" draggable="false" /></button>
@@ -658,7 +668,7 @@ function setCtl(value) {
 ctlInputs.forEach((r) => r.addEventListener("change", () => setCtl(r.value)));
 function setFlip(value) { flipInputs.forEach((r) => (r.checked = r.value === value)); }
 hintInputs.forEach((inp) => inp.addEventListener("change", applyHints));
-document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCue("icon"); setCtl("stepper"); setHints([]); });
+document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCtl("stepper"); setHints([]); });
 document.getElementById("hintFigma").addEventListener("click", () => { setFlip("slide"); setCtl("dots"); setHints([]); });
 
 /* Widget 1 = flippable purse tile ("pager"). Widget 2 = static, tap-only link tile ("no"). */

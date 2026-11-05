@@ -40,8 +40,23 @@
     .card:hover, .card:focus-visible { border-color: var(--brand); box-shadow: 0 6px 20px rgba(20, 22, 26, .06); transform: translateY(-1px); outline: none; }
     .card h2 { margin: 0; font-size: 17px; font-weight: 600; }
     .card p { margin: 0; color: var(--muted); font-size: 14px; flex: 1; }
-    .preview { display: block; width: 100%; aspect-ratio: 360 / 398; object-fit: cover; margin-top: 8px; border-radius: 12px; background: var(--bg); }
+    /* Preview: the exploration's own page rendered live (always the latest version), cropped to
+       one element and scaled to the card. preview.png is only the placeholder while it loads. */
+    .preview { position: relative; display: block; width: 100%; aspect-ratio: 360 / 398; margin-top: 8px; border-radius: 12px; background: var(--bg); overflow: hidden; }
+    .preview img { display: block; width: 100%; height: 100%; object-fit: cover; transition: opacity .2s; }
+    .preview iframe {
+      position: absolute; left: 0; top: 0; border: 0;
+      transform-origin: 0 0; pointer-events: none; opacity: 0; transition: opacity .2s;
+    }
+    .preview.is-live iframe { opacity: 1; }
+    .preview.is-live img { opacity: 0; }
     .date { margin-top: 4px; font-size: 12px; color: var(--muted); }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      padding: 2px 8px; border-radius: 6px;
+      font-size: 12px; line-height: 18px; font-weight: 600; letter-spacing: .02em;
+      color: var(--brand); background: color-mix(in srgb, var(--brand) 10%, transparent);
+    }
   </style>
 </head>
 <body>
@@ -56,12 +71,17 @@
 
   <script>
     // To add an exploration: create <slug>/index.html, then add an entry here.
-    // preview = screenshot inside that folder (optional). started = date of its first commit, updated = date of its latest commit (YYYY-MM-DD). Newest first.
+    // tags = issue names, e.g. ["DES-88"] (optional; shown only here, not on the exploration page).
+    // live = CSS selector of the element to show on the card, rendered live from the exploration page
+    //        so the card is always the latest version (optional). preview = screenshot inside that folder,
+    //        used as the placeholder while the live render loads, or on its own without live (optional). started = date of its first commit, updated = date of its latest commit (YYYY-MM-DD). Newest first.
     const EXPLORATIONS = [
       {
         slug: "molina-flexcard",
         title: "Molina: Flex card",
+        tags: ["DES-88"],
         description: "Android home-screen widget for Molina members, with Flex Card balances and Care hub screens.",
+        live: ".widget-frame",
         preview: "preview.png",
         started: "2026-11-03",
         updated: "2026-11-05",
@@ -79,12 +99,50 @@
     document.getElementById("list").innerHTML = EXPLORATIONS.map((e) => `
       <li>
         <a class="card" href="${esc(e.slug)}/">
+          ${e.tags?.length ? `<span class="tags">${e.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</span>` : ""}
           <h2>${esc(e.title)}</h2>
           <p>${esc(e.description || "")}</p>
-          ${e.preview ? `<img class="preview" src="${esc(e.slug)}/${esc(e.preview)}" alt="Preview of ${esc(e.title)}" loading="lazy" />` : ""}
+          ${e.live || e.preview ? `<span class="preview"${e.live ? ` data-slug="${esc(e.slug)}" data-live="${esc(e.live)}"` : ""}>
+            ${e.preview ? `<img src="${esc(e.slug)}/${esc(e.preview)}" alt="Preview of ${esc(e.title)}" loading="lazy" />` : ""}
+          </span>` : ""}
           ${e.started ? `<span class="date">${esc(range(e.started, e.updated))}</span>` : ""}
         </a>
       </li>`).join("");
+
+    // Live previews: load the exploration in a hidden, non-interactive frame at desktop size, find the
+    // element, then scale and shift the frame so only that element shows, filling the card's width.
+    const VIEW = { w: 1280, h: 900 };
+    document.querySelectorAll(".preview[data-live]").forEach((box) => {
+      const frame = document.createElement("iframe");
+      frame.src = `${box.dataset.slug}/`;
+      frame.width = VIEW.w;
+      frame.height = VIEW.h;
+      frame.tabIndex = -1;
+      frame.setAttribute("aria-hidden", "true");
+      frame.title = "";
+      box.append(frame);
+      let rect = null;
+      const fit = () => {
+        if (!rect) return;
+        const k = box.clientWidth / rect.width;
+        box.style.aspectRatio = `${rect.width} / ${rect.height}`;
+        frame.style.transform = `scale(${k}) translate(${-rect.left}px, ${-rect.top}px)`;
+      };
+      frame.addEventListener("load", async () => {
+        try {
+          const doc = frame.contentDocument;
+          await doc.fonts?.ready;
+          await new Promise((r) => setTimeout(r, 300)); // let the page lay itself out
+          const el = doc.querySelector(box.dataset.live);
+          if (!el) return;
+          const r = el.getBoundingClientRect();
+          rect = { left: r.left, top: r.top, width: r.width, height: r.height };
+          fit();
+          box.classList.add("is-live");
+        } catch { /* keep the screenshot */ }
+      });
+      new ResizeObserver(fit).observe(box);
+    });
   </script>
 </body>
 </html>

@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=53" />
+  <link rel="stylesheet" href="styles.css?v=66" />
 </head>
 <body>
   <main class="stage">
@@ -53,13 +53,13 @@
               <!-- Flex Card purses (Figma 2663:16237, 2664:16248, 2664:16318).
                    Each page is one widget collection item: label, icon and hint all live
                    inside the item, the way they would in an AdapterViewFlipper / StackView. -->
-              <div class="tile tile--flex" id="flexTile" data-cue="icon" role="group" aria-roledescription="carousel" aria-label="Flex Card balances" tabindex="0">
+              <div class="tile tile--flex" id="flexTile" role="group" aria-roledescription="carousel" aria-label="Flex Card balances" tabindex="0">
                 <div class="pager" id="flexPager">
                   <div class="pager-track" id="flexTrack"><!-- pages rendered by app.js --></div>
                 </div>
               </div>
 
-              <!-- DES-88 answer "No": a plain link tile, no balances on the widget -->
+              <!-- Widget 2: a plain link tile, no balances on the widget -->
               <button class="tile" id="flexLinkTile" type="button">
                 <span class="tile-text">
                   <span class="tile-face link-copy--ticket">
@@ -142,7 +142,7 @@
       <h1>Widget prototype</h1>
       <p>Android Large 360×800</p>
       <h2 class="notes-h2">Flex Card on the widget</h2>
-      <p class="notes-sub">Two widget directions for DES-88, built only with what a real Android home-screen widget can do. Tap a Flex Card tile to see the full list, then Back to see where it lives in Care hub.</p>
+      <p class="notes-sub">Two widget directions, built only with what a real Android home-screen widget can do. Tap a Flex Card tile to see the full list, then Back to see where it lives in Care hub.</p>
       <label class="android-toggle">
         <input type="checkbox" id="androidToggle" role="switch" />
         <span class="android-toggle-track" aria-hidden="true"></span>
@@ -157,24 +157,21 @@
 
       <section class="widget-section w1-only" aria-labelledby="w1Title">
         <h2 class="widget-section-title" id="w1Title"><span class="widget-num">Widget 1</span>Flippable</h2>
-        <p class="notes-sub">The Flex Card tile pages through each purse with the up/down stepper, one purse at a time, with no total or balance count. Tapping anywhere else on the tile opens the full list.</p>
-        <p class="notes-sub">Purse names are the Nations portal names, shortened only where they don't fit two lines: <b>Health Screening</b> (2026 Health Screening Rewards), <b>OTC, Food &amp; Produce</b> (Over the Counter, Food &amp; Produce), <b>Post Discharge</b> (Post Discharge Incentives), <b>Health Risk Assessment</b> (Health Risk Assessment Rewards).</p>
-        <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse (name + amount), vertical slide in/out. The ⌃/⌄ stepper is two ImageButtons outside the flipper: each tap → broadcast → partiallyUpdateAppWidget() with showPrevious() / showNext(). The open cue is a static view outside the flipper with the same setOnClickPendingIntent as the card → Care hub › Flex card.</p>
-        <fieldset class="hint-group" id="cueOptions">
-          <legend>Open cue</legend>
-          <label><input type="radio" name="open" value="icon" checked />
-            <span class="opt">
-              <b class="opt-title">Link-out icon <span class="opt-tag">default</span></b>
-              <span class="opt-desc">An arrow-out-of-box icon in the corner, in the same spot as the Call tile's phone icon. It stays the same on every purse, so it reads as "opens the full list" rather than as a purse icon.</span>
-            </span>
-          </label>
-          <label><input type="radio" name="open" value="text" />
-            <span class="opt">
-              <b class="opt-title">"See all"</b>
-              <span class="opt-desc">A text link in the corner. Says exactly what the tap does, but takes width from the purse name: "OTC, Food &amp; Produce" and "Health Risk Assessment" no longer fit two lines and get cut off.</span>
-            </span>
-          </label>
-        </fieldset>
+        <ul class="widget-points">
+          <li>The Flex Card tile pages through each purse with the up/down stepper, one purse at a time.</li>
+          <li>No total and no balance count.</li>
+          <li>Tapping anywhere else on the tile opens the full list.</li>
+          <li>A link-out icon in the corner, the same on every purse, signals that the tile opens the list.</li>
+          <li>Purse names are the Nations portal names, shortened only where they don't fit two lines:
+            <ul>
+              <li><b>Health Screening</b> (2026 Health Screening Rewards)</li>
+              <li><b>OTC, Food &amp; Produce</b> (Over the Counter, Food &amp; Produce)</li>
+              <li><b>Post Discharge</b> (Post Discharge Incentives)</li>
+              <li><b>Health Risk Assessment</b> (Health Risk Assessment Rewards)</li>
+            </ul>
+          </li>
+        </ul>
+        <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse (name + amount), vertical slide in/out. The ⌃/⌄ stepper is two ImageButtons outside the flipper: each tap → broadcast → partiallyUpdateAppWidget() with showPrevious() / showNext(). The link-out icon is a static ImageView outside the flipper with the same setOnClickPendingIntent as the card → Care hub › Flex card.</p>
 
         <!-- Earlier Widget 1 iterations (labels, StackView, other animations and next controls).
              Kept wired up so the defaults still apply; browse them at archive/. -->
@@ -250,7 +247,7 @@
           <label><input type="radio" name="ctl" value="stepper" checked />
             <span class="opt">
               <b class="opt-title">Stepper tile <span class="opt-tag">Figma 2691:18061</span></b>
-              <span class="opt-android"><i>Android</i>One flipper item per purse (name + amount). The ⌃/⌄ stepper is two ImageButtons outside the flipper: each tap → broadcast → partiallyUpdateAppWidget() with showPrevious() / showNext(). The open cue in the corner is a static ImageView / TextView outside the flipper, with the same setOnClickPendingIntent as the card. Nothing outside the flipper changes. Card tap → Care hub › Flex card.</span>
+              <span class="opt-android"><i>Android</i>One flipper item per purse (name + amount). The ⌃/⌄ stepper is two ImageButtons outside the flipper: each tap → broadcast → partiallyUpdateAppWidget() with showPrevious() / showNext(). The link-out icon in the corner is a static ImageView outside the flipper, with the same setOnClickPendingIntent as the card. Nothing outside the flipper changes. Card tap → Care hub › Flex card.</span>
               <span class="opt-desc">The tile opens on the first purse, with no total or balance count. The up/down stepper steps through each purse and back, and tapping the rest of the tile opens the full list. The tile is 104px tall, so the Call tile grows to match.</span>
             </span>
           </label>
@@ -333,7 +330,11 @@
 
       <section class="widget-section w2-only" aria-labelledby="w2Title">
         <h2 class="widget-section-title" id="w2Title"><span class="widget-num">Widget 2</span>Static, tap-only</h2>
-        <p class="notes-sub">Back-pocket option if Molina doesn't want balances on the widget. No flipping and no amounts: one tile, "View your Flex Card balance", and a tap opens the Flex card page in Care hub.</p>
+        <ul class="widget-points">
+          <li>Back-pocket option if Molina doesn't want balances on the widget.</li>
+          <li>No flipping and no amounts: one tile, "View your Flex Card balance".</li>
+          <li>A tap opens the Flex card page in Care hub.</li>
+        </ul>
         <p class="notes-android"><i>Android</i>A plain tile (TextView + ImageView) with setOnClickPendingIntent → deep link to Care hub › Flex card. No collection widget and no balance data on the widget.</p>
         <input type="radio" name="answer" value="no" checked hidden />
       </section>
@@ -351,6 +352,6 @@
 
     </aside>
   </main>
-  <script src="app.js?v=49"></script>
+  <script src="app.js?v=67"></script>
 </body>
 </html>

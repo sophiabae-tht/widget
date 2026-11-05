@@ -623,7 +623,7 @@ hintInputs.forEach((inp) => inp.addEventListener("change", applyHints));
 document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCtl("stepper"); setHints([]); });
 document.getElementById("hintFigma").addEventListener("click", () => { setFlip("slide"); setCtl("dots"); setHints([]); });
 
-/* DES-88 question 1: "No" swaps the purse pager for a plain link tile; "Yes" keeps it. */
+/* Question 1: "No" swaps the purse pager for a plain link tile; "Yes" keeps it. */
 const answerInputs = [...document.querySelectorAll('input[name="answer"]')];
 const nameInputs = [...document.querySelectorAll('input[name="names"]')];
 const notes = document.querySelector(".notes");
