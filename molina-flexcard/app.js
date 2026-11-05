@@ -305,6 +305,7 @@ appBody.addEventListener("click", (e) => {
    One purse per card — never summed (per the flexCard/purseCard note in Figma). */
 let N = NATIONS_PURSES.length;
 const DURATION = 450;
+const PAGE_TURN_MS = 700; // Page turn look (styles.css @keyframes v4-page-turn)
 
 // Each card is one collection item: label, icon AND hint (arrow / dots) are drawn inside it,
 // so they stay correct even when the launcher advances the widget on its own.
@@ -315,30 +316,18 @@ const widgetPurses = (names) => names === "portal"
   : NATIONS_PURSES.map((p) => ({ line1: p.short[0], line2: p.short[1], amount: p.amount, icon: `${C}${p.icon}`, icon16: `assets/v4/${p.icon16}` }));
 let cards = [];
 let railCount = null;
-// Stepper tile (Figma 2691:18061): one card per purse, starting on the first purse (no overview,
-// no count). A static ⌃/⌄ stepper and a static link-out icon sit outside
-// the flipper, so the only thing that changes is the purse name and amount.
-const stepperCard = (p, i) => `
-  <div class="pcard" data-i="${i}" aria-label="${i + 1} of ${N}">
-    <div class="pcard-body stp">
-      <div class="stp-top">
-        <span class="stp-label"><i class="stp-clear" aria-hidden="true"></i>${p.name || `${p.line1}<br>${p.line2}`}</span>
-      </div>
-      <span class="tile-line tile-line--strong stp-value">${p.amount}</span>
-    </div>
-  </div>`;
 /* ---------- Widget 1 · v4 looks (Figma Molina_Widget_v4, frames v4/w1) ----------
-   All four: label (2 lines, cut off with … like Figma), amount, and "1 of 4" in each flipper item;
+   All five: label (2 lines, cut off with … like Figma), amount, and "1 of 4" in each flipper item;
    flipping is next-only and wraps from the last purse to the first. Tap anywhere else → Care hub.
-   · v4-right  Right caret: static cardholder icon top right; bottom half (count + ›) flips.
+   · v4-right  Right caret: purse icon top right (fixed spot, image swaps per purse); bottom half (count + ›) flips.
+   · v4-bottom Bottom caret: same as Right caret, with ⌄ instead of › in the corner.
    · v4-strip  Caret flipper: right strip split in two; top cell shows the purse icon, bottom cell's ⌄ flips.
    · v4-tab    Caret flipper, corner tab: same, no dividers; the ⌄ sits on a raised corner tab.
-   · v4-page   Page turn: card with a folded bottom-right corner; bottom half flips.            */
-const V4_LOOKS = ["v4-right", "v4-strip", "v4-tab", "v4-page"];
+   · v4-page   Page turn: card with a folded bottom-right corner; purse icon top right (fixed spot,
+               image swaps per purse); bottom half flips.                                       */
+const V4_LOOKS = ["v4-right", "v4-bottom", "v4-strip", "v4-tab", "v4-page"];
 const v4Card = (look) => (p, i) => {
   const [l1, l2] = p.name ? [p.name, ""] : [p.line1, p.line2];
-  const purseIcon = look === "v4-strip" || look === "v4-tab"
-    ? `<span class="v4-purse tile-icon"><img src="${p.icon16}" width="16" height="16" alt="" draggable="false" /></span>` : "";
   return `
   <div class="pcard" data-i="${i}" aria-label="${i + 1} of ${N}">
     <div class="pcard-body v4-body">
@@ -346,48 +335,46 @@ const v4Card = (look) => (p, i) => {
       <span class="v4-amount">${p.amount}</span>
       <span class="v4-count">${i + 1} of ${N}</span>
     </div>
-    ${purseIcon}
   </div>`;
 };
+// All v4 looks: the purse icon sits outside the flipper, so it stays put while the purses
+// slide; only its image is swapped to the current purse. Android: a static ImageView updated with
+// setImageViewResource() in the same partiallyUpdateAppWidget() call as showNext().
+const v4PurseIcon = `
+  <span class="v4-purse tile-icon" aria-hidden="true"><img id="v4PurseImg" width="16" height="16" alt="" draggable="false" /></span>`;
+let purseIcons = [];
+let purseImg = null;
 const v4Chrome = {
   // Android: ImageView outside the flipper (opens Care hub with the card); the bottom half is a
   // separate view whose fill-in intent → broadcast → showNext().
   "v4-right": `
-  <span class="v4-icon tile-icon" aria-hidden="true"><img src="assets/icon-cardholder.svg" width="16" height="16" alt="" draggable="false" /></span>
+  <span class="v4-fade" aria-hidden="true"></span>
+  <span class="v4-icon tile-icon" aria-hidden="true"><img id="v4PurseImg" width="16" height="16" alt="" draggable="false" /></span>
   <button class="v4-next v4-next--half" data-next type="button" aria-label="Next balance"><span class="v4-caret"><img src="assets/v4/icon-caret-right-16.svg" width="16" height="16" alt="" draggable="false" /></span></button>`,
-  "v4-strip": `
+  "v4-bottom": `
+  <span class="v4-icon tile-icon" aria-hidden="true"><img id="v4PurseImg" width="16" height="16" alt="" draggable="false" /></span>
+  <button class="v4-next v4-next--half" data-next type="button" aria-label="Next balance"><span class="v4-caret"><img src="assets/v4/icon-caret-down-16.svg" width="16" height="16" alt="" draggable="false" /></span></button>`,
+  "v4-strip": v4PurseIcon + `
   <span class="v4-strip" aria-hidden="true"><span class="v4-strip-top"></span></span>
   <button class="v4-next v4-next--cell" data-next type="button" aria-label="Next balance"><span class="v4-circle"><img src="assets/v4/icon-caret-down-16.svg" width="16" height="16" alt="" draggable="false" /></span></button>`,
-  "v4-tab": `
+  "v4-tab": v4PurseIcon + `
   <button class="v4-next v4-next--tab" data-next type="button" aria-label="Next balance"><span class="v4-circle v4-circle--bare"><img src="assets/v4/icon-caret-down-16.svg" width="16" height="16" alt="" draggable="false" /></span></button>`,
   "v4-page": `
   <img class="v4-surface" src="assets/v4/card-surface.svg?v=2" width="156" height="124" alt="" draggable="false" />
-  <span class="v4-icon tile-icon" aria-hidden="true"><img src="assets/icon-cardholder.svg" width="16" height="16" alt="" draggable="false" /></span>
-  <button class="v4-next v4-next--half" data-next type="button" aria-label="Next balance"><img class="v4-corner" src="assets/v4/page-corner.svg?v=2" width="40" height="40" alt="" draggable="false" /></button>`,
+  <span class="v4-icon tile-icon" aria-hidden="true"><img id="v4PurseImg" width="16" height="16" alt="" draggable="false" /></span>
+  <button class="v4-next v4-next--half" data-next type="button" aria-label="Next balance"><img class="v4-corner" src="assets/v4/page-corner.svg?v=3" width="40" height="40" alt="" draggable="false" /></button>`,
 };
 
 function buildCards(list, { look = "" } = {}) {
+  purseIcons = list.map((p) => p.icon16);
+  purseImg = null;
   if (V4_LOOKS.includes(look)) {
     N = list.length;
     flexTile.innerHTML = list.map(v4Card(look)).join("") + v4Chrome[look] + `
   <span hidden id="railCount"></span>`;
     cards = [...flexTile.querySelectorAll(".pcard")];
     railCount = document.getElementById("railCount");
-    return;
-  }
-  if (look === "stepper") {
-    N = list.length;
-    // Link-out icon: static, outside the flipper. Android: an ImageView with the same
-    // setOnClickPendingIntent as the card (→ Care hub › Flex card).
-    flexTile.innerHTML = list.map(stepperCard).join("") + `
-  <span class="stp-open stp-open--icon tile-icon" aria-hidden="true"><img src="assets/icon-arrow-square-out-16.svg" width="16" height="16" alt="" draggable="false" /></span>
-  <span class="flex-stepper">
-    <button class="stp-btn" data-prev type="button" aria-label="Previous balance"><img src="assets/icon-caret-up-16.svg" width="16" height="16" alt="" draggable="false" /></button>
-    <button class="stp-btn" data-next type="button" aria-label="Next balance"><img src="assets/icon-caret-down-16.svg" width="16" height="16" alt="" draggable="false" /></button>
-  </span>
-  <span hidden id="railCount"></span>`;
-    cards = [...flexTile.querySelectorAll(".pcard")];
-    railCount = document.getElementById("railCount");
+    purseImg = document.getElementById("v4PurseImg");
     return;
   }
   N = list.length;
@@ -435,6 +422,7 @@ function layout() {
   cards.forEach((c, i) => (c.dataset.depth = mod(i - page)));
   // Side rail sits outside the flipper, so its counter is updated separately (setTextViewText).
   railCount.textContent = `${page + 1}/${N}`;
+  if (purseImg) purseImg.src = purseIcons[page];
   flexTile.classList.toggle("on-last", page === N - 1);
 }
 function withoutAnim(els, fn) {
@@ -494,12 +482,16 @@ function go(dir) {
     front.classList.add("exit-up");
     page = mod(page + 1);
     layout();
+    const outMs = flexTile.dataset.look === "v4-page" ? PAGE_TURN_MS : DURATION;
     setTimeout(() => {
       // Departed card re-joins the back of the deck, out of sight.
       withoutAnim([front], () => { front.classList.remove("exit-up"); front.style.opacity = "0"; });
-      requestAnimationFrame(() => (front.style.opacity = ""));
+      // Restore next frame; the timer is a fallback for background tabs, where frames don't run
+      const restore = () => (front.style.opacity = "");
+      requestAnimationFrame(restore);
+      setTimeout(restore, 50);
       busy = false;
-    }, DURATION);
+    }, outMs);
   } else {
     // Previous: the last card comes back down onto the top.
     withoutAnim([incoming], () => incoming.classList.add("enter-top"));
@@ -535,8 +527,8 @@ flexTile.addEventListener("click", (e) => {
 });
 
 const CTL_TIP = {
-  stepper: "Widgets can't swipe. Use the up and down arrows",
   "v4-right": "Widgets can't swipe. Tap the bottom half for the next balance",
+  "v4-bottom": "Widgets can't swipe. Tap the bottom half for the next balance",
   "v4-strip": "Widgets can't swipe. Tap the arrow for the next balance",
   "v4-tab": "Widgets can't swipe. Tap the corner tab for the next balance",
   "v4-page": "Widgets can't swipe. Tap the folded corner for the next balance",
@@ -658,12 +650,11 @@ const ctlNote = document.getElementById("ctlNote");
 function setMode(mode) {
   modeInputs.forEach((r) => (r.checked = r.value === mode));
   const ctlNow = ctlInputs.find((r) => r.checked).value;
-  // Look = the stepper tile or one of the v4 tiles (flipper only); "" = the earlier pager controls
+  // Look = one of the v4 tiles (flipper only); "" = the earlier pager controls
   const look = mode === "flipper" && flipInputs.find((r) => r.checked).value !== "prism"
-    && (ctlNow === "stepper" || V4_LOOKS.includes(ctlNow)) ? ctlNow : "";
+    && V4_LOOKS.includes(ctlNow) ? ctlNow : "";
   if (look !== (flexTile.dataset.look || "")) {
     flexTile.dataset.look = look;
-    flexTile.dataset.stepper = look === "stepper" ? "1" : "";
     page = 0;
     step = 0;
     buildCards(widgetPurses(document.querySelector('input[name="names"]:checked').value), { look });
@@ -690,11 +681,11 @@ function setMode(mode) {
   const railOn = mode === "flipper" && !isPrism() && flexTile.dataset.ctl === "rail";
   // Caption: no next control, so the flipper always auto-advances
   const captionOn = mode === "flipper" && !isPrism() && flexTile.dataset.ctl === "caption";
-  const stepOn = !!flexTile.dataset.look; // stepper / v4 looks: no auto-advance
+  const stepOn = !!flexTile.dataset.look; // v4 looks: no auto-advance
   autoInput.disabled = railOn || captionOn || stepOn;
   if (railOn || stepOn) autoInput.checked = false;
   if (captionOn) autoInput.checked = true;
-  autoNote.textContent = railOn ? "· off with the side rail" : stepOn ? "· off with the stepper" : captionOn ? "· always on (no next control)"
+  autoNote.textContent = railOn ? "· off with the side rail" : stepOn ? "· off with the flip control" : captionOn ? "· always on (no next control)"
     : mode === "stack" ? "· launcher timing" : "· every 5s";
   applyHints();
   // The flipper always shows its dots (they replace the icon + arrow column), so the toggle only applies to StackView.
@@ -722,7 +713,7 @@ function setCtl(value) {
 ctlInputs.forEach((r) => r.addEventListener("change", () => setCtl(r.value)));
 function setFlip(value) { flipInputs.forEach((r) => (r.checked = r.value === value)); }
 hintInputs.forEach((inp) => inp.addEventListener("change", applyHints));
-document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCtl("stepper"); setHints([]); });
+document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCtl("v4-right"); setHints([]); });
 document.getElementById("hintFigma").addEventListener("click", () => { setFlip("slide"); setCtl("dots"); setHints([]); });
 
 /* Widget 1 = flippable purse tile ("pager"). Widget 2 = static, tap-only link tile ("no"). */

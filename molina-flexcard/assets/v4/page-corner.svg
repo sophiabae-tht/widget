@@ -1,8 +1,7 @@
 <svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="pageCorner">
 <g id="flap" filter="url(#filter0_d_0_218)">
-<use xlink:href="#stroke0_0_218" fill="#4754EB" fill-opacity="0.05"/>
-<use xlink:href="#stroke0_0_218" fill="#4754EB" fill-opacity="0.1"/>
+<use xlink:href="#stroke0_0_218" fill="#D6D9F8"/>
 <mask id="stroke1_0_218" fill="white">
 <path d="M37 5H21C12.1632 5 5 12.1632 5 21V37L37 5Z"/>
 </mask>

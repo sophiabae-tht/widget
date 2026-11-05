@@ -169,7 +169,6 @@ html, body { overflow: hidden; }
   border-radius: 6px;
   transition: color 0.15s;
 }
-.link:hover { color: var(--text-brand); }
 
 .chat-frame { position: relative; width: 100%; display: flex; flex-direction: column; }
 
@@ -305,7 +304,6 @@ html, body { overflow: hidden; }
   border-radius: 16px;
   transition: background-color 0.2s, opacity 0.2s;
 }
-.tile-next:hover { background: var(--fill-brandveryweak); }
 .tile-next img { display: block; }
 .pcard.is-last .tile-next img { transform: rotate(180deg); } /* last purse: arrow points back to the first */
 
@@ -411,7 +409,6 @@ html, body { overflow: hidden; }
 }
 .app-back[hidden] { display: none; }
 .app-back img { display: block; }
-.app-back:hover { background: var(--fill-weaker); }
 .app-title { font-weight: 600; font-size: 20px; line-height: 28px; color: #0c0f41; }
 .app-body { padding: 8px 16px; display: flex; flex-direction: column; gap: 12px; }
 .app-hero {
@@ -712,7 +709,6 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
   display: flex; opacity: 1; pointer-events: auto;
   background: var(--text-brand);
 }
-.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:hover { background: #3742c9; }
 .tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next img { filter: brightness(0) invert(1); }
 
 /* Counter chip: "1/3 ⌄" pill, bottom-right, sharing the row with the amount */
@@ -731,7 +727,6 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
   font-variant-numeric: tabular-nums;
   transition: background-color 0.15s, transform 0.15s;
 }
-.tile-chip:hover { background: #f1f2fd; }
 .tile-chip:active { transform: scale(0.94); background: #e6e8fc; }
 .tile-chip img { display: block; }
 
@@ -746,7 +741,6 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
   background: var(--fill-brandweaker);
   transition: background-color 0.15s;
 }
-.flex-rail:hover { background: rgba(71, 84, 235, 0.15); }
 .flex-rail:active { background: rgba(71, 84, 235, 0.22); }
 .flex-rail img { display: block; transition: transform 0.3s var(--ease-standard); }
 .tile--flex.on-last .flex-rail img { transform: rotate(180deg); }
@@ -796,7 +790,6 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 .purse-amount { font-weight: 600; font-size: 16px; color: var(--text-strong); font-variant-numeric: tabular-nums; }
 .app-foot { font-size: 12px; line-height: 16px; color: #8b8eb1; }
 button.app-row { width: 100%; text-align: left; cursor: pointer; }
-.app-row--link:hover { border-color: rgba(71, 84, 235, 0.4); }
 
 /* ---------- Core App Experience pages: Care hub (Figma 6283:1802) + Flex card (6287:23451) ---------- */
 .app-screen { display: flex; flex-direction: column; }
@@ -852,7 +845,6 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 
 /* Flex card entry (cardNavigationItem) */
 .ch-nav-card { display: block; width: 100%; padding: 16px; text-align: left; transition: box-shadow 0.15s; }
-.ch-nav-card:hover { box-shadow: 0 2px 12px rgba(12, 15, 65, 0.1); }
 .ch-nav-main { display: flex; align-items: center; gap: 16px; }
 .ch-nav-text { flex: 1; min-width: 0; }
 .ch-nav-title { display: block; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong); }
@@ -1004,8 +996,6 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit; background: transparent; transition: background-color 0.15s;
 }
-.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:hover { background: #4754eb; }
-.tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:hover::after { background: rgba(255, 255, 255, 0.1); }
 .tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="button"] .tile-next:active::after { background: rgba(255, 255, 255, 0.2); }
 
 /* Counter chip = chip · default · unselected, label only (leftIcon/rightIcon off) */
@@ -1021,8 +1011,6 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
   overflow: hidden;
 }
 .tile-chip::after { content: ""; position: absolute; inset: 0; background: transparent; transition: background-color 0.15s; }
-.tile-chip:hover { background: #fff; }
-.tile-chip:hover::after { background: rgba(12, 15, 65, 0.05); }
 .tile-chip:active { transform: none; background: #fff; }
 .tile-chip:active::after { background: rgba(13, 17, 64, 0.1); }
 
@@ -1034,7 +1022,6 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
   border-left: 1px solid rgba(13, 17, 64, 0.1);
 }
 .tile--flex[data-mode="flipper"]:not([data-flip="prism"])[data-ctl="rail"] .pcard { right: 36px; }
-.flex-rail:hover { background: rgba(12, 15, 65, 0.05); }
 .flex-rail:active { background: rgba(13, 17, 64, 0.1); }
 .rail-count { font-size: 14px; line-height: 20px; font-weight: 600; color: #565a86; }
 
@@ -1051,44 +1038,9 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
   white-space: nowrap; font-variant-numeric: tabular-nums;
 }
 
-/* ---------- Paged tile · stepper (Figma 2691:18061) ----------
-   12px padding (11 + 1px stroke) · top row: 2-line label + 28px icon · bottom row: value + 28×40 stepper. */
-.flex-stepper { display: none; }
-.tile--flex[data-stepper="1"] { height: 104px; }
-.tile--flex[data-stepper="1"] .pcard { flex-direction: column; }
-.stp { flex-direction: column; justify-content: space-between; }
-.stp-top { display: flex; align-items: flex-start; gap: 4px; }
-.stp-label {
-  flex: 1; min-width: 0;
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
-  font-size: 16px; line-height: 20px; font-weight: 600; color: var(--text-weak);
-}
-.stp-value { height: 40px; display: flex; align-items: center; padding-right: 36px; }
-.tile--flex[data-stepper="1"] .flex-stepper {
-  display: flex; flex-direction: column;
-  position: absolute; z-index: 5; right: 11px; bottom: 11px;
-  width: 28px; border-radius: 16px; background: #dadcf8; overflow: hidden;
-}
-.stp-btn { display: flex; align-items: center; justify-content: center; height: 20px; padding: 0 6px; transition: background-color 0.15s; }
-.stp-btn:first-child { padding-top: 4px; height: 20px; }
-.stp-btn:last-child { padding-bottom: 4px; height: 20px; }
-.stp-btn:hover { background: rgba(12, 15, 65, 0.05); }
-.stp-btn:active { background: rgba(13, 17, 64, 0.1); }
-.stp-btn img { display: block; }
-/* Pressing the stepper shouldn't tint the whole card */
-.tile--flex[data-stepper="1"]:has(.stp-btn:active):active { background: var(--fill-brandveryweak); }
-
-/* Stepper: a static link-out icon in the corner, outside the flipper.
-   It never changes, so it reads as "this tile opens something", not as the purse's own icon. */
-.stp-open { display: none; }
-.tile--flex[data-stepper="1"] .stp-open--icon { display: flex; position: absolute; z-index: 5; top: 11px; right: 11px; pointer-events: none; }
-/* The cue only sits beside the first line of the purse name, so a float clears it there
-   and the second line gets the full tile width (fits "assessment"). */
-.stp-clear { float: right; width: 27px; height: 20px; } /* clears the 28px icon; its circle pads the glyph, so text can sit right up to it */
-
 /* ---------- Widget 1 · v4 looks (Figma Molina_Widget_v4, frames v4/w1) ----------
    Shared: 12px padding (11 + 1px stroke), 2-line label cut off with …, amount, "1 of 4". */
-.tile--flex[data-look="v4-right"], .tile--flex[data-look="v4-page"] { height: 108px; }
+.tile--flex[data-look="v4-right"], .tile--flex[data-look="v4-bottom"], .tile--flex[data-look="v4-page"] { height: 108px; }
 .tile--flex[data-look="v4-strip"], .tile--flex[data-look="v4-tab"] { height: 104px; }
 .v4-body { flex-direction: column; }
 .v4-label { display: flex; flex-direction: column; min-width: 0; font-size: 16px; line-height: 20px; font-weight: 600; color: var(--text-weak); }
@@ -1103,8 +1055,28 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 /* Pressing the flip control shouldn't tint the whole card */
 .tile--flex[data-look^="v4"]:has(.v4-next:active):active { background: var(--fill-brandveryweak); }
 
+/* Right caret: purses slide left (in from the right, out to the left), matching the ›.
+   Android: AdapterViewFlipper inAnimation / outAnimation = objectAnimators on translationX. */
+.tile--flex[data-mode="flipper"][data-flip="slide"][data-look="v4-right"] .pcard { transform: translateX(100%); }
+.tile--flex[data-mode="flipper"][data-flip="slide"][data-look="v4-right"] .pcard[data-depth="0"] { transform: none; }
+.tile--flex[data-mode="flipper"][data-flip="slide"][data-look="v4-right"] .pcard.exit-up { transform: translateX(-100%); }
+
+/* Right caret: as a purse slides in from the right, its text fades out where it meets the purse icon
+   instead of running under it. A static scrim in the tile's colour sits above the flipper, under the
+   icon: clear where the label ends at rest, solid under the icon, so text at rest isn't touched.
+   Android: an ImageView with a gradient shape drawable, outside the flipper. */
+.v4-fade { display: none; }
+.tile--flex[data-look="v4-right"] .v4-fade {
+  display: block; position: absolute; z-index: 5; top: 0; right: 0; width: 43px; height: 52px;
+  pointer-events: none; border-top-right-radius: 15px;
+  background: linear-gradient(to right, rgba(240, 241, 250, 0), #f0f1fa 12px); /* #f0f1fa = tile colour, opaque */
+  -webkit-mask-image: linear-gradient(to bottom, #000 40px, transparent);
+  mask-image: linear-gradient(to bottom, #000 40px, transparent);
+}
+
 /* Right caret + Page turn: the icon sits beside both label lines; the bottom half flips */
 .tile--flex[data-look="v4-right"] .v4-label,
+.tile--flex[data-look="v4-bottom"] .v4-label,
 .tile--flex[data-look="v4-page"] .v4-label { padding-right: 32px; }
 .widget .v4-next--half { left: 0; right: 0; bottom: 0; height: 50%; border-radius: 0 0 15px 15px; }
 .widget .v4-next--half:active { transform: none; }
@@ -1112,13 +1084,12 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
   position: absolute; right: 10px; bottom: 6px; width: 28px; height: 28px; border-radius: 16px;
   display: flex; align-items: center; justify-content: center; transition: background-color 0.15s;
 }
-.v4-next--half:hover .v4-caret { background: var(--fill-brandweaker); }
 .v4-next--half:active .v4-caret { background: rgba(71, 84, 235, 0.18); }
 
 /* Caret flipper: purses leave room for the 48px strip; the purse icon sits in the strip's top cell */
 .tile--flex[data-look="v4-strip"] .pcard, .tile--flex[data-look="v4-tab"] .pcard { padding-right: 55px; }
 .tile--flex[data-look="v4-strip"] .v4-amount, .tile--flex[data-look="v4-tab"] .v4-amount { line-height: 20px; }
-.v4-purse { position: absolute; top: 11px; right: 10px; }
+.v4-purse { position: absolute; z-index: 5; top: 11px; right: 10px; pointer-events: none; } /* static, outside the flipper */
 .v4-strip { top: 0; right: 0; bottom: 0; width: 48px; border-left: 1px solid var(--stroke-brandweaker); pointer-events: none; }
 .v4-strip-top { display: block; height: 50%; border-bottom: 1px solid var(--stroke-brandweaker); }
 .widget .v4-next--cell, .widget .v4-next--tab { right: 0; bottom: 0; width: 48px; height: 50%; }
@@ -1127,7 +1098,6 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
   width: 28px; height: 28px; border-radius: 16px; background: var(--fill-brandweaker);
   display: flex; align-items: center; justify-content: center; transition: background-color 0.15s;
 }
-.v4-next--cell:hover .v4-circle { background: rgba(71, 84, 235, 0.16); }
 .v4-next--cell:active .v4-circle { background: rgba(71, 84, 235, 0.22); }
 /* Corner tab: no dividers; the ⌄ sits on a raised tab in the bottom-right corner */
 .widget .v4-next--tab {
@@ -1138,7 +1108,6 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
   box-shadow: 0 2px 8px 0 var(--shadow-weaker);
 }
 .v4-circle--bare { background: transparent; }
-.v4-next--tab:hover { background: var(--fill-brandweaker); }
 .v4-next--tab:active { background: rgba(71, 84, 235, 0.18); }
 
 /* Page turn: the card itself is drawn by card-surface.svg (notched corner), with the folded flap on top */
@@ -1154,13 +1123,11 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .tile--flex[data-look="v4-page"] .v4-icon { top: 12px; right: 12px; }
 .tile--flex[data-look="v4-page"] .v4-next--half { border-radius: 0 0 16px 16px; }
 .v4-corner { position: absolute; right: -3px; bottom: -3px; transition: transform 0.2s var(--ease-emphasized); transform-origin: 100% 100%; }
-.v4-next--half:hover .v4-corner { transform: scale(1.12); }
 .v4-next--half:active .v4-corner { transform: scale(0.94); }
 
-/* Widget 1 looks: chips to the right of the title; only the selected look's description shows */
-.widget-section-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-.widget-section-head .widget-section-title { flex: none; }
-.look-chips { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; padding-top: 2px; }
+/* Widget 1 looks: chips below the title; only the selected look's description shows */
+.widget-section-head { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.look-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .look-chips label { cursor: pointer; }
 .look-chips input { position: absolute; opacity: 0; pointer-events: none; }
 .look-chips span {
@@ -1173,8 +1140,49 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .look-chips input:checked + span { background: #4754eb; border-color: #4754eb; color: #fff; }
 .look-chips input:focus-visible + span { outline: 2px solid #4754eb; outline-offset: 2px; }
 .look-points { display: none; }
-.w1-only:has(#lookControls input[value="stepper"]:checked) .look-points[data-for="stepper"],
 .w1-only:has(#lookControls input[value="v4-right"]:checked) .look-points[data-for="v4-right"],
+.w1-only:has(#lookControls input[value="v4-bottom"]:checked) .look-points[data-for="v4-bottom"],
 .w1-only:has(#lookControls input[value="v4-strip"]:checked) .look-points[data-for="v4-strip"],
 .w1-only:has(#lookControls input[value="v4-tab"]:checked) .look-points[data-for="v4-tab"],
 .w1-only:has(#lookControls input[value="v4-page"]:checked) .look-points[data-for="v4-page"] { display: block; }
+
+/* Page turn: the page peels off from the folded bottom-right corner. The fold itself grows from the
+   corner across the card, so the fold line sweeps diagonally toward the top-left, while the old
+   purse fades out; the big flap then lifts away (fades) and the next purse fades in, and the small
+   resting fold comes back. Nothing on the page tilts or warps.
+   Android (~700ms, all with AdapterViewFlipper animations, advanced by the same showNext()):
+   · corner flipper (the fold ImageView, one item per purse): outAnimation scaleX/scaleY 1 → 3.1 with
+     pivot at the bottom-right corner, then alpha 1 → 0; inAnimation alpha 0 → 1 with a startOffset.
+   · content flipper: outAnimation alpha 1 → 0 (~250ms); inAnimation alpha 0 → 1, startOffset ~350ms. */
+.tile--flex[data-mode="flipper"][data-look="v4-page"] .pcard { opacity: 0; transform: none; transition: none; }
+.tile--flex[data-mode="flipper"][data-look="v4-page"] .pcard[data-depth="0"] { opacity: 1; }
+.tile--flex[data-mode="flipper"][data-look="v4-page"] .pcard.exit-up {
+  z-index: 2; opacity: 1;
+  animation: v4-page-out 0.7s ease-out forwards;
+}
+@keyframes v4-page-out {
+  0%   { opacity: 1; }
+  35%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+/* The next purse fades in once the peel has lifted away */
+.tile--flex[data-mode="flipper"][data-look="v4-page"]:has(.pcard.exit-up) .pcard[data-depth="0"] {
+  animation: v4-page-in 0.7s ease-out both;
+}
+@keyframes v4-page-in {
+  0%, 50% { opacity: 0; }
+  100%    { opacity: 1; }
+}
+/* The fold grows from the corner (the peel), lifts away, and the resting fold returns */
+.tile--flex[data-look="v4-page"]:has(.pcard.exit-up) .v4-corner {
+  animation: v4-corner-peel 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* The peeling flap covers everything on the page, including the purse icon */
+.tile--flex[data-look="v4-page"]:has(.pcard.exit-up) .v4-next { z-index: 6; }
+@keyframes v4-corner-peel {
+  0%   { transform: scale(1);   opacity: 1; }
+  45%  { transform: scale(3.1); opacity: 1; }
+  68%  { transform: scale(3.3); opacity: 0; }
+  80%  { transform: scale(1);   opacity: 0; }
+  100% { transform: scale(1);   opacity: 1; }
+}
