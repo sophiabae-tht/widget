@@ -349,8 +349,6 @@ const v4Chrome = {
   // Android: ImageView outside the flipper (opens Care hub with the card); the bottom half is a
   // separate view whose fill-in intent → broadcast → showNext().
   "v4-right": `
-  <span class="v4-fade" aria-hidden="true"></span>
-  <span class="v4-fade v4-fade--caret" aria-hidden="true"></span>
   <span class="v4-icon tile-icon" aria-hidden="true"><img id="v4PurseImg" width="16" height="16" alt="" draggable="false" /></span>
   <button class="v4-next v4-next--half" data-next type="button" aria-label="Next balance"><span class="v4-caret"><img src="assets/v4/icon-caret-right-16.svg" width="16" height="16" alt="" draggable="false" /></span></button>`,
   "v4-bottom": `
@@ -372,7 +370,10 @@ function buildCards(list, { look = "" } = {}) {
   purseImg = null;
   if (V4_LOOKS.includes(look)) {
     N = list.length;
-    flexTile.innerHTML = list.map(v4Card(look)).join("") + v4Chrome[look] + `
+    const items = list.map(v4Card(look)).join("");
+    // Right caret: the purses slide inside a fixed clip layer, so the text can fade out around the
+    // purse icon and the › (styles.css .v4-clip) while the layer itself stays put.
+    flexTile.innerHTML = (look === "v4-right" ? `<div class="v4-clip">${items}</div>` : items) + v4Chrome[look] + `
   <span hidden id="railCount"></span>`;
     cards = [...flexTile.querySelectorAll(".pcard")];
     railCount = document.getElementById("railCount");

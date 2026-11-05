@@ -1062,23 +1062,24 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .tile--flex[data-mode="flipper"][data-flip="slide"][data-look="v4-right"] .pcard.exit-up { transform: translateX(-100%); }
 
 /* Right caret: as a purse slides in from the right, its text fades out where it meets the purse icon
-   (top right) and the › (bottom right) instead of running under them. A static scrim in the tile's colour sits above the flipper, under the
-   icon / caret: clear where the text ends at rest, solid under the icon / caret, so text at rest isn't
-   touched. Android: an ImageView with a gradient shape drawable for each, outside the flipper. */
-.v4-fade { display: none; }
-.tile--flex[data-look="v4-right"] .v4-fade {
-  display: block; position: absolute; z-index: 5; top: 0; right: 0; width: 43px; height: 52px;
-  pointer-events: none; border-top-right-radius: 15px;
-  background: linear-gradient(to right, rgba(240, 241, 250, 0), #f0f1fa 12px); /* #f0f1fa = tile colour, opaque */
-  -webkit-mask-image: linear-gradient(to bottom, #000 40px, transparent);
-  mask-image: linear-gradient(to bottom, #000 40px, transparent);
-}
-/* Under the ›: it sits 10px from the right and 6px from the bottom (.v4-caret), 28px round */
-.tile--flex[data-look="v4-right"] .v4-fade--caret {
-  top: auto; bottom: 0; width: 50px; height: 44px;
-  border-radius: 0 0 15px 0;
-  -webkit-mask-image: linear-gradient(to top, #000 34px, transparent);
-  mask-image: linear-gradient(to top, #000 34px, transparent);
+   (top right) and the › (bottom right) instead of running under them. The purses slide inside
+   .v4-clip, which stays put and is masked with a soft round hole around each: clear under the 28px
+   circle, back to full strength 5px out by the icon (where a label cut off with … ends, so it rests
+   at ~80%) and 8px out by the › (nothing rests near it).
+   Android: a widget can't mask the flipper; draw the same holes as radial gradient shape drawables
+   in the tile's colour, in ImageViews outside the flipper (under the icon and the ›). */
+.v4-clip {
+  position: absolute; inset: 0; border-radius: 15px; overflow: hidden;
+  /* icon: 11px in from the top/right, so its centre is 25px in · ›: 10px from the right and 6px
+     from the bottom (.v4-caret), so its centre is 24px / 20px in */
+  -webkit-mask-image:
+    radial-gradient(circle at calc(100% - 25px) 25px, transparent 14px, #000 19px),
+    radial-gradient(circle at calc(100% - 24px) calc(100% - 20px), transparent 14px, #000 22px);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    radial-gradient(circle at calc(100% - 25px) 25px, transparent 14px, #000 19px),
+    radial-gradient(circle at calc(100% - 24px) calc(100% - 20px), transparent 14px, #000 22px);
+  mask-composite: intersect;
 }
 
 /* Right caret + Page turn: the icon sits beside both label lines; the bottom half flips */
@@ -1158,7 +1159,7 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
    purse fades out; the big flap then lifts away (fades) and the next purse fades in, and the small
    resting fold comes back. Nothing on the page tilts or warps.
    Android (~700ms, all with AdapterViewFlipper animations, advanced by the same showNext()):
-   · corner flipper (the fold ImageView, one item per purse): outAnimation scaleX/scaleY 1 → 3.1 with
+   · corner flipper (the fold ImageView, one item per purse): outAnimation scaleX/scaleY 1 → 2.5 with
      pivot at the bottom-right corner, then alpha 1 → 0; inAnimation alpha 0 → 1 with a startOffset.
    · content flipper: outAnimation alpha 1 → 0 (~250ms); inAnimation alpha 0 → 1, startOffset ~350ms. */
 .tile--flex[data-mode="flipper"][data-look="v4-page"] .pcard { opacity: 0; transform: none; transition: none; }
@@ -1196,8 +1197,8 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .tile--flex[data-look="v4-page"]:has(.pcard.exit-up) .v4-next { z-index: 6; }
 @keyframes v4-corner-peel {
   0%   { transform: scale(1);   opacity: 1; }
-  45%  { transform: scale(3.1); opacity: 1; }
-  68%  { transform: scale(3.3); opacity: 0; }
+  45%  { transform: scale(2.5); opacity: 1; }
+  68%  { transform: scale(2.6); opacity: 0; }
   80%  { transform: scale(1);   opacity: 0; }
   100% { transform: scale(1);   opacity: 1; }
 }

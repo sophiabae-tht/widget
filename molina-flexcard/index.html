@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=84" />
+  <link rel="stylesheet" href="styles.css?v=85" />
 </head>
 <body>
   <main class="stage">
@@ -180,7 +180,7 @@
               </ul>
             </li>
           </ul>
-          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, horizontal slide: inAnimation and outAnimation are objectAnimator XMLs on translationX (in from the right, out to the left), set on the flipper in the widget layout. The fades by the icon and the &rsaquo; are ImageViews with gradient shape drawables (tile colour → transparent), placed outside the flipper, under the icon and the &rsaquo;. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. Two views stacked in the tile: the top half carries the Care hub PendingIntent, the bottom half a fill-in intent → showNext(). "1 of 4" is set per item in getViewAt(). The purse icon is a static ImageView outside the flipper, updated with setImageViewResource() in the same partiallyUpdateAppWidget() call as showNext().</p>
+          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, horizontal slide: inAnimation and outAnimation are objectAnimator XMLs on translationX (in from the right, out to the left), set on the flipper in the widget layout. The fades by the icon and the &rsaquo; are ImageViews with radial gradient shape drawables (tile colour → transparent), placed outside the flipper, under the icon and the &rsaquo;. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. Two views stacked in the tile: the top half carries the Care hub PendingIntent, the bottom half a fill-in intent → showNext(). "1 of 4" is set per item in getViewAt(). The purse icon is a static ImageView outside the flipper, updated with setImageViewResource() in the same partiallyUpdateAppWidget() call as showNext().</p>
         </div>
         <div class="look-points" data-for="v4-bottom">
           <ul class="widget-points">
@@ -247,7 +247,7 @@
               </ul>
             </li>
           </ul>
-          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, vertical slide in/out. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. The notched card and folded corner are static drawables. The purse icon is a static ImageView outside the flipper, updated with setImageViewResource() in the same partiallyUpdateAppWidget() call as showNext(). The peel uses two flippers advanced by the same showNext() (~700ms): a corner flipper whose fold ImageView scales up from the bottom-right corner (scaleX/scaleY 1 → 3.1, pivot bottom-right) and then fades, and the content flipper, which fades the old purse out and the next one in. Nothing tilts, so nothing warps. A real paper curl, where the page bends, isn't possible in a widget.</p>
+          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, vertical slide in/out. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. The notched card and folded corner are static drawables. The purse icon is a static ImageView outside the flipper, updated with setImageViewResource() in the same partiallyUpdateAppWidget() call as showNext(). The peel uses two flippers advanced by the same showNext() (~700ms): a corner flipper whose fold ImageView scales up from the bottom-right corner (scaleX/scaleY 1 → 2.5, pivot bottom-right) and then fades, and the content flipper, which fades the old purse out and the next one in. Nothing tilts, so nothing warps. A real paper curl, where the page bends, isn't possible in a widget.</p>
         </div>
 
         <!-- Earlier Widget 1 iterations (labels, StackView, other animations and next controls).
@@ -422,6 +422,6 @@
 
     </aside>
   </main>
-  <script src="app.js?v=84"></script>
+  <script src="app.js?v=85"></script>
 </body>
 </html>
