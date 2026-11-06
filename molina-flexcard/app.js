@@ -273,6 +273,7 @@ function openApp(key, fromEl, opts = {}) {
 
 function closeApp() {
   if (!phone.classList.contains("app-open")) return;
+  stopHomePulse();
   phone.classList.remove("app-open");
   appScreen.setAttribute("aria-hidden", "true");
   if (launchFrom) playLaunch(false);
@@ -294,6 +295,30 @@ document.getElementById("appNav").addEventListener("click", (e) => {
   if (tab?.dataset.tab === "carehub") { appStack = [{ key: "home", opts: {} }]; renderApp(); }
 });
 document.getElementById("appHelp").addEventListener("click", () => phone.classList.add("sheet-open"));
+/* ---------- In the app: pulse for getting back to the widget ----------
+   The way back to the widget is the phone's swipe up from the bottom, outside the app. A tap that
+   goes nowhere (a balance row, a heading, empty space, a tab this prototype doesn't have, or the
+   app's own Home tab) suggests the member is looking for a way out, so the bottom edge pulses
+   around the gesture handle. Each wrong tap replays it; any tap that does something stops it.
+   Android: taps no view handles reach the root view (onTouchEvent on the root layout, or
+   dispatchTouchEvent in the Activity). The app is edge-to-edge, so it draws the glow behind the
+   gesture area, sized from the navigation bar inset (WindowInsetsCompat.Type.navigationBars());
+   the system handle stays on top and can't be animated. With 3-button navigation the glow sits
+   around the home button. Cap how often it plays in the real app (e.g. 3 times). */
+const homePulse = document.getElementById("homePulse");
+function pulseHome() {
+  homePulse.classList.remove("show");
+  reflow(homePulse);
+  homePulse.classList.add("show");
+}
+const stopHomePulse = () => homePulse.classList.remove("show");
+homePulse.addEventListener("animationend", (e) => { if (e.target === homePulse.lastElementChild) stopHomePulse(); });
+appScreen.addEventListener("click", (e) => {
+  const hit = e.target.closest("button, a, [data-goto], [data-call]");
+  const tab = hit?.dataset.tab;
+  if (!hit || (tab && tab !== "carehub")) return pulseHome();
+  stopHomePulse();
+});
 appBody.addEventListener("click", (e) => {
   const link = e.target.closest("[data-goto]");
   if (link) { appStack.push({ key: link.dataset.goto, opts: { source: "carehub" } }); renderApp(); return; }
@@ -550,18 +575,6 @@ flexTile.addEventListener("click", (e) => {
   userGo(1);
 });
 
-const CTL_TIP = {
-  "v4-right": "Widgets can't swipe. Tap the bottom half for the next balance",
-  "v4-bottom": "Widgets can't swipe. Tap the bottom half for the next balance",
-  "v4-strip": "Widgets can't swipe. Tap the arrow for the next balance",
-  "v4-tab": "Widgets can't swipe. Tap the corner tab for the next balance",
-  "v4-page": "Widgets can't swipe. Tap the folded corner for the next balance",
-  caption: "Widgets can't swipe. Balances change every 5 seconds",
-  dots: "Tap the dots for the next balance",
-  button: "Tap the arrow button for the next balance",
-  chip: "Tap 1/4 for the next balance",
-  rail: "Tap the strip on the right for the next balance",
-};
 
 // Swipe. Only StackView supports it, so flipper mode treats any press as a tap.
 let drag = null;
@@ -598,7 +611,7 @@ function endDrag(e) {
   drag = null;
   flexTile.classList.remove(...PRESS);
   if (zone) {
-    if (Math.abs(dy) > 12) return toast("Widgets can't swipe. Tap the top or bottom half");
+    if (Math.abs(dy) > 12) return pulseNextControl();
     if (zone === "icon") return openFlex();
     return userGo(zone === "top" ? -1 : 1);
   }
@@ -612,17 +625,18 @@ function endDrag(e) {
   }
   if (Math.abs(dy) < 6) return openFlex(); // a tap, not a swipe
   if (flexTile.dataset.mode !== "stack") {
-    // On a real widget nothing would happen here. Explain it, and point at the tap target.
-    if (Math.abs(dy) > 12) {
-      toast(`Widgets can't swipe. ${CTL_TIP[flexTile.dataset.ctl] || CTL_TIP.dots}`);
-      flexTile.classList.remove("hint-pulse");
-      reflow(flexTile);
-      flexTile.classList.add("hint-pulse");
-    }
+    // On a real widget nothing would happen here. No text: pulse the tap target instead.
+    if (Math.abs(dy) > 12) pulseNextControl();
     return;
   }
   if (dy < -24) userGo(1);
   else if (dy > 24) userGo(-1);
+}
+// Swipes do nothing on a widget: pulse the control that does go to the next balance (› on Right caret)
+function pulseNextControl() {
+  flexTile.classList.remove("hint-pulse");
+  reflow(flexTile);
+  flexTile.classList.add("hint-pulse");
 }
 flexTile.addEventListener("dragstart", (e) => e.preventDefault());
 flexTile.addEventListener("animationend", () => flexTile.classList.remove("hint-pulse"));

@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=87" />
+  <link rel="stylesheet" href="styles.css?v=95" />
 </head>
 <body>
   <main class="stage">
@@ -132,6 +132,9 @@
       </div>
 
       <div class="toast" id="toast" role="status"></div>
+
+      <!-- In the app: pulses at the bottom edge, around the gesture handle, after a tap that goes nowhere -->
+      <div class="home-pulse" id="homePulse" aria-hidden="true"><i></i></div>
 
       <footer class="gesture-bar" id="gestureBar" title="Tap to go home"><span class="handle"></span></footer>
     </div>
@@ -349,6 +352,6 @@
 
     </aside>
   </main>
-  <script src="app.js?v=88"></script>
+  <script src="app.js?v=91"></script>
 </body>
 </html>

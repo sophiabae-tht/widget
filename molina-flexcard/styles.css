@@ -23,10 +23,41 @@
 html, body { margin: 0; height: 100%; }
 body {
   font-family: var(--font-body);
-  background: #e9eaf2;
+  background: var(--background-base);
   color: #0c0f41;
   -webkit-font-smoothing: antialiased;
 }
+/* Page background: Design Library gradientBGDesktop (opacity=Default, Figma 3683:42394) on
+   background-base. Two blurred glows, blue low on the left and green on the right, placed at the
+   same spots as in the 1352×1132 frame (as a share of the window) and drifting slowly. */
+/* Drawn as CSS radial gradients with the same falloff as the Figma glows (a 256px circle under a
+   128px Gaussian blur), not the exported SVGs: an SVG blur that size is costly to redraw and made
+   the rest of the page's motion stutter. assets/bg/ keeps the Figma exports for reference. */
+body::before, body::after {
+  content: ""; position: fixed; z-index: -1; width: 1024px; height: 1024px;
+  pointer-events: none; will-change: transform; contain: strict;
+}
+body::before { /* blue #4754EB at 10%: centre at (115, 781) of 1352×1132 */
+  background: radial-gradient(closest-side, rgba(71, 84, 235, 0.0865) 0%, rgba(71, 84, 235, 0.0831) 12.5%, rgba(71, 84, 235, 0.0731) 25%, rgba(71, 84, 235, 0.0576) 37.5%, rgba(71, 84, 235, 0.0396) 50%, rgba(71, 84, 235, 0.0232) 62.5%, rgba(71, 84, 235, 0.0113) 75%, rgba(71, 84, 235, 0.0045) 87.5%, rgba(71, 84, 235, 0.0) 100%);
+  left: calc(8.5% - 512px); top: calc(69% - 512px);
+  animation: bg-float-blue 34s ease-in-out infinite alternate;
+}
+body::after { /* green #A4ECBB at 8%: centre at (1124, 475) */
+  background: radial-gradient(closest-side, rgba(164, 236, 187, 0.0692) 0%, rgba(164, 236, 187, 0.0665) 12.5%, rgba(164, 236, 187, 0.0585) 25%, rgba(164, 236, 187, 0.0461) 37.5%, rgba(164, 236, 187, 0.0317) 50%, rgba(164, 236, 187, 0.0186) 62.5%, rgba(164, 236, 187, 0.009) 75%, rgba(164, 236, 187, 0.0036) 87.5%, rgba(164, 236, 187, 0.0) 100%);
+  left: calc(83% - 512px); top: calc(42% - 512px);
+  animation: bg-float-green 28s ease-in-out infinite alternate;
+}
+@keyframes bg-float-blue {
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(48px, -36px, 0); }
+  100% { transform: translate3d(-24px, -64px, 0); }
+}
+@keyframes bg-float-green {
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(-44px, 40px, 0); }
+  100% { transform: translate3d(24px, 72px, 0); }
+}
+@media (prefers-reduced-motion: reduce) { body::before, body::after { animation: none; } }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 p, h1, h2 { margin: 0; }
 
@@ -470,6 +501,29 @@ html, body { overflow: hidden; }
 }
 .toast.show { transform: translate(-50%, 0); opacity: 1; }
 
+/* In the app: after a tap that goes nowhere, a soft blue glow swells and fades behind the gesture
+   handle, twice. One filled glow, no outlines; it stays centred on the handle. Under the gesture
+   bar (z 60), so the handle stays crisp on top. */
+.home-pulse {
+  position: absolute; z-index: 55; left: 50%; bottom: 12px; width: 0; height: 0; pointer-events: none;
+}
+.home-pulse i {
+  position: absolute; left: -90px; top: -22px; width: 180px; height: 44px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(71, 84, 235, 0.55), rgba(71, 84, 235, 0.25) 55%, rgba(71, 84, 235, 0));
+  opacity: 0; transform: scale(0.5, 0.4);
+}
+.home-pulse i { will-change: transform, opacity; }
+.home-pulse.show i { animation: home-pulse 0.9s cubic-bezier(0.2, 0, 0, 1) 2; }
+@keyframes home-pulse { /* bright almost at once, then eases out */
+  0%   { opacity: 0.4; transform: scale(0.7, 0.6); }
+  18%  { opacity: 1;   transform: scale(1, 1); }
+  100% { opacity: 0;   transform: scale(1.15, 1.1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-pulse.show i { animation: home-pulse-still 1.1s ease-in-out 2; transform: none; }
+  @keyframes home-pulse-still { 0%, 100% { opacity: 0; } 50% { opacity: 0.8; } }
+}
+
 /* ---------- Side notes ---------- */
 .notes {
   flex: 1 1 auto;
@@ -550,6 +604,15 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
   40%      { transform: scale(1.25); background-color: var(--fill-brandweaker); }
 }
 .tile--flex.hint-pulse .pcard[data-depth="0"] .tile-hint { animation: hint-pulse 0.6s var(--ease-standard) 2; border-radius: 16px; }
+/* v4 looks: the › / ⌄ circle glows twice, the same soft blue as the pulse at the gesture handle */
+.tile--flex.hint-pulse .v4-caret,
+.tile--flex.hint-pulse .v4-circle,
+.tile--flex.hint-pulse .v4-corner { animation: v4-next-pulse 0.9s cubic-bezier(0.2, 0, 0, 1) 2; }
+@keyframes v4-next-pulse { /* soft glow, same feel as the pulse at the gesture handle */
+  0%   { box-shadow: 0 0 6px 2px rgba(71, 84, 235, 0.2); background-color: rgba(71, 84, 235, 0.12); }
+  18%  { box-shadow: 0 0 12px 4px rgba(71, 84, 235, 0.35); background-color: rgba(71, 84, 235, 0.2); }
+  100% { box-shadow: 0 0 16px 6px rgba(71, 84, 235, 0); background-color: transparent; }
+}
 .phone img { -webkit-user-drag: none; }
 
 /* --- Flipper + prism revolve ----------------------------------------------
