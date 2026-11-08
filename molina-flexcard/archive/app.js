@@ -41,8 +41,8 @@ const CONTACTS = [
 ];
 const APPS = [
   { name: "My Molina", desc: "See your ID card, benefits, and doctors near you", molina: true },
-  { name: "Benefits pro", desc: "Check your Flex Card balance and shop eligible items", img: "app-benefits-pro.png" },
-  { name: "CVS Caremark", desc: "Access prescriptions, compare prices, find pharmacies in one app", img: "app-cvs.png" },
+  { name: "Benefits pro", desc: "Check your Flex Card balance and shop eligible items", img: "app-benefits-pro.webp" },
+  { name: "CVS Caremark", desc: "Access prescriptions, compare prices, find pharmacies in one app", img: "app-cvs.webp" },
   { name: "Teladoc", desc: "Connect with doctors, therapists, and health professionals virtually", img: "app-teladoc.png" },
   { name: "Maven Clinic", desc: "24/7 fertility, pregnancy, parenting &amp; menopause support", img: "app-maven.png" },
 ];

@@ -16,6 +16,11 @@ The check is in `middleware.js` (Vercel Routing Middleware) and only runs on Ver
 
 It will be live at `/<slug>/`.
 
+## Images and caching
+
+- Use WebP for photos and raster icons, sized at no more than 3× their display size. A full-screen PNG can be several MB; the same image as WebP is usually under 100 KB.
+- Files in any `assets/` folder are cached by browsers for an hour (set in `vercel.json`). If you replace an image and need everyone to see it right away, give it a new filename.
+
 ## Preview images
 
 The home page card shows `<slug>/preview.png`. To take or refresh it (needs Node 22+ and Google Chrome):

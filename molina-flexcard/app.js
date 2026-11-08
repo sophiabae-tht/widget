@@ -32,7 +32,7 @@ const CONTACTS = [
 ];
 const APPS = [
   { name: "My Molina", desc: "See your ID card, benefits, and doctors near you", molina: true },
-  { name: "CVS Caremark", desc: "Access prescriptions, compare prices, find pharmacies in one app", img: "app-cvs.png" },
+  { name: "CVS Caremark", desc: "Access prescriptions, compare prices, find pharmacies in one app", img: "app-cvs.webp" },
 ];
 // Resources: skeleton rows until Molina's real resource list is decided.
 // Each entry = widths of the title bar and the description lines.
