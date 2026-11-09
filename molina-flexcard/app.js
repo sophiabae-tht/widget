@@ -61,8 +61,8 @@ const section = (title) => `<h3 class="ch-section">${title}</h3>`;
 
 // Care hub (Figma 6283:1802) — work-in-progress mock
 const CONTACTS = [
-  { name: "Member Services", desc: "Call about your health plan", call: true },
-  { name: "24/7 Nurse Line", desc: "Talk to a nurse day or night" },
+  { name: "Member Services", desc: "Call about your health plan", call: "member" },
+  { name: "24/7 Nurse Line", desc: "Talk to a nurse day or night", call: "nurse" },
 ];
 const APPS = [
   { name: "My Molina", desc: "See your ID card, benefits, and doctors near you", molina: true },
@@ -169,7 +169,7 @@ const DESTINATIONS = {
       ${section("Contacts")}
       <div class="ch-hscroll">
         ${CONTACTS.map((c) => `
-        <button class="ch-contact" type="button"${c.call ? " data-call" : ""}>
+        <button class="ch-contact" type="button"${c.call ? ` data-call="${c.call}"` : ""}>
           <span class="ch-circle ch-circle--32"><img src="${C}icon-phone-20.svg" width="20" height="20" alt="" /></span>
           <span class="ch-contact-text"><span class="ch-contact-name">${c.name}</span><span class="ch-contact-desc">${c.desc}</span></span>
         </button>`).join("")}
@@ -367,7 +367,7 @@ document.getElementById("appNav").addEventListener("click", (e) => {
   const tab = e.target.closest("[data-tab]");
   if (tab?.dataset.tab === "carehub") { appStack = [{ key: "home", opts: {} }]; renderApp(); }
 });
-document.getElementById("appHelp").addEventListener("click", () => phone.classList.add("sheet-open"));
+document.getElementById("appHelp").addEventListener("click", () => openSheet("member"));
 /* ---------- In the app: pulse for getting back to the widget ----------
    The way back to the widget is the phone's swipe up from the bottom, outside the app. A tap that
    goes nowhere (a heading, empty space, a tab this prototype doesn't have, or the
@@ -405,7 +405,8 @@ appBody.addEventListener("click", (e) => {
   if (acc) { toggleAccordion(acc); return; }
   // Real app: deep link into the Nations Benefits Pro app, or its store listing if not installed
   if (e.target.closest("[data-benefits-pro]")) { toast("Opening Benefits Pro…"); return; }
-  if (e.target.closest("[data-call]")) { phone.classList.add("sheet-open"); return; }
+  const call = e.target.closest("[data-call]");
+  if (call) { openSheet(call.dataset.call); return; }
 });
 
 /* Purse page accordions: the screen stays put when a section closes.
@@ -920,14 +921,26 @@ androidToggle.addEventListener("change", () => setAndroidNotes(androidToggle.che
 setAndroidNotes((() => { try { return localStorage.getItem("molina-flexcard:android-notes") === "1"; } catch { return false; } })());
 
 /* ---------- Member Services: call sheet ---------- */
-const openSheet = () => phone.classList.add("sheet-open");
+// One modal, filled in for whichever line was tapped. Same layout for each (Figma 2086:4656).
+// PLACEHOLDER COPY for the Nurse Line: not yet confirmed with the client.
+const CALLS = {
+  member: { title: "Call Member Services", text: "Available 24/7. Average wait under 2 minutes.", calling: "Calling Member Services…" },
+  nurse: { title: "Call the 24/7 Nurse Line", text: "Talk to a registered nurse any time, day or night.", calling: "Calling the 24/7 Nurse Line…" },
+};
+let activeCall = CALLS.member;
+const openSheet = (kind = "member") => {
+  activeCall = CALLS[kind] || CALLS.member;
+  document.getElementById("sheetTitle").textContent = activeCall.title;
+  document.getElementById("sheetText").textContent = activeCall.text;
+  phone.classList.add("sheet-open");
+};
 const closeSheet = () => phone.classList.remove("sheet-open");
-callTile.addEventListener("click", openSheet);
+callTile.addEventListener("click", () => openSheet("member"));
 document.getElementById("scrim").addEventListener("click", closeSheet);
 document.getElementById("sheetCancel").addEventListener("click", closeSheet);
 document.getElementById("sheetCall").addEventListener("click", () => {
   closeSheet();
-  toast("Calling Member Services…");
+  toast(activeCall.calling);
 });
 
 /* ---------- Clock ----------

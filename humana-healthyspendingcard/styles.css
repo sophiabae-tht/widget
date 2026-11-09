@@ -1,7 +1,6 @@
 /* Design tokens pulled from Figma (v2/link, node 2644:14146) */
 :root {
   --font-body: "General Sans", system-ui, sans-serif;
-  --font-system: "Roboto", system-ui, sans-serif;
 
   --background-base: #f9f9fb;
   --text-weak: #565a86;
@@ -119,7 +118,7 @@ html, body { overflow: hidden; }
   transition: color 0.3s;
 }
 .status-time {
-  font-family: var(--font-system);
+  font-family: var(--font-body);
   font-weight: 500;
   font-size: 14px;
   line-height: 20px;
