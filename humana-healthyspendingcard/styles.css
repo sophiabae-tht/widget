@@ -973,7 +973,7 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 .ch-wallet-asof { margin-top: 2px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
 .ch-wallet-foot { padding: 12px 16px; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text-strong); }
 
-.ch-accordions { padding: 8px 16px 0; } /* spacer/8 under the balance card */
+.ch-accordions { padding: 8px 16px 40px; } /* spacer/8 under the balance card; room for the gesture area below */
 .ch-acc { border-top: 1px solid rgba(12, 15, 65, 0.1); }
 .ch-acc:first-child { border-top: 0; } /* divider only between sections */
 .ch-acc-head {
@@ -991,10 +991,6 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
   padding: 6px 12px; border-radius: 999px; background: var(--fill-brandweaker);
   font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-strong);
 }
-
-/* Benefits Pro link-out card (Care hub cardNavigationItem), with room for the gesture area below */
-.ch-purse-shop { padding-bottom: 40px; }
-.ch-purse-app { flex: none; display: block; width: 48px; height: 48px; border-radius: 12px; }
 
 /* Widget → Flex card: one-time "lives in Care hub" note */
 .app-screen--core .app-body > * { flex-shrink: 0; }

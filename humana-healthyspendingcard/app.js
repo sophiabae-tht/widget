@@ -100,8 +100,7 @@ const DESTINATIONS = {
   },
   // One purse (tap a purse on the Healthy Spending Card page). A sub-page, laid out like the app's other detail
   // pages (Figma drafts/v2 references): perksDetailExpanded for the header (minus the brand eyebrow) and accordions, the
-  // Thrive wallet's walletBalance card for the balance. No tab bar on sub-pages. Benefits Pro is
-  // the Care hub link-out card (cardNavigationItem with the external-link icon).
+  // Thrive wallet's walletBalance card for the balance. No tab bar on sub-pages.
   // The balance always reads "Available balance" with the time it was fetched, so it can't be
   // mistaken for the purse's total (Molina feedback, 11/6). Copy is placeholder; see NATIONS_PURSES.
   purse: {
@@ -131,16 +130,6 @@ const DESTINATIONS = {
       <div class="ch-accordions">
         ${accordion("How you get it", `<p class="ch-purse-copy">${p.earn}</p>`)}
         ${accordion("Where you can use it", `<ul class="ch-tags">${p.spend.map((s) => `<li>${s}</li>`).join("")}</ul>`)}
-      </div>
-      ${section("Shop with your card")}
-      <div class="ch-pad ch-purse-shop">
-        <button class="ch-nav-card" type="button" data-benefits-pro>
-          <span class="ch-nav-main">
-            <img class="ch-purse-app" src="${C}app-benefits-pro.webp" width="48" height="48" alt="" />
-            <span class="ch-nav-text"><span class="ch-nav-title">Benefits Pro</span><span class="ch-nav-body">Find eligible items and stores near you</span></span>
-            <img src="${C}icon-arrow-square-out.svg" width="20" height="20" alt="" />
-          </span>
-        </button>
       </div>`;
     },
   },
@@ -402,8 +391,6 @@ appBody.addEventListener("click", (e) => {
   }
   const acc = e.target.closest("[data-accordion]");
   if (acc) { toggleAccordion(acc); return; }
-  // Real app: deep link into the Nations Benefits Pro app, or its store listing if not installed
-  if (e.target.closest("[data-benefits-pro]")) { toast("Opening Benefits Pro…"); return; }
   const call = e.target.closest("[data-call]");
   if (call) { openSheet(call.dataset.call); return; }
 });
