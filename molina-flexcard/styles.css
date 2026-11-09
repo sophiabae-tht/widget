@@ -413,8 +413,12 @@ html, body { overflow: hidden; }
   transform: translate(-50%, -50%);
   transition: background-color 0.3s;
 }
-.phone.app-open .handle,
-.phone.sheet-open .handle { background: #0c0f41; }
+.phone.app-open .handle { background: #0c0f41; }
+/* Call modal open: the handle goes light, as if seen through the 50% overlay (Figma 911_10).
+   Home screen: white under the overlay = #8a8b9b. In the app the dimmed page behind is about
+   that same grey, so the handle stays a lighter #c3c3cc there to keep it visible. */
+.phone.sheet-open .handle { background: #8a8b9b; }
+.phone.app-open.sheet-open .handle { background: #c3c3cc; }
 
 /* ---------- Simulated app launch ---------- */
 .app-screen {
@@ -442,53 +446,46 @@ html, body { overflow: hidden; }
 .app-back img { display: block; }
 .app-title { font-weight: 600; font-size: 20px; line-height: 28px; color: #0c0f41; }
 .app-body { padding: 8px 16px; display: flex; flex-direction: column; gap: 12px; }
-.app-hero {
-  border-radius: 16px; padding: 16px;
-  background: linear-gradient(135deg, #4754eb, #2a33a8);
-  color: #fff;
-}
-.app-hero h3 { margin: 0 0 4px; font-size: 18px; font-weight: 600; }
-.app-hero p { font-size: 14px; line-height: 20px; opacity: 0.85; }
-.app-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 16px; border-radius: 12px;
-  background: #fff; border: 1px solid var(--stroke-brandweaker);
-  font-weight: 500; font-size: 15px; color: var(--text-weak);
-}
-.app-row span:last-child { color: var(--text-brand); font-weight: 600; }
 
-/* ---------- Bottom sheet ---------- */
+/* ---------- Call modal (Figma [SB] Assets 2086:4656, placement from 911_10 2086:4706) ----------
+   Floating card 16px from the phone's sides and 40px above its bottom edge, over the overlay.
+   16 radius, 8 inner padding + 16 per row. Slides up into place. */
 .scrim {
   position: absolute; inset: 0; z-index: 45;
-  background: rgba(12, 15, 65, 0.4);
+  background: rgba(21, 23, 56, 0.5); /* fill/overlayStrong */
   opacity: 0; pointer-events: none;
   transition: opacity 0.25s;
 }
 .sheet {
-  position: absolute; z-index: 50; left: 0; right: 0; bottom: 0;
-  padding: 12px 24px 40px;
-  border-radius: 28px 28px 0 0;
+  position: absolute; z-index: 50; left: 16px; right: 16px; bottom: 40px;
+  padding: 8px 8px 24px;
+  border-radius: 16px;
   background: #fff;
   text-align: center;
-  transform: translateY(100%);
-  transition: transform 0.4s var(--ease-emphasized);
+  opacity: 0; pointer-events: none;
+  transform: translateY(24px);
+  transition: opacity 0.2s, transform 0.3s var(--ease-emphasized);
 }
 .phone.sheet-open .scrim { opacity: 1; pointer-events: auto; }
-.phone.sheet-open .sheet { transform: none; }
-.sheet-handle { width: 32px; height: 4px; border-radius: 2px; background: rgba(12, 15, 65, 0.2); margin: 0 auto 20px; }
+.phone.sheet-open .sheet { opacity: 1; pointer-events: auto; transform: none; }
 .sheet-icon {
-  width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 24px;
+  width: 48px; height: 48px; margin: 16px auto 0; border-radius: 100px;
   display: flex; align-items: center; justify-content: center;
   background: var(--fill-brandweaker);
 }
-.sheet-title { font-size: 20px; line-height: 28px; font-weight: 600; color: #0c0f41; }
-.sheet-text { margin-top: 4px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
-.sheet-number { margin-top: 12px; font-size: 18px; font-weight: 600; color: var(--text-brand); letter-spacing: 0.3px; }
-.sheet-actions { display: flex; gap: 12px; margin-top: 24px; }
-.sheet-btn { flex: 1; height: 44px; border-radius: 22px; font-weight: 600; font-size: 16px; transition: transform 0.15s, background-color 0.2s; }
+.sheet-title { margin: 16px 16px 0; font-size: 20px; line-height: 28px; font-weight: 600; color: var(--text-strong); }
+.sheet-text { margin: 8px 16px 0; font-size: 16px; line-height: 24px; font-weight: 500; color: var(--text-weak); }
+.sheet-actions { display: flex; flex-direction: column; gap: 16px; padding: 16px 16px 0; }
+.sheet-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; min-height: 48px; padding: 12px 16px; border-radius: 12px;
+  font-weight: 600; font-size: 16px; line-height: 24px;
+  transition: transform 0.15s, background-color 0.2s;
+}
 .sheet-btn:active { transform: scale(0.97); }
-.sheet-btn--ghost { background: var(--fill-weaker); color: var(--text-weak); }
 .sheet-btn--primary { background: var(--text-brand); color: #fff; }
+.sheet-btn--outline { background: transparent; border: 1px solid var(--text-brand); color: var(--text-brand); }
+.sheet-caption { margin: 16px 16px 0; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
 
 /* ---------- Toast ---------- */
 .toast {
@@ -855,7 +852,6 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 .purse-name { flex: 1; font-weight: 500; font-size: 15px; color: var(--text-weak); }
 .purse-amount { font-weight: 600; font-size: 16px; color: var(--text-strong); font-variant-numeric: tabular-nums; }
 .app-foot { font-size: 12px; line-height: 16px; color: #8b8eb1; }
-button.app-row { width: 100%; text-align: left; cursor: pointer; }
 
 /* ---------- Core App Experience pages: Care hub (Figma 6283:1802) + Flex card (6287:23451) ---------- */
 .app-screen { display: flex; flex-direction: column; }

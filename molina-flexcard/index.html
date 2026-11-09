@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=104" />
+  <link rel="stylesheet" href="styles.css?v=108" />
 </head>
 <body>
   <main class="stage">
@@ -45,7 +45,7 @@
                   <div class="card-icon"><img src="assets/icon-hand-heart.svg" width="24" height="24" alt="" /></div>
                   <p class="card-body">Find out what your plan covers and how to make the most of it.</p>
                 </div>
-                <button class="btn-tonal" data-open="benefits" type="button">Explore your benefits</button>
+                <button class="btn-tonal" data-open="home" type="button">Explore your benefits</button>
               </div>
             </div>
 
@@ -105,7 +105,7 @@
         </div>
         <div class="app-bar">
           <button class="app-back" id="appBack" type="button" aria-label="Back"><img src="assets/carehub/icon-arrow-left.svg" width="24" height="24" alt="" /></button>
-          <span class="app-title" id="appTitle">Your benefits</span>
+          <span class="app-title" id="appTitle">Care hub</span>
           <button class="app-help" id="appHelp" type="button">Need help?</button>
         </div>
         <div class="app-body" id="appBody"></div>
@@ -119,16 +119,16 @@
 
       <!-- Call confirmation sheet -->
       <div class="scrim" id="scrim"></div>
-      <div class="sheet" id="callSheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
-        <div class="sheet-handle"></div>
-        <div class="sheet-icon"><img src="assets/icon-phone.svg" width="16" height="16" alt="" /></div>
-        <h2 class="sheet-title" id="sheetTitle">Call Member Services?</h2>
-        <p class="sheet-text">Available 24/7. Average wait under 2 minutes.</p>
-        <p class="sheet-number">1-800-555-0123</p>
+      <!-- Call modal (Figma [SB] Assets 2086:4656) -->
+      <div class="sheet" id="callSheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" aria-describedby="sheetText">
+        <div class="sheet-icon"><img src="assets/icon-phone.svg" width="24" height="24" alt="" /></div>
+        <h2 class="sheet-title" id="sheetTitle">Call Member Services</h2>
+        <p class="sheet-text" id="sheetText">Available 24/7. Average wait under 2 minutes.</p>
         <div class="sheet-actions">
-          <button class="sheet-btn sheet-btn--ghost" id="sheetCancel" type="button">Cancel</button>
-          <button class="sheet-btn sheet-btn--primary" id="sheetCall" type="button">Call</button>
+          <button class="sheet-btn sheet-btn--primary" id="sheetCall" type="button"><img src="assets/icon-phone-20-white.svg" width="20" height="20" alt="" />Call now</button>
+          <button class="sheet-btn sheet-btn--outline" id="sheetCancel" type="button">Not now</button>
         </div>
+        <p class="sheet-caption">Covered by Molina</p>
       </div>
 
       <div class="toast" id="toast" role="status"></div>
@@ -352,6 +352,6 @@
 
     </aside>
   </main>
-  <script src="app.js?v=101"></script>
+  <script src="app.js?v=110"></script>
 </body>
 </html>

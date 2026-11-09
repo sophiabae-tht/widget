@@ -78,15 +78,6 @@ const RESOURCE_SKELETONS = [
 ];
 
 const DESTINATIONS = {
-  benefits: {
-    title: "Your benefits",
-    html: () => `
-      <div class="app-hero"><h3>Make the most of your plan</h3><p>Here's what your Molina plan covers this year.</p></div>
-      <div class="app-row"><span>Dental cleanings</span><span>2 / year</span></div>
-      <div class="app-row"><span>Vision exam</span><span>Covered</span></div>
-      <div class="app-row"><span>Rides to appointments</span><span>24 left</span></div>
-      <div class="app-row"><span>Over-the-counter items</span><span>$50 / qtr</span></div>`,
-  },
   // Flex card (Figma 2737:10925): purse name + available balance only, named as on the Nations
   // portal. No "lives in Care hub" copy: it opens with Care hub underneath, which shows where it lives.
   flex: {
