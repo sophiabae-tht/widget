@@ -922,10 +922,10 @@ const androidToggle = document.getElementById("androidToggle");
 const setAndroidNotes = (on) => {
   androidToggle.checked = on;
   notes.classList.toggle("show-android", on);
-  try { localStorage.setItem("humana-flexcard:android-notes", on ? "1" : "0"); } catch {}
+  try { localStorage.setItem("humana-healthyspendingcard:android-notes", on ? "1" : "0"); } catch {}
 };
 androidToggle.addEventListener("change", () => setAndroidNotes(androidToggle.checked));
-setAndroidNotes((() => { try { return localStorage.getItem("humana-flexcard:android-notes") === "1"; } catch { return false; } })());
+setAndroidNotes((() => { try { return localStorage.getItem("humana-healthyspendingcard:android-notes") === "1"; } catch { return false; } })());
 
 /* ---------- Member Services: call sheet ---------- */
 const openSheet = () => phone.classList.add("sheet-open");
