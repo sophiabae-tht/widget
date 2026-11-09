@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Widget prototype · v2/link</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="styles.css?v=104" />
+</head>
+<body>
+  <main class="stage">
+    <!-- Android Large frame: 360 × 800 (Figma node 2644:14146) -->
+    <!-- .device reserves the phone's scaled size; the 360×800 frame inside is scaled to fit -->
+    <div class="device" id="device">
+    <div class="phone" id="phone">
+      <img class="wallpaper" src="assets/wallpaper.webp" alt="" />
+
+      <header class="status-bar">
+        <span class="status-time" id="clock">9:30</span>
+        <span class="status-icons">
+          <img src="assets/status-wifi.svg" width="17" height="17" alt="" class="si-wifi" />
+          <img src="assets/status-signal.svg" width="17" height="17" alt="" class="si-signal" />
+          <img src="assets/status-battery.svg" width="8" height="15" alt="" class="si-battery" />
+        </span>
+      </header>
+
+      <section class="widget-frame">
+        <div class="widget" id="widget">
+          <div class="gradient-bg" aria-hidden="true">
+            <div class="blob-blue"><img src="assets/gradient-blue.svg" width="1147" height="1147" alt="" /></div>
+          </div>
+
+          <div class="widget-top-bar">
+            <img src="assets/logo-humana.svg" width="78" height="20" alt="Humana" class="logo" />
+            <button class="link" data-open="home" type="button">See more</button>
+          </div>
+
+          <div class="chat-frame">
+            <div class="card-content">
+              <div class="card">
+                <div class="card-row">
+                  <div class="card-icon"><img src="assets/icon-hand-heart.svg" width="24" height="24" alt="" /></div>
+                  <p class="card-body">Find out what your plan covers and how to make the most of it.</p>
+                </div>
+                <button class="btn-tonal" data-open="benefits" type="button">Explore your benefits</button>
+              </div>
+            </div>
+
+            <div class="tile-row">
+              <!-- Healthy Spending Card purses (Figma 2663:16237, 2664:16248, 2664:16318).
+                   Each page is one widget collection item: label, icon and hint all live
+                   inside the item, the way they would in an AdapterViewFlipper / StackView. -->
+              <div class="tile tile--flex" id="flexTile" role="group" aria-roledescription="carousel" aria-label="Healthy Spending Card balances" tabindex="0">
+                <div class="pager" id="flexPager">
+                  <div class="pager-track" id="flexTrack"><!-- pages rendered by app.js --></div>
+                </div>
+              </div>
+
+              <!-- Widget 2: a plain link tile, no balances on the widget -->
+              <button class="tile" id="flexLinkTile" type="button" aria-label="View your Healthy Spending Card balance">
+                <span class="tile-text">
+                  <span class="tile-face link-copy--ticket">
+                    <span class="tile-line">Healthy</span>
+                    <span class="tile-line">Spending</span>
+                    <span class="tile-line">Card</span>
+                  </span>
+                </span>
+                <span class="tile-icon"><img src="assets/icon-cardholder.svg" width="16" height="16" alt="" /></span>
+              </button>
+
+              <button class="tile" id="callTile" type="button">
+                <span class="tile-text">
+                  <span class="tile-face">
+                    <span class="tile-line">Call</span>
+                    <span class="tile-line">Member</span>
+                    <span class="tile-line">Services</span>
+                  </span>
+                </span>
+                <span class="tile-icon"><img src="assets/icon-phone.svg" width="16" height="16" alt="" /></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="powered-frame">
+            <div class="powered-by">
+              <img src="assets/thrive-symbol.svg" width="22" height="22" alt="" class="thrive-symbol" />
+              <img src="assets/thrive-wordmark.svg" width="78.296" height="18.7072" alt="Powered by Thrive Mobile" class="thrive-wordmark" />
+            </div>
+            <div class="spacer-16"></div>
+          </div>
+        </div>
+      </section>
+
+
+      <div class="fill"></div>
+
+      <!-- Simulated app launch (opened from widget taps) -->
+      <div class="app-screen" id="appScreen" aria-hidden="true">
+        <div class="ch-bg" aria-hidden="true">
+          <div class="ch-blob ch-blob--green"><img src="assets/carehub/gradient-green.svg" alt="" /></div>
+          <div class="ch-blob ch-blob--blue"><img src="assets/carehub/gradient-blue.svg" alt="" /></div>
+        </div>
+        <div class="app-bar">
+          <button class="app-back" id="appBack" type="button" aria-label="Back"><img src="assets/carehub/icon-arrow-left.svg" width="24" height="24" alt="" /></button>
+          <span class="app-title" id="appTitle">Your benefits</span>
+          <button class="app-help" id="appHelp" type="button">Need help?</button>
+        </div>
+        <div class="app-body" id="appBody"></div>
+        <nav class="app-nav" id="appNav" aria-label="App">
+          <button type="button" data-tab="home"><img src="assets/carehub/nav-house.svg" width="24" height="24" alt="" /><span>Home</span></button>
+          <button type="button" data-tab="perks"><img src="assets/carehub/nav-tag.svg" width="24" height="24" alt="" /><span>Perks</span></button>
+          <button type="button" data-tab="carehub" class="is-active"><img src="assets/carehub/nav-bookmark.svg" width="24" height="24" alt="" /><span>Care hub</span></button>
+          <button type="button" data-tab="account"><img src="assets/carehub/nav-user.svg" width="24" height="24" alt="" /><span>Account</span></button>
+        </nav>
+      </div>
+
+      <!-- Call confirmation sheet -->
+      <div class="scrim" id="scrim"></div>
+      <div class="sheet" id="callSheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+        <div class="sheet-handle"></div>
+        <div class="sheet-icon"><img src="assets/icon-phone.svg" width="16" height="16" alt="" /></div>
+        <h2 class="sheet-title" id="sheetTitle">Call Member Services?</h2>
+        <p class="sheet-text">Available 24/7. Average wait under 2 minutes.</p>
+        <p class="sheet-number">1-800-555-0123</p>
+        <div class="sheet-actions">
+          <button class="sheet-btn sheet-btn--ghost" id="sheetCancel" type="button">Cancel</button>
+          <button class="sheet-btn sheet-btn--primary" id="sheetCall" type="button">Call</button>
+        </div>
+      </div>
+
+      <div class="toast" id="toast" role="status"></div>
+
+      <!-- In the app: pulses at the bottom edge, around the gesture handle, after a tap that goes nowhere -->
+      <div class="home-pulse" id="homePulse" aria-hidden="true"><i></i></div>
+
+      <footer class="gesture-bar" id="gestureBar" title="Tap to go home"><span class="handle"></span></footer>
+    </div>
+    </div>
+
+    <aside class="notes">
+      <div class="notes-intro">
+      <h1>Widget prototype</h1>
+      <p>Android Large 360×800</p>
+      <h2 class="notes-h2">Healthy Spending Card on the widget</h2>
+      <p class="notes-sub">Two widget directions, built only with what a real Android home-screen widget can do. Tap a Healthy Spending Card tile to see the full list, then Back to see where it lives in Care hub.</p>
+      <label class="android-toggle">
+        <input type="checkbox" id="androidToggle" role="switch" />
+        <span class="android-toggle-track" aria-hidden="true"></span>
+        <span>Show Android engineering notes</span>
+      </label>
+
+      <div class="widget-switch" id="widgetSwitch" role="radiogroup" aria-label="Widget">
+        <label><input type="radio" name="widget" value="1" checked /><span><b>Widget 1</b>Flippable</span></label>
+        <label><input type="radio" name="widget" value="2" /><span><b>Widget 2</b>Static, tap-only</span></label>
+      </div>
+      </div>
+
+      <section class="widget-section w1-only" aria-labelledby="w1Title">
+        <div class="widget-section-head">
+          <h2 class="widget-section-title" id="w1Title"><span class="widget-num">Widget 1</span>Flippable</h2>
+          <!-- Other Widget 1 looks live in ../molina-flexcard/archive/ -->
+          <div class="look-chips" id="lookControls" hidden><label><input type="radio" name="ctl" value="v4-right" checked /></label></div>
+        </div>
+        <div class="look-points" data-for="v4-right">
+          <ul class="widget-points">
+            <li>Each purse shows its amount and &ldquo;1 of 4&rdquo;, one purse at a time. No total. The &ldquo;1 of 4&rdquo; stays put while the purses slide; only the number changes.</li>
+            <li>Tapping the bottom half, with the &rsaquo; in the corner, goes to the next balance: it slides in from the right as the current one slides out to the left. Where the incoming text reaches the wallet icon or the &rsaquo;, it fades out instead of running under them. After the last purse it wraps to the first.</li>
+            <li>Tapping the top half opens the full list. The wallet icon in the top-right corner stays the same for every purse.</li>
+            <li>Purse names are the Nations portal names, shortened only where they don't fit two lines:
+              <ul>
+                <li><b>Health Screening</b> (2026 Health Screening Rewards)</li>
+                <li><b>OTC, Food &amp; Produce</b> (Over the Counter, Food &amp; Produce)</li>
+                <li><b>Post Discharge</b> (Post Discharge Incentives)</li>
+                <li><b>Health Risk Assessment</b> (Health Risk Assessment Rewards)</li>
+              </ul>
+            </li>
+          </ul>
+          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, horizontal slide: inAnimation and outAnimation are objectAnimator XMLs on translationX (in from the right, out to the left), set on the flipper in the widget layout. The fades by the icon and the &rsaquo; are ImageViews with radial gradient shape drawables (tile colour → transparent), placed outside the flipper, under the icon and the &rsaquo;. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Healthy Spending Card. Two views stacked in the tile: the top half carries the Care hub PendingIntent, the bottom half a fill-in intent → showNext(). "1 of 4" is a static TextView outside the flipper, updated with setTextViewText() in the same partiallyUpdateAppWidget() call as showNext(). The wallet icon is a static ImageView outside the flipper and never changes.</p>
+        </div>
+        <!-- Earlier Widget 1 iterations (labels, StackView, other animations and next controls).
+             Kept wired up so the defaults still apply; browse them at ../molina-flexcard/archive/. -->
+        <div class="archived-controls" hidden>
+
+      <fieldset class="hint-group" id="namesControls">
+        <legend>Purse labels on the widget</legend>
+        <label><input type="radio" name="names" value="short" checked />
+          <span class="opt">
+            <b class="opt-title">Short labels</b>
+            <span class="opt-android"><i>Android</i>Needs a short display name per purse from Humana / Nations, since the API names are long.</span>
+            <span class="opt-desc">The Nations portal names, trimmed only where they don't fit 2 lines: Health Screening, OTC, Food &amp; Produce, Post Discharge, Health Risk Assessment. No total.</span>
+          </span>
+        </label>
+        <label><input type="radio" name="names" value="portal" />
+          <span class="opt">
+            <b class="opt-title">Nations portal names</b>
+            <span class="opt-android"><i>Android</i>Names from the Nations API as-is, in a TextView with maxLines="2" and ellipsize="end".</span>
+            <span class="opt-desc">The same 4 purses and names as the Healthy Spending Card page. At this tile width most names get cut off.</span>
+          </span>
+        </label>
+      </fieldset>
+
+      <fieldset class="hint-group" id="modeControls">
+        <legend>Built with</legend>
+        <label><input type="radio" name="mode" value="flipper" checked />
+          <span class="opt">
+            <b class="opt-title">AdapterViewFlipper <span class="opt-tag">default</span></b>
+            <span class="opt-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService. Next tap → setOnClickFillInIntent → broadcast → showNext(). Card tap → opens Healthy Spending Card balances in Care hub.</span>
+            <span class="opt-desc">One purse at a time. A small control moves to the next purse; tapping anywhere else on the card opens the full list. Swiping isn't possible.</span>
+          </span>
+        </label>
+        <div class="sub-options" id="flipOptions">
+          <span class="sub-label">Flipper animation</span>
+          <label><input type="radio" name="flip" value="slide" checked />
+            <span class="opt">
+              <b class="opt-title">Vertical slide</b>
+              <span class="opt-android"><i>Android</i>inAnimation: translationY 88dp → 0 · outAnimation: translationY 0 → −88dp · 450ms</span>
+              <span class="opt-desc">The purse slides up and out, and the next one slides in from below.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="flip" value="fade" />
+            <span class="opt">
+              <b class="opt-title">Crossfade</b>
+              <span class="opt-android"><i>Android</i>inAnimation: alpha 0 → 1 · outAnimation: alpha 1 → 0 · 350ms</span>
+              <span class="opt-desc">The old purse fades out while the next fades in, with no movement.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="flip" value="pop" />
+            <span class="opt">
+              <b class="opt-title">Pop / zoom</b>
+              <span class="opt-android"><i>Android</i>out: scaleX/Y 1 → 0.8 + alpha 1 → 0 (180ms) · in: scaleX/Y 0.8 → 1 + alpha 0 → 1 (340ms, startOffset 120ms, overshoot interpolator)</span>
+              <span class="opt-desc">The old purse shrinks away and the next grows in with a small bounce.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="flip" value="prism" />
+            <span class="opt">
+              <b class="opt-title">Prism revolve</b>
+              <span class="opt-android"><i>Android</i>out: pivotY bottom, rotationX 0 → 120 · in: pivotY top, rotationX −120 → 0, plus translationY/scale keyframes to fake depth (widgets have no z). Tap zones: 3 views per item (top / bottom / icon), each with its own fill-in intent. Approximate. Going back needs a second, reversed flipper.</span>
+              <span class="opt-desc">The purses are the faces of a turning prism joined at their top and bottom edges (3 purses make a triangle, 4 a square). Tap the top half to go back, the bottom half (or the dots) to go forward, or the purse icon to open the app.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="flip" value="rise" />
+            <span class="opt">
+              <b class="opt-title">Combo · Rise + fade</b>
+              <span class="opt-android"><i>Android</i>in: translationY 12dp → 0 + alpha 0 → 1 (startOffset 80ms) · out: translationY 0 → −12dp + alpha 1 → 0 · ~320ms</span>
+              <span class="opt-desc">A short lift while fading. A subtler slide.</span>
+            </span>
+          </label>
+        </div>
+        <div class="sub-options" id="ctlOptions">
+          <span class="sub-label">Next control <em id="ctlNote"></em></span>
+          <label><input type="radio" name="ctl" value="caption" />
+            <span class="opt">
+              <b class="opt-title">Count under the icon</b>
+              <span class="opt-android"><i>Android</i>A TextView under the purse icon inside each flipper item, set in getViewAt(position) ("2 of 3"), so it always matches the purse shown. android:autoStart="true" + flipInterval="5000". The whole item keeps one fill-in intent that opens Care hub › Healthy Spending Card.</span>
+              <span class="opt-desc">No next control: "1 of 4" under the purse icon says how many balances there are. Purses change every 5 seconds and a tap opens the full list, so the tile has one action. Members can't pause the rotation on a widget, so keep the interval generous.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="rail" />
+            <span class="opt">
+              <b class="opt-title">Side rail</b>
+              <span class="opt-android"><i>Android</i>Horizontal LinearLayout: the flipper + a static ImageButton/TextView strip outside it. Strip tap → broadcast → partiallyUpdateAppWidget() with showNext(flipperId) + setTextViewText(counter). Expect a short lag (~100–300ms). The counter lives outside the flipper and can't follow its own auto-advance, so auto-advance is off with the rail.</span>
+              <span class="opt-desc">A full-height strip on the right edge, styled as a Design Library tertiary icon button (no fill, divider line, 20px brand arrow, count in Tiny/Bold), is the only "next" target, so the rest of the card clearly opens the list. Its ↓ means "next"; the › after the name means "open the list". No room for the purse icon at this tile width.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="chip" />
+            <span class="opt">
+              <b class="opt-title">Counter chip</b>
+              <span class="opt-android"><i>Android</i>TextView + ImageView on a rounded background inside each item. getViewAt(position) sets its text ("2/3"), so it stays right after auto-advance. Same fill-in intent as the dots.</span>
+              <span class="opt-desc">A Design Library chip (label only) with "1/4" in the bottom-right corner. It looks tappable and says how many balances there are. The full chip with a caret icon doesn't fit next to the amount.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="button" />
+            <span class="opt">
+              <b class="opt-title">Arrow button</b>
+              <span class="opt-android"><i>Android</i>ImageButton with a filled circle background inside each item. Same fill-in intent as the dots.</span>
+              <span class="opt-desc">Design Library buttonIcon (Primary · Brand · Small, 32px) with a down arrow, under the purse icon. Clearly tappable, but it doesn't say how many balances there are.</span>
+            </span>
+          </label>
+          <label><input type="radio" name="ctl" value="dots" />
+            <span class="opt">
+              <b class="opt-title">Page dots <span class="opt-tag opt-tag--muted">previous</span></b>
+              <span class="opt-android"><i>Android</i>One ImageView per purse inside each item, highlighted in getViewAt(position). Same fill-in intent.</span>
+              <span class="opt-desc">Dots under the purse icon. Compact, but members may not know to tap them.</span>
+            </span>
+          </label>
+        </div>
+        <label><input type="radio" name="mode" value="stack" />
+          <span class="opt">
+            <b class="opt-title">StackView</b>
+            <span class="opt-android"><i>Android</i>&lt;StackView&gt; fed by a RemoteViewsService. The launcher handles the swipe and plays the built-in deck animation, which can't be customized. Card tap → setOnClickFillInIntent → opens the app.</span>
+            <span class="opt-desc">Purses are a real deck of cards. Swipe up and the top card flies off while the next one moves forward. Swipe down to bring it back. There's no arrow, because the swipe is the gesture.</span>
+          </span>
+        </label>
+      </fieldset>
+
+      <fieldset class="hint-group" id="hintControls">
+        <legend>Hints</legend>
+        <label><input type="checkbox" data-hint="cue" checked />
+          <span class="opt">
+            <b class="opt-title">"Opens" cue</b>
+            <span class="opt-android"><i>Android</i>An ImageView (›) after the label TextView inside each item. The item's own fill-in intent still opens Care hub.</span>
+            <span class="opt-desc">A › after the purse name, like a list row, so tapping the card reads as "open the full list". The side rail uses a down arrow (move) rather than a chevron, so the two don't read as the same thing.</span>
+          </span>
+        </label>
+        <label><input type="checkbox" data-hint="dots" />
+          <span class="opt">
+            <b class="opt-title">Page dots (StackView) <em id="dotsNote"></em></b>
+            <span class="opt-android"><i>Android</i>One ImageView per purse inside each item layout. getViewAt(position) highlights that item's own dot, so they stay correct after a swipe or auto-advance.</span>
+            <span class="opt-desc">Replaces the arrow and shows how many purses there are and which one is showing.</span>
+          </span>
+        </label>
+        <label><input type="checkbox" data-hint="auto" />
+          <span class="opt">
+            <b class="opt-title">Auto-advance <em id="autoNote"></em></b>
+            <span class="opt-android"><i>Android</i>Flipper: android:autoStart="true" + android:flipInterval="5000", and stopFlipping() after the first tap. StackView: android:autoAdvanceViewId in the appwidget-provider XML, with the launcher choosing the interval.</span>
+            <span class="opt-desc">Cycles through the purses until the member interacts.</span>
+          </span>
+        </label>
+      </fieldset>
+
+      <div class="notes-actions">
+        <button class="reset reset--primary" id="hintRecommended" type="button">Try recommended</button>
+        <button class="reset" id="hintFigma" type="button">Previous version (dots)</button>
+      </div>
+        </div>
+      </section>
+
+      <section class="widget-section w2-only" aria-labelledby="w2Title">
+        <h2 class="widget-section-title" id="w2Title"><span class="widget-num">Widget 2</span>Static, tap-only</h2>
+        <ul class="widget-points">
+          <li>Back-pocket option if Humana doesn't want balances on the widget.</li>
+          <li>No flipping and no amounts: one tile, "Healthy Spending Card" (the full name, one word per line, so it fits the tile).</li>
+          <li>A tap opens the Healthy Spending Card page in Care hub.</li>
+        </ul>
+        <p class="notes-android"><i>Android</i>A plain tile (TextView + ImageView) with setOnClickPendingIntent → deep link to Care hub › Healthy Spending Card. No collection widget and no balance data on the widget.</p>
+        <input type="radio" name="answer" value="no" checked hidden />
+      </section>
+
+
+      <details class="notes-cut">
+        <summary>Dropped: not possible on Android widgets</summary>
+        <p><b>Content peek</b>: widgets have no fade masks or snap-scrolling, so the half-visible next page would land at random scroll positions.</p>
+        <p><b>Nudge animation</b>: widgets can't run custom animations. Auto-advance is the closest supported way to show motion.</p>
+      </details>
+
+    </aside>
+  </main>
+  <script src="app.js?v=102"></script>
+</body>
+</html>
