@@ -67,7 +67,7 @@ const CONTACTS = [
 ];
 const APPS = [
   { name: "MyHumana", desc: "See your ID card, benefits, and doctors near you", img: "app-myhumana.png" },
-  { name: "CVS Caremark", desc: "Access prescriptions, compare prices, find pharmacies in one app", img: "app-cvs.webp" },
+  { name: "CenterWell Pharmacy", desc: "Refill prescriptions, get them delivered, and track your orders", img: "app-centerwell.png" },
 ];
 // Resources: skeleton rows until Humana's real resource list is decided.
 // Each entry = widths of the title bar and the description lines.
