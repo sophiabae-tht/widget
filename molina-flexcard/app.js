@@ -14,12 +14,46 @@ const toastEl = document.getElementById("toast");
 // short: the portal name, trimmed only where it doesn't fit the widget tile's 2-line label
 // (16px semibold, 116px wide with the link-out icon beside line 1). Same words and casing as the portal.
 const C = "assets/carehub/";
+// Purse detail page (tap a purse on the Flex card page): when the balance resets or expires, how
+// it's earned, and where it can be spent.
+// PLACEHOLDER COPY: drafted for the 11/10 demo, not confirmed with Molina or Nations. Swap in the
+// real wording from Sam / the client before this goes further.
+//   expires: the line next to the balance. earn: "How you get it". spend: "Where you can use it" tags.
 const NATIONS_PURSES = [
-  { name: "2026 Health Screening Rewards",    short: ["Health", "Screening"],      amount: "$375.00", icon: "icon-heartbeat.svg", icon16: "icon-gift-16.svg" },
-  { name: "Over the Counter, Food & Produce", short: ["OTC, Food", "& Produce"],    amount: "$143.00", icon: "icon-basket.svg", icon16: "icon-basket-16.svg" },
-  { name: "Post Discharge Incentives",        short: ["Post", "Discharge"],         amount: "$50.00",  icon: "icon-hospital.svg", icon16: "icon-hospital-16.svg" },
-  { name: "Health Risk Assessment Rewards",   short: ["Health Risk", "Assessment"], amount: "$25.00",  icon: "icon-clipboard-text.svg" , icon16: "icon-clipboard-text-16.svg" },
+  {
+    name: "2026 Health Screening Rewards", short: ["Health", "Screening"], amount: "$375.00",
+    icon: "icon-heartbeat.svg", icon16: "icon-gift-16.svg",
+    expires: "Expires Dec 31, 2026",
+    earn: "Added after you complete a preventive screening, like a mammogram, colon cancer screening, or diabetic eye exam. It can take up to 60 days after your visit to show up.",
+    spend: ["Groceries", "Over-the-counter items", "Personal care", "Household essentials"],
+  },
+  {
+    name: "Over the Counter, Food & Produce", short: ["OTC, Food", "& Produce"], amount: "$143.00",
+    icon: "icon-basket.svg", icon16: "icon-basket-16.svg",
+    expires: "Expires Dec 31, 2026",
+    earn: "Part of your plan. It's added to your card at the start of every quarter, and anything you don't use doesn't carry over.",
+    spend: ["Fresh produce", "Healthy food", "Over-the-counter medicine", "Vitamins", "First aid"],
+  },
+  {
+    name: "Post Discharge Incentives", short: ["Post", "Discharge"], amount: "$50.00",
+    icon: "icon-hospital.svg", icon16: "icon-hospital-16.svg",
+    expires: "Expires Dec 31, 2026",
+    earn: "Added when you see your doctor for a follow-up visit within 7 days of leaving the hospital.",
+    spend: ["Groceries", "Over-the-counter items", "Rides to appointments"],
+  },
+  {
+    name: "Health Risk Assessment Rewards", short: ["Health Risk", "Assessment"], amount: "$25.00",
+    icon: "icon-clipboard-text.svg", icon16: "icon-clipboard-text-16.svg",
+    expires: "Expires Dec 31, 2026",
+    earn: "Added when you complete your yearly Health Risk Assessment, a short survey about your health.",
+    spend: ["Groceries", "Over-the-counter items", "Personal care"],
+  },
 ];
+// Times follow the viewer's real clock. "Last updated" / "As of" is when the page was opened (when
+// the app would fetch the balances), stamped at render: "3:42 PM". The balance's as-of carries the
+// date too (Sam, 11/6): "As of Nov 10, 3:42 PM". The status bar ticks separately (see Clock below).
+const timeNow = () => new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+const balanceAsOf = () => `As of ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}, ${timeNow()}`;
 
 const pageHeader = (title, body) => `
   <div class="ch-page-header"><h2 class="ch-h2">${title}</h2><p class="ch-body">${body}</p></div>`;
@@ -60,16 +94,63 @@ const DESTINATIONS = {
     core: true,
     html: () => `
       ${pageHeader("Flex card", "View your available balance for each benefit.")}
-      ${NATIONS_PURSES.map((p) => `
-      <div class="ch-pad"><div class="ch-perk">
+      ${NATIONS_PURSES.map((p, i) => `
+      <div class="ch-pad"><button class="ch-perk" type="button" data-goto="purse" data-purse="${i}">
         <span class="ch-circle ch-circle--32"><img src="${C}${p.icon}" width="20" height="20" alt="" /></span>
-        <div class="ch-perk-text">
-          <p class="ch-perk-name">${p.name}</p>
-          <p class="ch-perk-amount">${p.amount}</p>
-          <p class="ch-perk-label">Available balance</p>
+        <span class="ch-perk-text">
+          <span class="ch-perk-name">${p.name}</span>
+          <span class="ch-perk-amount">${p.amount}</span>
+          <span class="ch-perk-label">Available balance</span>
+        </span>
+        <img class="ch-perk-caret" src="${C}icon-caret-right-20.svg" width="20" height="20" alt="" />
+      </button></div>`).join("")}
+      <p class="ch-updated">Last updated today, ${timeNow()}</p>`,
+  },
+  // One purse (tap a purse on the Flex card page). A sub-page, laid out like the app's other detail
+  // pages (Figma drafts/v2 references): perksDetailExpanded for the header (minus the brand eyebrow) and accordions, the
+  // Thrive wallet's walletBalance card for the balance. No tab bar on sub-pages. Benefits Pro is
+  // the Care hub link-out card (cardNavigationItem with the external-link icon).
+  // The balance always reads "Available balance" with the time it was fetched, so it can't be
+  // mistaken for the purse's total (Molina feedback, 11/6). Copy is placeholder; see NATIONS_PURSES.
+  purse: {
+    title: "Flex card",
+    core: true,
+    sub: true,
+    html: ({ purse = 0 } = {}) => {
+      const p = NATIONS_PURSES[purse] || NATIONS_PURSES[0];
+      const accordion = (title, body) => `
+        <div class="ch-acc">
+          <button class="ch-acc-head" type="button" aria-expanded="true" data-accordion>
+            <span>${title}</span><img src="${C}icon-caret-up-20.svg" width="20" height="20" alt="" />
+          </button>
+          <div class="ch-acc-body">${body}</div>
+        </div>`;
+      return `
+      <div class="ch-purse-logo"><span class="ch-circle ch-circle--64"><img src="${C}${p.icon}" width="32" height="32" alt="" /></span></div>
+      <h2 class="ch-h3 ch-purse-title">${p.name}</h2>
+      <div class="ch-pad"><div class="ch-wallet">
+        <div class="ch-wallet-top">
+          <p class="ch-eyebrow">Available balance</p>
+          <p class="ch-wallet-amount">${p.amount}</p>
+          <p class="ch-wallet-asof">${balanceAsOf()}</p>
         </div>
-      </div></div>`).join("")}
-      <p class="ch-updated">Last updated today, 9:30 AM</p>`,
+        <p class="ch-wallet-foot">${p.expires}</p>
+      </div></div>
+      <div class="ch-accordions">
+        ${accordion("How you get it", `<p class="ch-purse-copy">${p.earn}</p>`)}
+        ${accordion("Where you can use it", `<ul class="ch-tags">${p.spend.map((s) => `<li>${s}</li>`).join("")}</ul>`)}
+      </div>
+      ${section("Shop with your card")}
+      <div class="ch-pad ch-purse-shop">
+        <button class="ch-nav-card" type="button" data-benefits-pro>
+          <span class="ch-nav-main">
+            <img class="ch-purse-app" src="${C}app-benefits-pro.webp" width="48" height="48" alt="" />
+            <span class="ch-nav-text"><span class="ch-nav-title">Benefits Pro</span><span class="ch-nav-body">Find eligible items and stores near you</span></span>
+            <img src="${C}icon-arrow-square-out.svg" width="20" height="20" alt="" />
+          </span>
+        </button>
+      </div>`;
+    },
   },
   // Care hub (Figma 6283:1802): tab root, so no back arrow
   home: {
@@ -90,7 +171,7 @@ const DESTINATIONS = {
             <span class="ch-nav-text"><span class="ch-nav-title">Flex card</span><span class="ch-nav-body">Check your card’s balances</span></span>
             <img src="${C}icon-caret-right-20.svg" width="20" height="20" alt="" />
           </span>
-          <span class="ch-nav-foot">Last updated at 9:30 AM</span>
+          <span class="ch-nav-foot">Last updated at ${timeNow()}</span>
         </button>
       </div>
       <div class="ch-spacer"></div>
@@ -252,6 +333,7 @@ function renderApp() {
   const dest = DESTINATIONS[key];
   appTitle.textContent = dest.title;
   appScreen.classList.toggle("app-screen--core", !!dest.core);
+  appScreen.classList.toggle("app-screen--sub", !!dest.sub); // sub-page: no tab bar
   appBack.hidden = !!dest.root && appStack.length === 1;
   appBody.innerHTML = dest.html(opts);
   appBody.scrollTop = 0;
@@ -297,7 +379,7 @@ document.getElementById("appNav").addEventListener("click", (e) => {
 document.getElementById("appHelp").addEventListener("click", () => phone.classList.add("sheet-open"));
 /* ---------- In the app: pulse for getting back to the widget ----------
    The way back to the widget is the phone's swipe up from the bottom, outside the app. A tap that
-   goes nowhere (a balance row, a heading, empty space, a tab this prototype doesn't have, or the
+   goes nowhere (a heading, empty space, a tab this prototype doesn't have, or the
    app's own Home tab) suggests the member is looking for a way out, so the bottom edge pulses
    around the gesture handle. Each wrong tap replays it; any tap that does something stops it.
    Android: taps no view handles reach the root view (onTouchEvent on the root layout, or
@@ -321,9 +403,54 @@ appScreen.addEventListener("click", (e) => {
 });
 appBody.addEventListener("click", (e) => {
   const link = e.target.closest("[data-goto]");
-  if (link) { appStack.push({ key: link.dataset.goto, opts: { source: "carehub" } }); renderApp(); return; }
+  if (link) {
+    const opts = { source: "carehub" };
+    if (link.dataset.purse) opts.purse = Number(link.dataset.purse);
+    appStack.push({ key: link.dataset.goto, opts });
+    renderApp();
+    return;
+  }
+  const acc = e.target.closest("[data-accordion]");
+  if (acc) { toggleAccordion(acc); return; }
+  // Real app: deep link into the Nations Benefits Pro app, or its store listing if not installed
+  if (e.target.closest("[data-benefits-pro]")) { toast("Opening Benefits Pro…"); return; }
   if (e.target.closest("[data-call]")) { phone.classList.add("sheet-open"); return; }
 });
+
+/* Purse page accordions: the screen stays put when a section closes.
+   Closing a section near the bottom makes the page shorter, and the browser would pull the scroll
+   position up (everything jumps). Instead, the space the section gave up is held as an empty
+   filler at the end of the page, so the tapped header stays exactly where it was, and the filler
+   shrinks away as the member scrolls back up (nothing moves while it does).
+   Android: the same in a NestedScrollView/LazyColumn: keep the scroll offset and pad the bottom
+   by the collapsed height, or animate the collapse and let content above stay anchored. */
+function scrollHold() {
+  let hold = appBody.querySelector(":scope > .scroll-hold");
+  if (!hold) {
+    hold = document.createElement("div");
+    hold.className = "scroll-hold";
+    hold.setAttribute("aria-hidden", "true");
+    appBody.appendChild(hold);
+  }
+  return hold;
+}
+// Filler needed so the current scroll position still fits: whatever is on screen below the content
+function fitHold(scrollTop) {
+  const hold = scrollHold();
+  const content = appBody.scrollHeight - hold.offsetHeight;
+  hold.style.height = `${Math.max(0, scrollTop + appBody.clientHeight - content)}px`;
+}
+function toggleAccordion(head) {
+  const scrollTop = appBody.scrollTop;
+  head.setAttribute("aria-expanded", String(head.getAttribute("aria-expanded") !== "true"));
+  fitHold(scrollTop);
+  appBody.scrollTop = scrollTop;
+}
+// Scrolling back up uses up the filler; it never grows here, so the page doesn't shift
+appBody.addEventListener("scroll", () => {
+  const hold = appBody.querySelector(":scope > .scroll-hold");
+  if (hold && hold.offsetHeight) fitHold(appBody.scrollTop);
+}, { passive: true });
 
 /* ---------- Flex Card purses ----------
    Content + icons from Figma 2663:16237 / 2664:16248 / 2664:16318.
@@ -811,6 +938,13 @@ document.getElementById("sheetCall").addEventListener("click", () => {
   closeSheet();
   toast("Calling Member Services…");
 });
+
+/* ---------- Clock ----------
+   Status bar shows the real time, Android style (12-hour, no AM/PM: "3:42"), and keeps ticking. */
+const clockEl = document.getElementById("clock");
+function tickClock() { clockEl.textContent = timeNow().replace(/\s?[AP]M$/, ""); }
+tickClock();
+setInterval(tickClock, 5000);
 
 /* ---------- Toast ---------- */
 let toastTimer = null;

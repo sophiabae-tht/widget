@@ -614,6 +614,9 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
   100% { box-shadow: 0 0 16px 6px rgba(71, 84, 235, 0); background-color: transparent; }
 }
 .phone img { -webkit-user-drag: none; }
+/* Phone screens scroll like a phone: no desktop scrollbars anywhere inside the mock */
+.phone, .phone * { scrollbar-width: none; }
+.phone ::-webkit-scrollbar { display: none; }
 
 /* --- Flipper + prism revolve ----------------------------------------------
    The tile is a prism: each purse card is one face, rotated (i × 360/N)° around the
@@ -944,13 +947,60 @@ button.app-row { width: 100%; text-align: left; cursor: pointer; }
 .skel--icon { flex: none; width: 20px; height: 20px; border-radius: 6px; margin-top: 2px; }
 
 /* Flex card purses (cardPerk) */
-.ch-perk { display: flex; align-items: flex-start; }
+.ch-perk { display: flex; align-items: flex-start; width: 100%; text-align: left; transition: box-shadow 0.15s, transform 0.15s var(--ease-standard); }
+.ch-perk:active, .ch-nav-card:active { transform: scale(0.98); }
 .ch-perk > .ch-circle { margin: 16px 0 0 16px; }
 .ch-perk-text { flex: 1; min-width: 0; padding: 16px; }
+.ch-perk-text > span { display: block; }
+.ch-perk-caret { flex: none; align-self: center; margin-right: 12px; }
+/* With the caret, long portal names wrap to a second line instead of being cut off */
+.ch-perk:has(.ch-perk-caret) .ch-perk-text { padding-right: 8px; }
+.ch-perk:has(.ch-perk-caret) .ch-perk-name { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .ch-perk-name { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text-weak); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ch-perk-amount { margin-top: 4px; font-size: 24px; line-height: 32px; font-weight: 700; color: var(--text-strong); font-variant-numeric: tabular-nums; }
 .ch-perk-label { margin-top: 4px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
 .ch-updated { padding: 16px 16px 0; font-size: 14px; line-height: 20px; font-weight: 500; color: #696d9b; }
+
+/* One purse: a sub-page laid out like the app's detail pages (Figma drafts/v2 references).
+   perksDetailExpanded: logo, uppercase eyebrow, title, accordions, pinned primary button.
+   Thrive wallet (walletBalance): tinted balance card, light top band, foot strip. */
+.app-screen--sub .app-nav { display: none; }
+.app-screen--core.app-screen--sub .app-body { padding-bottom: 0; }
+.ch-purse-logo { padding: 16px 16px 0; }
+.ch-circle--64 { width: 64px; height: 64px; }
+.ch-eyebrow { font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; color: var(--text-weak); }
+.ch-h3 { margin: 0; font-size: 24px; line-height: 32px; font-weight: 600; color: var(--text-strong); }
+.ch-purse-title { padding: 16px 16px 8px; } /* + spacer/8 under the title (Figma) */
+
+.ch-wallet { border: 1px solid rgba(71, 84, 235, 0.2); border-radius: 16px; background: var(--fill-brandweaker); overflow: hidden; }
+.ch-wallet-top { padding: 16px; background: var(--fill-inversemidweak); }
+.ch-wallet-top .ch-eyebrow { color: #696d9b; }
+.ch-wallet-amount { margin-top: 8px; font-size: 24px; line-height: 32px; font-weight: 600; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+.ch-wallet-asof { margin-top: 2px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
+.ch-wallet-foot { padding: 12px 16px; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text-strong); }
+
+.ch-accordions { padding: 8px 16px 0; } /* spacer/8 under the balance card */
+.ch-acc { border-top: 1px solid rgba(12, 15, 65, 0.1); }
+.ch-acc:first-child { border-top: 0; } /* divider only between sections */
+.ch-acc-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; padding: 24px 0 8px;
+  text-align: left; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text-strong);
+}
+.ch-acc-head img { flex: none; transition: transform 0.2s var(--ease-standard); }
+.ch-acc-head[aria-expanded="false"] img { transform: rotate(180deg); }
+.ch-acc-head[aria-expanded="false"] { padding-bottom: 24px; } /* closed: even space above and below the title */
+.ch-acc-head[aria-expanded="false"] + .ch-acc-body { display: none; }
+.ch-acc-body { padding: 16px 0 24px; }
+.ch-purse-copy { margin: 0; font-size: 16px; line-height: 24px; font-weight: 500; color: var(--text-weak); }
+.ch-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.ch-tags li {
+  padding: 6px 12px; border-radius: 999px; background: var(--fill-brandweaker);
+  font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-strong);
+}
+
+/* Benefits Pro link-out card (Care hub cardNavigationItem), with room for the gesture area below */
+.ch-purse-shop { padding-bottom: 40px; }
+.ch-purse-app { flex: none; display: block; width: 48px; height: 48px; border-radius: 12px; }
 
 /* Widget → Flex card: one-time "lives in Care hub" note */
 .app-screen--core .app-body > * { flex-shrink: 0; }
