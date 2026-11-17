@@ -1000,24 +1000,125 @@ function goHome() {
   closeApp();
 }
 document.getElementById("gestureBar").addEventListener("click", goHome);
-// Swiping up from the gesture bar does the same, as on Android. The pointer is captured, so the swipe can
-// leave the 24px bar; the click that follows a swipe is swallowed (it already went home).
+/* Swipe up on the gesture bar: tht-demo-studio's (navigator/voice: src/shell/GestureBar.tsx, and App's
+   'home' transition, src/flow/motion.ts T_HOME / HOME_EXIT), as Android does it. The open screen (the app,
+   the dialer) follows the finger: rising, shrinking, its corners rounding, the home screen showing behind
+   it. Let go far enough up, or flick, and it flies off up and away (shrinking to half, fading) as the home
+   screen settles in from a slight zoom; short of that it springs back. On the home screen a swipe up goes
+   home as a tap does. A tap still goes home (the click above); the click after a swipe is swallowed.
+   Mobile view on a real phone: a swipe that starts just above the bar is caught too (useCatchAbove). */
 {
+  const SWIPE_PX = 28;       // screen px up, when let go, that goes home
+  const FLICK_PX = 12;       // a quick flick counts sooner: this far up…
+  const FLICK_SPEED = 0.35;  // …moving at least this fast (px/ms) when let go
+  const TAP_PX = 6;          // under this it was a tap
+  const FULL_PX = 400;       // how far up (phone px) the screen shrinks as far as it does while following
+  const CATCH_ABOVE_PX = 28; // mobile view: a swipe starting this far (phone px) above the bar is caught
+  const CATCH_SLOP_PX = 8;   // …once it has moved this far (screen px) up, mostly upward
+  const HOME_EASE = "cubic-bezier(0.2, 0, 0, 1)";
+  const HOME_MS = 350;
   const bar = document.getElementById("gestureBar");
-  let start = null;
-  let swiped = false;
-  bar.addEventListener("pointerdown", (e) => {
-    start = { y: e.clientY, id: e.pointerId };
-    bar.setPointerCapture?.(e.pointerId);
+  const dialerLayer = document.getElementById("dialer");
+  const openLayers = () => [
+    phone.classList.contains("app-open") && appScreen,
+    dialerLayer && phone.classList.contains("dialer-open") && dialerLayer,
+  ].filter(Boolean);
+  const phonePx = () => phone.offsetWidth / phone.getBoundingClientRect().width || 1; // screen px → phone px
+  const PROPS = ["transformOrigin", "translate", "scale", "clipPath", "transition"];
+  const clear = (el) => PROPS.forEach((k) => (el.style[k] = ""));
+  let drag = null; // { id, y, dy, t, speed, layers }
+  let swallowClick = false;
+
+  function follow(layers, dy) {
+    const d = Math.max(0, dy) * phonePx();
+    const p = Math.min(1, d / FULL_PX);
+    layers.forEach((el) => {
+      el.style.transition = "none";
+      el.style.transformOrigin = "50% 50%";
+      el.style.translate = `0 ${-d * 0.6}px`;
+      el.style.scale = String(1 - p * 0.3);
+      el.style.clipPath = `inset(0 round ${Math.max(screenRadius(), p * 32)}px)`;
+    });
+  }
+  function springBack(layers) {
+    layers.forEach((el) => {
+      el.style.transition = `translate 200ms ${HOME_EASE}, scale 200ms ${HOME_EASE}, clip-path 200ms ${HOME_EASE}`;
+      el.style.translate = el.style.scale = el.style.clipPath = "";
+      setTimeout(() => { if (!drag) clear(el); }, 220);
+    });
+  }
+  function flyHome(layers) {
+    const ms = reduceMotion.matches ? 1 : HOME_MS;
+    const anims = layers.map((el) => el.animate([
+      { translate: el.style.translate || "0 0", scale: el.style.scale || "1", opacity: 1, clipPath: el.style.clipPath || `inset(0 round ${screenRadius()}px)` },
+      { translate: "0 -30%", scale: "0.5", opacity: 0, clipPath: "inset(0 round 32px)" },
+    ], { duration: ms, easing: HOME_EASE, fill: "forwards" }));
+    // The home screen settles in from a slight zoom underneath
+    homeLayers().forEach((el) => el.animate([{ scale: "1.06" }, { scale: "1" }], { duration: ms, easing: HOME_EASE }));
+    Promise.all(anims.map((a) => a.finished)).catch(() => {}).then(() => {
+      launchFrom = null; // gone home already: no folding back into the widget
+      goHome();
+      layers.forEach(clear);
+      anims.forEach((a) => a.cancel());
+    });
+  }
+
+  function begin(id, y, fromY = y) {
+    try { bar.setPointerCapture(id); } catch {}
+    const layers = openLayers();
+    // The home screen behind shows through as the screen lifts (the app's launch had faded it)
+    if (layers.length) stopLaunch();
+    drag = { id, y: fromY, dy: fromY - y, t: performance.now(), speed: 0, layers };
+    if (layers.length) follow(layers, drag.dy);
+  }
+  function end(cancelled) {
+    const d = drag;
+    drag = null;
+    if (!d) return;
+    if (Math.abs(d.dy) >= TAP_PX) swallowClick = true;
+    const flick = d.dy >= FLICK_PX && d.speed >= FLICK_SPEED && performance.now() - d.t < 100;
+    if (!cancelled && (d.dy >= SWIPE_PX || flick)) {
+      if (d.layers.length) flyHome(d.layers); else goHome();
+    } else if (d.layers.length) springBack(d.layers);
+  }
+
+  bar.addEventListener("pointerdown", (e) => { if (e.button === 0) begin(e.pointerId, e.clientY); });
+  bar.addEventListener("pointermove", (e) => {
+    const d = drag;
+    if (!d || e.pointerId !== d.id) return;
+    const now = performance.now();
+    const dy = d.y - e.clientY;
+    if (now > d.t) d.speed = 0.6 * ((dy - d.dy) / (now - d.t)) + 0.4 * d.speed; // upward speed, smoothed
+    d.dy = dy;
+    d.t = now;
+    if (d.layers.length) follow(d.layers, dy);
   });
-  bar.addEventListener("pointerup", (e) => {
-    if (!start || e.pointerId !== start.id) return;
-    const up = start.y - e.clientY;
-    start = null;
-    if (up > 12) { swiped = true; goHome(); }
-  });
-  bar.addEventListener("pointercancel", () => { start = null; });
-  bar.addEventListener("click", (e) => { if (swiped) { swiped = false; e.stopImmediatePropagation(); } }, true);
+  bar.addEventListener("pointerup", (e) => { if (drag && e.pointerId === drag.id) end(false); });
+  bar.addEventListener("pointercancel", () => end(true));
+  bar.addEventListener("click", (e) => { if (swallowClick) { swallowClick = false; e.stopImmediatePropagation(); } }, true);
+
+  // Mobile view: a swipe up that starts on the screen just above the bar is the bar's too. Taps there stay
+  // the screen's; only once the finger has moved up, mostly upward, does the bar take it over.
+  let down = null;
+  document.addEventListener("pointerdown", (e) => {
+    down = null;
+    if (!document.documentElement.classList.contains("full") || !e.isPrimary || e.button !== 0 || bar.contains(e.target)) return;
+    const r = bar.getBoundingClientRect();
+    const k = r.height / bar.offsetHeight || 1;
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY >= r.top || e.clientY < r.top - CATCH_ABOVE_PX * k) return;
+    down = { id: e.pointerId, x: e.clientX, y: e.clientY };
+  }, true);
+  document.addEventListener("pointermove", (e) => {
+    if (!down || e.pointerId !== down.id) return;
+    const up = down.y - e.clientY;
+    if (up < CATCH_SLOP_PX || up < Math.abs(e.clientX - down.x)) return;
+    const from = down.y;
+    down = null;
+    begin(e.pointerId, e.clientY, from);
+  }, true);
+  const forget = () => { down = null; };
+  document.addEventListener("pointerup", forget, true);
+  document.addEventListener("pointercancel", forget, true);
 }
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") goHome();
