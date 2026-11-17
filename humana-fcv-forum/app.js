@@ -1479,7 +1479,7 @@ hintInputs.forEach((inp) => inp.addEventListener("change", applyHints));
 document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCtl("v4-right"); setHints([]); });
 document.getElementById("hintFigma").addEventListener("click", () => { setFlip("slide"); setCtl("dots"); setHints([]); });
 
-/* Widget 1 = today's widget: static call tiles ("no"); every tap on it opens MyHumana.
+/* Widget 1 = today's widget: two "Click to Visit" tiles ("no"); every tap on it opens MyHumana.
    Widget 2 = flippable purse tile ("pager"). (Swapped from the Healthy Spending Card prototype.)
    Widget 3 = dynamic: a personal next-step card, a Healthy Spending Card tile and two call tiles
    (its own markup, .w3; data-widget="3").
@@ -1505,12 +1505,17 @@ function setWidget(n) {
   widgetInputs.forEach((r) => (r.checked = r.value === n));
   setAnswer(n === "2" ? "pager" : w2Version);
   topLink.textContent = n === "3" ? "See benefits" : "See more";
+  // Widget 1's copy is Humana DSNP 2027's configured widget (configuration menu, Widget tab)
+  cardBody.textContent = n === "1" ? "Learn about your benefits and find care" : "Find out what your plan covers and how to make the most of it.";
+  cardBtn.textContent = n === "1" ? "MyHumana" : "Explore your benefits";
   // Home page 2's restart only starts Widget 3 over, so it's off for Widgets 1 and 2
   const restart = document.getElementById("demoRestart");
   restart.disabled = n !== "3";
   restart.title = n === "3" ? "" : "Restart is for Widget 3";
 }
 const topLink = document.querySelector(".widget-top-bar .link");
+const cardBody = document.getElementById("cardBody");
+const cardBtn = document.getElementById("cardBtn");
 // Switching widgets from the project page while the phone is in an app (or the dialer, or on home page
 // 2): back to the home screen's first page, so the new widget is what shows. The app fades out rather
 // than folding into the widget it opened from (that widget may not be on screen any more).
@@ -1630,13 +1635,8 @@ dlEnd.addEventListener("click", () => {
   setCallState("ended");
   callTimers.push(setTimeout(closeDialer, CALL_MS.endedToClose));
 });
-// Widget 1 is today's widget: every tap, the call tiles included, opens the MyHumana app (Humana DSNP
-// configuration, widget tab). Widget 2's call tile still goes straight to the dialer.
-const callOrApp = (tile, kind) => tile.addEventListener("click", () => {
-  if (phone.dataset.widget === "1") openApp("myhumana", tile); else openDialer(kind);
-});
-callOrApp(callTile, "member");
-callOrApp(document.getElementById("nurseTile"), "nurse");
+callTile.addEventListener("click", () => openDialer("member"));
+document.getElementById("nurseTile").addEventListener("click", () => openDialer("nurse"));
 document.getElementById("w3Member").addEventListener("click", () => openDialer("member"));
 document.getElementById("w3Nurse").addEventListener("click", () => openDialer("nurse"));
 

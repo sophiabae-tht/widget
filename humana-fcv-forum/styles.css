@@ -1040,15 +1040,17 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 /* ---------- Widget 2 = "pager" (flippable tile); Widget 1 = "no" / "yes" (static link tile) ---------- */
 #flexLinkTile { display: none; }
 .phone:not([data-answer="pager"]) #flexTile { display: none; }
-/* FCV Forum: Widget 1 is Call Member Services + 24/7 Nurse Line (the Healthy Spending Card link tile isn't used) */
-#nurseTile { display: none; }
-.phone:not([data-answer="pager"]) #nurseTile { display: flex; }
+/* FCV Forum: Widget 1 is today's two "Click to Visit" links (the call tiles and the Healthy Spending Card
+   link tile aren't on it) */
+#nurseTile, .visit-tile { display: none; }
+.phone[data-widget="1"] .visit-tile { display: flex; }
+.phone[data-widget="1"] #callTile { display: none; }
 /* Undo the StackView "Call hugs its content" layout when the pager isn't shown */
 .phone:not([data-answer="pager"]) .tile-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-.phone:not([data-answer="pager"]) .tile-row :is(#callTile, #nurseTile) { flex: 1; }
-.phone:not([data-answer="pager"]) .tile-row :is(#callTile, #nurseTile) .tile-text { flex: 1; width: auto; }
-.phone:not([data-answer="pager"]) .tile-row :is(#callTile, #nurseTile) .tile-face { position: absolute; height: auto; }
-.phone:not([data-answer="pager"]) .tile-row :is(#callTile, #nurseTile) .tile-icon { margin-left: 0; }
+.phone:not([data-answer="pager"]) .tile-row :is(#callTile, .visit-tile) { flex: 1; }
+.phone:not([data-answer="pager"]) .tile-row :is(#callTile, .visit-tile) .tile-text { flex: 1; width: auto; }
+.phone:not([data-answer="pager"]) .tile-row :is(#callTile, .visit-tile) .tile-face { position: absolute; height: auto; }
+.phone:not([data-answer="pager"]) .tile-row :is(#callTile, .visit-tile) .tile-icon { margin-left: 0; }
 /* Only the active widget's settings show */
 .notes:not([data-answer="pager"]) .w1-only,
 .notes[data-answer="pager"] .w2-only { display: none; }

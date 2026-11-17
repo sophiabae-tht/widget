@@ -58,9 +58,9 @@
                 <div class="card">
                   <div class="card-row">
                     <div class="card-icon"><img src="assets/icon-hand-heart.svg" width="24" height="24" alt="" /></div>
-                    <p class="card-body">Find out what your plan covers and how to make the most of it.</p>
+                    <p class="card-body" id="cardBody">Find out what your plan covers and how to make the most of it.</p>
                   </div>
-                  <button class="btn-tonal" data-open="home" type="button">Explore your benefits</button>
+                  <button class="btn-tonal" id="cardBtn" data-open="home" type="button">Explore your benefits</button>
                 </div>
               </div>
 
@@ -123,7 +123,7 @@
                   <span class="tile-icon"><img src="assets/icon-phone.svg" width="16" height="16" alt="" /></span>
                 </button>
 
-                <!-- Widget 1 only: second call tile (opens MyHumana, like everything on Widget 1) -->
+                <!-- Widget 2: second call tile (hidden on Widgets 1 and 3) -->
                 <button class="tile" id="nurseTile" type="button">
                   <span class="tile-text">
                     <span class="tile-face">
@@ -133,6 +133,29 @@
                     </span>
                   </span>
                   <span class="tile-icon"><img src="assets/icon-phone.svg" width="16" height="16" alt="" /></span>
+                </button>
+
+                <!-- Widget 1 only: today's two "Click to Visit" links (Humana DSNP configuration menu, Widget tab).
+                     Both are my2.humana.com links, which open the MyHumana app and its sign-in. -->
+                <button class="tile visit-tile" data-open="myhumana" type="button" aria-label="Humana Healthy Options">
+                  <span class="tile-text">
+                    <span class="tile-face">
+                      <span class="tile-line">Humana</span>
+                      <span class="tile-line">Healthy</span>
+                      <span class="tile-line">Options®</span>
+                    </span>
+                  </span>
+                  <span class="tile-icon"><img src="assets/icon-arrow-square-out-16.svg" width="16" height="16" alt="" /></span>
+                </button>
+                <button class="tile visit-tile" data-open="myhumana" type="button" aria-label="Go365: Get your rewards">
+                  <span class="tile-text">
+                    <span class="tile-face">
+                      <span class="tile-line">Go365</span>
+                      <span class="tile-line">Get your</span>
+                      <span class="tile-line">rewards</span>
+                    </span>
+                  </span>
+                  <span class="tile-icon"><img src="assets/icon-arrow-square-out-16.svg" width="16" height="16" alt="" /></span>
                 </button>
               </div>
             </div>
@@ -447,11 +470,10 @@
       <section class="widget-section w2-only" aria-labelledby="w2Title">
         <h2 class="widget-section-title" id="w2Title"><span class="widget-num">Widget 1</span>Static, tap-only</h2>
         <ul class="widget-points">
-          <li>Today's Humana widget. Every button hands off to the MyHumana app, where the member has to sign in first.</li>
-          <li>No balances on the widget: "Explore your benefits", "See more", and two call tiles, "Call Member Services" and "24/7 Nurse Line".</li>
-          <li>Even the call tiles open the app, not the dialer: the member signs in and finds the number there.</li>
+          <li>Today's Humana widget, as configured for Humana DSNP 2027: "Learn about your benefits and find care", a MyHumana button, and two links, "Humana Healthy Options®" and "Go365 Get your rewards".</li>
+          <li>Every button hands off to the MyHumana app, where the member has to sign in first. No balances and no call buttons on the widget.</li>
         </ul>
-        <p class="notes-android"><i>Android</i>Plain views (TextView + ImageView), each with a setOnClickPendingIntent that launches the MyHumana app. No collection widget, no balance data and no deep links on the widget.</p>
+        <p class="notes-android"><i>Android</i>Plain views (TextView + ImageView), each with a setOnClickPendingIntent: the button launches the MyHumana app, and the two links open my2.humana.com pages, which the MyHumana app takes over (sign-in first). No collection widget and no balance data on the widget.</p>
         <input type="radio" name="answer" value="no" checked hidden />
       </section>
 
