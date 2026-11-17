@@ -914,7 +914,17 @@ function setAnswer(value) {
   notes.dataset.answer = value;
   if (value === "pager") startAuto(); else stopAuto();
 }
-answerInputs.forEach((r) => r.addEventListener("change", () => setAnswer(r.value)));
+// Switching widgets from the project page while the phone is in an app: back to the home screen, so the
+// new widget is what shows. The app fades out rather than folding into the widget it opened from (that
+// widget may not be on screen any more).
+function backToWidget() {
+  if (!phone.classList.contains("app-open")) return;
+  stopLaunch();
+  launchFrom = null;
+  appScreen.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduceMotion.matches ? 0 : 200, easing: "ease-out" });
+  closeApp();
+}
+answerInputs.forEach((r) => r.addEventListener("change", () => { setAnswer(r.value); backToWidget(); }));
 widgetInputs.forEach((r) => r.addEventListener("change", () => setAnswer(r.value === "1" ? "pager" : w2Version)));
 // Touching any Widget 1 option switches to Widget 1
 document.querySelectorAll("#modeControls, #hintControls, #namesControls").forEach((f) =>

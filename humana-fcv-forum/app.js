@@ -83,7 +83,7 @@ const RESOURCE_SKELETONS = [
    flow – Gen UI"): pick a doctor → pick a time → confirm details → booked → done, as full check-in
    screens with the studio's look and motion (src/screens/*Screen.tsx there). The first screen is
    Client-Demos thriveGuideFlow08 (9205:36385), which the studio draws as its photo action card.
-   "Powered by Humana Provider Directory" under the heading is the DES-97 nod that Thrive
+   "Powered by Humana Provider Directory" between the heading and its text is the DES-97 nod that Thrive
    orchestrates Humana's own data. */
 const D = "assets/doctor/";
 const K = "assets/checkin/";
@@ -106,8 +106,8 @@ const ciHeader = ({ progress, help = "link", background = true, back = true } = 
 const ciPageHeader = (heading, body, id, extra = "") => `
   <div class="ci-page-header">
     <h1 class="ci-h4"${id ? ` id="${id}"` : ""}>${heading}</h1>
-    ${body ? `<p class="ci-small ci-weak">${body}</p>` : ""}
     ${extra}
+    ${body ? `<p class="ci-small ci-weak">${body}</p>` : ""}
   </div>`;
 // "Powered by Humana Provider Directory" lockup ([SB] Assets – Experimentations 2154:15164)
 const poweredByDirectory = () => `
@@ -1502,10 +1502,25 @@ function setWidget(n) {
   topLink.textContent = n === "3" ? "See benefits" : "See more";
 }
 const topLink = document.querySelector(".widget-top-bar .link");
-answerInputs.forEach((r) => r.addEventListener("change", () => { w2Version = r.value; setWidget("1"); }));
-widgetInputs.forEach((r) => r.addEventListener("change", () => setWidget(r.value)));
+// Switching widgets from the project page while the phone is in an app (or the dialer, or on home page
+// 2): back to the home screen's first page, so the new widget is what shows. The app fades out rather
+// than folding into the widget it opened from (that widget may not be on screen any more).
+function backToWidget() {
+  closeDemoMenu();
+  if (phone.classList.contains("dialer-open")) closeDialer();
+  if (phone.classList.contains("app-open")) {
+    stopLaunch();
+    launchFrom = null;
+    appScreen.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduceMotion.matches ? 0 : 200, easing: "ease-out" });
+    closeApp();
+  }
+  goToHomePage(0, { instant: true });
+}
+const showWidget = (n) => { setWidget(n); backToWidget(); };
+answerInputs.forEach((r) => r.addEventListener("change", () => { w2Version = r.value; showWidget("1"); }));
+widgetInputs.forEach((r) => r.addEventListener("change", () => showWidget(r.value)));
 // Touching any flippable-tile option switches to a widget that has it (Widget 2)
-const toPager = () => { if (phone.dataset.answer !== "pager") setWidget("2"); };
+const toPager = () => { if (phone.dataset.answer !== "pager") showWidget("2"); };
 document.querySelectorAll("#modeControls, #hintControls, #namesControls").forEach((f) => f.addEventListener("change", toPager));
 document.querySelectorAll("#hintRecommended, #hintFigma").forEach((b) => b.addEventListener("click", toPager));
 

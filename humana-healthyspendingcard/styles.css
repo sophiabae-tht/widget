@@ -522,7 +522,7 @@ html, body { overflow: hidden; }
 
 /* ---------- Side notes ---------- */
 .notes {
-  flex: 1 1 auto;
+  flex: 0 1 540px; /* the same width whatever the widget's notes say (narrower only when the window is) */
   min-width: 320px;
   max-width: 540px; /* one column: the card, then the widget notes under it (~70 characters a line) */
   /* Always full size: taller than the window, the column scrolls on its own (the phone stays put) */
@@ -955,7 +955,7 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 .ch-perk:has(.ch-perk-caret) .ch-perk-text { padding-right: 8px; }
 .ch-perk:has(.ch-perk-caret) .ch-perk-name { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .ch-perk-name { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text-weak); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ch-perk-amount { margin-top: 4px; font-size: 24px; line-height: 32px; font-weight: 700; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+.ch-perk-amount { margin-top: 4px; font-size: 24px; line-height: 32px; font-weight: 600; color: var(--text-strong); font-variant-numeric: tabular-nums; }
 .ch-perk-label { margin-top: 4px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
 .ch-updated { padding: 16px 16px 0; font-size: 14px; line-height: 20px; font-weight: 500; color: #696d9b; }
 

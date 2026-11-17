@@ -1,15 +1,17 @@
-// Vercel Routing Middleware: puts a shared team password on the home page only.
-// Exploration pages (/<slug>/) and their assets stay public.
+// Vercel Routing Middleware: puts a shared team password on the home page and the experimental
+// archive (/molina-flexcard/archive/, linked from each prototype's notes). Exploration pages (/<slug>/)
+// and their assets stay public.
 //
 // Visitors without a valid sign-in cookie see a password screen instead of the home page.
-// Submitting the right password sets a cookie for 30 days. The cookie is derived from the
+// Submitting the right password sets a cookie for 30 days (for the whole site, so signing in on one
+// protected page opens the other too) and goes back to the page that asked. The cookie is derived from the
 // password, so changing the password signs everyone out.
 //
 // The password lives in the Vercel project's environment variable SITE_PASSWORD
 // (Project → Settings → Environment Variables). If it is not set, the home page stays locked.
 
 export const config = {
-  matcher: ["/", "/index.html"],
+  matcher: ["/", "/index.html", "/molina-flexcard/archive", "/molina-flexcard/archive/:path*"],
 };
 
 const COOKIE = "home_auth";
@@ -20,22 +22,24 @@ export default async function middleware(request) {
   if (!password) return page({ message: "The home page password isn’t set up yet.", status: 503, form: false });
 
   const token = await tokenFor(password);
+  // The protected page that was asked for (the matcher only lets protected paths through), to come back to
+  const here = new URL(request.url).pathname;
 
   if (request.method === "POST") {
     let given = "";
     try { given = String((await request.formData()).get("password") ?? ""); } catch {}
-    if (!safeEqual(given, password)) return page({ message: "That password isn’t right. Try again.", status: 401 });
+    if (!safeEqual(given, password)) return page({ message: "That password isn’t right. Try again.", status: 401, action: here });
     return new Response(null, {
       status: 303,
       headers: {
-        Location: "/",
+        Location: here,
         "Set-Cookie": `${COOKIE}=${token}; Path=/; Max-Age=${MAX_AGE}; HttpOnly; Secure; SameSite=Lax`,
         "Cache-Control": "no-store",
       },
     });
   }
 
-  if (!safeEqual(readCookie(request, COOKIE) ?? "", token)) return page({ status: 401 });
+  if (!safeEqual(readCookie(request, COOKIE) ?? "", token)) return page({ status: 401, action: here });
 
   // Signed in: let the request through to the static home page (same signal as next() from @vercel/functions).
   return new Response(null, { headers: { "x-middleware-next": "1" } });
@@ -66,7 +70,9 @@ function safeEqual(a, b) {
   return diff === 0;
 }
 
-function page({ message = "", status = 401, form = true }) {
+const attr = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function page({ message = "", status = 401, form = true, action = "/" }) {
   const html = `<!doctype html>
 <html lang="en">
 <head>
@@ -109,7 +115,7 @@ function page({ message = "", status = 401, form = true }) {
     <img class="logo" src="/assets/thrive-logo.svg" alt="Thrive Mobile" />
     <h1>Widget Explorations</h1>
     <p>Enter the team password to continue.</p>
-    ${form ? `<form method="post" action="/">
+    ${form ? `<form method="post" action="${attr(action)}">
       <label for="password">Password</label>
       <input id="password" name="password" type="password" autocomplete="current-password" required autofocus${message ? ` aria-invalid="true" aria-describedby="error"` : ""} />
       ${message ? `<span class="error" id="error" role="alert">${message}</span>` : ""}

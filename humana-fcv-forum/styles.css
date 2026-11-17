@@ -553,7 +553,7 @@ button.dock-app:active { filter: brightness(0.92); }
 
 /* ---------- Side notes ---------- */
 .notes {
-  flex: 1 1 auto;
+  flex: 0 1 540px; /* the same width whatever the widget's notes say (narrower only when the window is) */
   min-width: 320px;
   max-width: 540px; /* one column: the card, then the widget notes under it (~70 characters a line) */
   /* Always full size: taller than the window, the column scrolls on its own (the phone stays put) */
@@ -988,7 +988,7 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 .ch-perk:has(.ch-perk-caret) .ch-perk-text { padding-right: 8px; }
 .ch-perk:has(.ch-perk-caret) .ch-perk-name { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .ch-perk-name { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text-weak); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ch-perk-amount { margin-top: 4px; font-size: 24px; line-height: 32px; font-weight: 700; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+.ch-perk-amount { margin-top: 4px; font-size: 24px; line-height: 32px; font-weight: 600; color: var(--text-strong); font-variant-numeric: tabular-nums; }
 .ch-perk-label { margin-top: 4px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak); }
 .ch-updated { padding: 16px 16px 0; font-size: 14px; line-height: 20px; font-weight: 500; color: #696d9b; }
 
@@ -1722,11 +1722,13 @@ html.full .phone { box-shadow: none; }
 .ci-more { display: flex; align-items: center; gap: 8px; padding: 16px 16px 0; color: var(--ci-text-brand); }
 /* DES-97: Thrive orchestrates Humana's own provider data */
 /* Figma 2154:15164: "POWERED BY" (uppercase style) · Humana logo · "Provider Directory", bottoms aligned */
+/* Figma 2155:15201, evened out: 16px under the heading, and the body text 16px under it */
 .ci-source { display: flex; align-items: baseline; gap: 8px; padding: 16px 16px 0; } /* one baseline: both words sit on it, and the logo's bottom edge (its wordmark's baseline) does too */
+.ci-source + p { padding-top: 16px; }
 .ci-source-label { font-weight: 600; font-size: 11px; line-height: 14px; letter-spacing: .3px; text-transform: uppercase; color: var(--ci-text-weaker); }
 .ci-source-brand { display: flex; align-items: baseline; gap: 5px; }
 .ci-source-brand img { display: block; }
-.ci-source-name { font-weight: 600; font-size: 16px; line-height: 20px; color: var(--ci-text-strong); }
+.ci-source-name { font-weight: 600; font-size: 16px; line-height: 20px; color: var(--ci-text-weak); }
 
 /* 3 · What time works for you? (studio TimesScreen) */
 .ci-times-card {

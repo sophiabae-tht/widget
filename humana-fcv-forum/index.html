@@ -18,7 +18,7 @@
   <title>Widget prototype · v2/link</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600,700&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=130" />
+  <link rel="stylesheet" href="styles.css?v=135" />
 </head>
 <body>
   <main class="stage">
@@ -259,8 +259,8 @@
         <button class="reset" id="openMobileView" type="button">Open mobile view (full screen)</button>
         <button class="reset" id="shareMobileView" type="button">Copy link</button>
       </div>
-      <h2 class="notes-h2">Healthy Spending Card on the widget</h2>
-      <p class="notes-sub">Three widgets to flip between for the FCV Forum: today's Humana widget, which hands off to a MyHumana sign-in; the flippable Healthy Spending Card; and a dynamic widget that picks the member's next step and completes it on the device.</p>
+      <h2 class="notes-h2">Three Humana widgets</h2>
+      <p class="notes-sub">Three ways the Humana widget could work, from today's to device-level. Static: today's widget, whose links hand off to the MyHumana sign-in. Flippable card: Healthy Spending Card balances, one at a time. Dynamic: the widget picks the member's next step, and a tap completes it on the device.</p>
       <label class="android-toggle">
         <input type="checkbox" id="androidToggle" role="switch" />
         <span class="android-toggle-track" aria-hidden="true"></span>
@@ -462,7 +462,7 @@
           <li>The top card is personal ("Hi John, it's time for your annual wellness checkup!"). "Schedule an appointment" opens "Let's find you a doctor close to home" (Figma Client-Demos), then the booking flow from the tht-demo-studio appointment scheduling demo: pick a doctor, pick a time, confirm John's details, see the booked visit, done.</li>
           <li>Once the visit is booked, Care hub lists it under "Upcoming appointments", above "Your benefits".</li>
           <li>Once booked, the widget's chip reads "View my appointment" and opens Care hub with the visit. Swipe to the second home page: the gear switches widgets, restart starts Widget 3 over.</li>
-          <li>"Powered by Humana Provider Directory" sits under the heading: the list is Humana's own data, and Thrive orchestrates the booking.</li>
+          <li>"Powered by Humana Provider Directory" sits between the heading and its text: the list is Humana's own data, and Thrive orchestrates the booking.</li>
           <li>Below it: "Your Healthy Spending Card" opens the balances in Care hub, and "Member Services" and "24/7 Nurse Line" go straight to the dialer.</li>
           <li>Laid out as the dynamic widget in Figma ([SB] Assets &amp; Experimentations), keeping only its "Hi John" message, without the Thrive Guide frame.</li>
         </ul>
@@ -470,16 +470,11 @@
       </section>
 
 
-      <!-- "Dropped: not possible on Android widgets" (content peek, nudge animation) lives in the archive -->
-      <div class="notes-archive">
-        <a class="archive-btn" href="../molina-flexcard/archive/" aria-describedby="archiveHint">Experimental archive</a>
-        <span class="archive-hint" id="archiveHint" role="tooltip">Earlier iterations of the flippable card: other looks, controls and animations, plus what was dropped because Android widgets can’t do it</span>
-      </div>
 
     </aside>
   </main>
   <script src="fullscreen-guide.js?v=2"></script>
   <script src="mobile-view-share.js?v=3"></script>
-  <script src="app.js?v=134"></script>
+  <script src="app.js?v=136"></script>
 </body>
 </html>
