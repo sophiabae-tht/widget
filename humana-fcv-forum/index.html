@@ -14,8 +14,8 @@
   </script>
   <title>Widget prototype · v2/link</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
-  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=111" />
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600,700&display=swap" />
+  <link rel="stylesheet" href="styles.css?v=120" />
 </head>
 <body>
   <main class="stage">
@@ -53,6 +53,31 @@
                   <p class="card-body">Find out what your plan covers and how to make the most of it.</p>
                 </div>
                 <button class="btn-tonal" data-open="home" type="button">Explore your benefits</button>
+              </div>
+            </div>
+
+            <!-- Widget 3: device-level orchestration. Laid out as the dynamic widget in Figma
+                 ([SB] Assets & Experimentations 2149:13076), in Humana's copy. Only its "Hi John" message,
+                 without the Thrive Guide frame (DES-97). The device picks the member's next step; the tap completes it. -->
+            <div class="w3">
+              <!-- Only the suggested-prompt message (Figma 2149:13086), not the Thrive Guide frame around it -->
+              <button class="w3-message" id="dynCard" type="button">
+                <span class="w3-greeting"><b>Hi John,</b> it’s time for your annual wellness checkup!</span>
+                <span class="w3-chip"><img src="assets/w3/icon-sparkle-16.svg" width="16" height="16" alt="" />Schedule an appointment</span>
+              </button>
+              <button class="w3-tile w3-tile--wide" id="w3Flex" type="button">
+                <span class="w3-label"><span>Your Healthy Spending Card</span></span>
+                <span class="w3-phone"><img src="assets/icon-cardholder.svg" width="16" height="16" alt="" /></span>
+              </button>
+              <div class="w3-row">
+                <button class="w3-tile" id="w3Member" type="button" aria-label="Call Member Services">
+                  <span class="w3-label"><span>Member</span><span>Services</span></span>
+                  <span class="w3-phone"><img src="assets/w3/icon-phone-16.svg" width="16" height="16" alt="" /></span>
+                </button>
+                <button class="w3-tile" id="w3Nurse" type="button" aria-label="Call the 24/7 Nurse Line">
+                  <span class="w3-label"><span>24/7</span><span>Nurse</span><span>Line</span></span>
+                  <span class="w3-phone"><img src="assets/w3/icon-phone-16.svg" width="16" height="16" alt="" /></span>
+                </button>
               </div>
             </div>
 
@@ -117,6 +142,17 @@
 
       <div class="fill"></div>
 
+      <!-- The member's apps: the dock from tht-demo-studio's navigator (branch navigator/voice), straight on
+           the wallpaper. Thrive opens the Thrive app (Care hub) and MyHumana its sign-in; the others are
+           only shown. -->
+      <nav class="dock" aria-label="Apps">
+        <img class="dock-app" src="assets/dock/phone.webp" width="48" height="48" alt="Phone" />
+        <img class="dock-app" src="assets/dock/messages.webp" width="48" height="48" alt="Messages" />
+        <button class="dock-app dock-app--thrive" id="dockThrive" type="button" aria-label="Thrive"><img src="assets/dock/thrive-symbol.svg" width="24" height="24" alt="" /></button>
+        <button class="dock-app" id="dockHumana" type="button" aria-label="MyHumana"><img src="assets/dock/myhumana.webp" width="48" height="48" alt="" /></button>
+        <img class="dock-app" src="assets/dock/centerwell-pharmacy.webp" width="48" height="48" alt="CenterWell Pharmacy" />
+      </nav>
+
       <!-- Simulated app launch (opened from widget taps) -->
       <div class="app-screen" id="appScreen" aria-hidden="true">
         <div class="ch-bg" aria-hidden="true">
@@ -130,10 +166,10 @@
         </div>
         <div class="app-body" id="appBody"></div>
         <nav class="app-nav" id="appNav" aria-label="App">
-          <button type="button" data-tab="home"><img src="assets/carehub/nav-house.svg" width="24" height="24" alt="" /><span>Home</span></button>
-          <button type="button" data-tab="perks"><img src="assets/carehub/nav-tag.svg" width="24" height="24" alt="" /><span>Perks</span></button>
-          <button type="button" data-tab="carehub" class="is-active"><img src="assets/carehub/nav-bookmark.svg" width="24" height="24" alt="" /><span>Care hub</span></button>
-          <button type="button" data-tab="account"><img src="assets/carehub/nav-user.svg" width="24" height="24" alt="" /><span>Account</span></button>
+          <button type="button" data-tab="home"><span class="nav-icon" style="--off: url('assets/home/nav-house.svg'); --on: url('assets/home/nav-house-fill.svg')" aria-hidden="true"></span><span>Home</span></button>
+          <button type="button" data-tab="perks"><span class="nav-icon" style="--off: url('assets/home/nav-tag.svg'); --on: url('assets/home/nav-tag-fill.svg')" aria-hidden="true"></span><span>Perks</span></button>
+          <button type="button" data-tab="carehub" class="is-active"><span class="nav-icon" style="--off: url('assets/home/nav-bookmark.svg'); --on: url('assets/home/nav-bookmark-fill.svg')" aria-hidden="true"></span><span>Care hub</span></button>
+          <button type="button" data-tab="account"><span class="nav-icon" style="--off: url('assets/home/nav-user-circle.svg'); --on: url('assets/home/nav-user-circle-fill.svg')" aria-hidden="true"></span><span>Account</span></button>
         </nav>
       </div>
 
@@ -199,9 +235,9 @@
         <button class="reset reset--primary" id="fullBtn" type="button">Full screen</button>
         <button class="reset" id="copyFullLink" type="button">Copy phone link</button>
       </div>
-      <p class="full-hint">On a phone, full screen shows just the prototype, filling the screen. Add it to the home screen to hide the browser bar too.</p>
+      <p class="full-hint">On a phone, full screen shows just the prototype, filling the screen. The phone link opens on the widget shown here. Add it to the home screen to hide the browser bar too.</p>
       <h2 class="notes-h2">Healthy Spending Card on the widget</h2>
-      <p class="notes-sub">Two widget directions, built only with what a real Android home-screen widget can do. Tap a Healthy Spending Card tile to see the full list, then Back to see where it lives in Care hub.</p>
+      <p class="notes-sub">Three widgets to flip between for the FCV Forum (DES-97): today's Humana widget, which hands off to a MyHumana sign-in; the flippable Healthy Spending Card; and a dynamic widget that picks the member's next step and completes it on the device.</p>
       <label class="android-toggle">
         <input type="checkbox" id="androidToggle" role="switch" />
         <span class="android-toggle-track" aria-hidden="true"></span>
@@ -211,6 +247,7 @@
       <div class="widget-switch" id="widgetSwitch" role="radiogroup" aria-label="Widget">
         <label><input type="radio" name="widget" value="1" checked /><span><b>Widget 1</b>Static, tap-only</span></label>
         <label><input type="radio" name="widget" value="2" /><span><b>Widget 2</b>Flippable</span></label>
+        <label><input type="radio" name="widget" value="3" /><span><b>Widget 3</b>Dynamic</span></label>
       </div>
       </div>
 
@@ -387,11 +424,25 @@
       <section class="widget-section w2-only" aria-labelledby="w2Title">
         <h2 class="widget-section-title" id="w2Title"><span class="widget-num">Widget 1</span>Static, tap-only</h2>
         <ul class="widget-points">
+          <li>Today's Humana widget. "Explore your benefits" and "See more" hand off to the MyHumana app, where the member has to sign in first.</li>
           <li>No balances on the widget: two call tiles, "Call Member Services" and "24/7 Nurse Line".</li>
           <li>Each tap goes straight to the phone dialer with that line filled in; the member taps Call.</li>
         </ul>
         <p class="notes-android"><i>Android</i>Two plain tiles (TextView + ImageView), each with its own setOnClickPendingIntent → Intent.ACTION_DIAL with that line's tel: number (opens the dialer, no call permission needed). No collection widget and no balance data on the widget.</p>
         <input type="radio" name="answer" value="no" checked hidden />
+      </section>
+
+      <section class="widget-section w3-only" aria-labelledby="w3Title">
+        <h2 class="widget-section-title" id="w3Title"><span class="widget-num">Widget 3</span>Dynamic</h2>
+        <ul class="widget-points">
+          <li>Device-level orchestration: the widget picks the member's next step and the tap completes it, with no sign-in hand-off.</li>
+          <li>The top card is personal ("Hi John, it's time for your annual wellness checkup!"). "Schedule an appointment" opens "Let's find you a doctor close to home" (Figma Client-Demos), then the booking flow from the tht-demo-studio appointment scheduling demo: pick a doctor, pick a time, confirm John's details, see the booked visit, done.</li>
+          <li>Once the visit is booked, Care hub lists it under "Upcoming appointments", above "Your benefits".</li>
+          <li>"Powered by Humana Provider Directory" sits under the doctors: the list is Humana's own data, and Thrive orchestrates the booking.</li>
+          <li>Below it: "Your Healthy Spending Card" opens the balances in Care hub, and "Member Services" and "24/7 Nurse Line" go straight to the dialer.</li>
+          <li>Laid out as the dynamic widget in Figma ([SB] Assets &amp; Experimentations), keeping only its "Hi John" message, without the Thrive Guide frame.</li>
+        </ul>
+        <p class="notes-android"><i>Android</i>The card is a plain TextView layout the app refreshes with updateAppWidget() whenever the next step changes. Its setOnClickPendingIntent deep-links into the Thrive app's find-a-doctor flow.</p>
       </section>
 
 
@@ -403,6 +454,6 @@
 
     </aside>
   </main>
-  <script src="app.js?v=113"></script>
+  <script src="app.js?v=123"></script>
 </body>
 </html>

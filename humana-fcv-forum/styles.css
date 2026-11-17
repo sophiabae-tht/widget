@@ -413,6 +413,15 @@ html, body { overflow: hidden; }
   transition: background-color 0.3s;
 }
 .phone.app-open .handle { background: #0c0f41; }
+/* ---------- Dock (tht-demo-studio navigator/voice: NavigatorHomeScreen .dock) ----------
+   48px rounded-square icons (Google Play style) spread across the bottom, 24px in from the sides, 8px above the gesture bar. */
+.dock { position: relative; z-index: 1; /* over the wallpaper, like .widget-frame */ flex: none; display: flex; justify-content: space-between; padding: 0 24px 8px; }
+.dock-app { display: block; width: 48px; height: 48px; border-radius: 20%; box-shadow: 0 1px 3px rgba(12, 15, 65, 0.18); } /* Google Play style: rounded square (MyHumana's own icon corners), lifted off the wallpaper */
+.dock-app img { display: block; width: 100%; height: 100%; border-radius: inherit; }
+.dock-app--thrive { display: grid; place-items: center; background: var(--background-base); }
+.dock-app--thrive img { width: 24px; height: 24px; border-radius: 0; }
+button.dock-app:active { filter: brightness(0.92); }
+
 /* ---------- Simulated app launch ---------- */
 .app-screen {
   position: absolute;
@@ -837,7 +846,9 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);
 }
-.app-nav button img { display: block; margin: 4px 0; }
+/* Library navBar icons (studio icon library): outline, filled in brand on the open tab */
+.nav-icon { display: block; width: 24px; height: 24px; margin: 4px 0; background: var(--text-weak); -webkit-mask: var(--off) center / contain no-repeat; mask: var(--off) center / contain no-repeat; }
+.app-nav button.is-active .nav-icon { background: var(--text-brand); -webkit-mask-image: var(--on); mask-image: var(--on); }
 .app-nav button.is-active { font-weight: 600; color: var(--text-strong); }
 
 .ch-page-header { padding: 16px 16px 8px; }
@@ -974,7 +985,7 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 .notes-intro ~ .widget-section { border-top: 0; padding-top: 0; }
 
 /* Widget 1 / Widget 2 switch + sections in the side notes */
-.widget-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 14px; padding: 4px; border-radius: 12px; background: rgba(12, 15, 65, 0.06); }
+.widget-switch { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 14px; padding: 4px; border-radius: 12px; background: rgba(12, 15, 65, 0.06); }
 .widget-switch label { cursor: pointer; }
 .widget-switch input { position: absolute; opacity: 0; pointer-events: none; }
 .widget-switch span { display: flex; flex-direction: column; padding: 6px 10px; border-radius: 9px; color: #565a86; font-size: 13px; line-height: 18px; }
@@ -1394,3 +1405,424 @@ html.full .phone { box-shadow: none; }
 }
 .dl-end:not(:disabled):active { filter: brightness(0.9); }
 .dl-end:disabled { cursor: default; }
+
+/* ---------- Widget 3: dynamic widget (DES-97) ----------
+   Figma [SB] Assets & Experimentations 2149:13076, without the "Ask Thrive Guide" bar. */
+.w3 { display: none; flex-direction: column; padding: 16px 16px 0; }
+.phone[data-widget="3"] .w3 { display: flex; }
+.phone[data-widget="3"] .card-content,
+.phone[data-widget="3"] .tile-row { display: none; }
+/* "Powered by" keeps the same 36px gap below the tiles as Widgets 1 and 2 (16px row padding + 20px) */
+/* Tiles and bubbles share one surface: brandWeaker stroke, "raised" shadow */
+.widget .w3-tile, .widget .w3-message, .w3-chip {
+  border: 1px solid var(--stroke-brandweaker);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px var(--shadow-weaker);
+}
+.widget .w3-message {
+  display: flex; flex-direction: column; align-items: stretch; gap: 10px;
+  padding: 11px; /* 12px minus the stroke */
+  /* Same surface as the tiles below (fill/brandVeryWeak, as the Thrive Guide frame it sat in), so the
+     widget reads as one set of cards; the chip inside is the lighter fill/inverseWeak */
+  background: var(--fill-brandveryweak);
+  text-align: left;
+}
+.w3-greeting { font-weight: 600; font-size: 16px; line-height: 24px; color: var(--text-weak); }
+.w3-greeting b { font-weight: 600; color: var(--text-strong); }
+.w3-chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 11px; /* 8/12 minus the stroke */
+  background: rgba(255, 255, 255, 0.5);
+  font-weight: 500; font-size: 16px; line-height: 24px; color: var(--text-weak);
+}
+.w3-chip img { display: block; flex: none; }
+.widget .w3-message:active .w3-chip { background: var(--fill-brandweaker); }
+.widget .w3-tile {
+  display: flex; align-items: flex-start; gap: 0; /* as Figma: the label runs up to the phone chip */
+  padding: 11px; /* 12px minus the stroke */
+  background: var(--fill-brandveryweak);
+  font-weight: 600; font-size: 16px; line-height: 20px; color: var(--text-weak);
+  text-align: left;
+}
+.widget .w3-tile:active { background: var(--fill-brandweaker); }
+.widget .w3-tile--wide { margin-top: 12px; align-items: center; } /* one line, so the icon chip centres on it */
+.w3-row { display: flex; gap: 16px; padding: 12px 0 16px; }
+.w3-row .w3-tile { flex: 1 1 0; min-width: 0; }
+.w3-label { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.w3-label > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.w3-row .w3-label { min-height: 60px; } /* three lines at 16/20, as the Widget 1 and 2 call tiles */
+.w3-phone { flex: none; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 4px; border-radius: 16px; background: var(--fill-brandweaker); }
+.w3-phone img { display: block; }
+.notes:not([data-widget="3"]) .w3-only,
+.notes[data-widget="3"] .w1-only,
+.notes[data-widget="3"] .w2-only { display: none; }
+
+/* ---------- MyHumana sign-in (Widget 1's hand-off) ---------- */
+.app-screen[data-variant="myhumana"] { background: #f1f2f4; }
+.app-screen[data-variant="myhumana"] .app-bar { display: none; }
+.app-screen[data-variant="myhumana"] .app-body { padding: 0; overflow: hidden; }
+.mh { position: relative; flex: 1; min-height: 100%; display: flex; flex-direction: column; align-items: center; color: #2d2f33; }
+.mh-sky { display: block; flex: none; }
+.mh-brand { display: flex; align-items: flex-end; gap: 1px; margin: 10px 0 0; }
+.mh-my { font-family: "Brush Script MT", "Segoe Script", cursive; font-style: italic; font-size: 22px; line-height: 22px; color: #3c5a1e; transform: translateY(-1px); }
+.mh-brand img { display: block; }
+.mh-title { margin: 20px 0 0; padding: 0 40px; font-weight: 700; font-size: 30px; line-height: 36px; color: #5b8a2b; text-align: center; letter-spacing: -0.3px; }
+.mh-actions { position: relative; z-index: 1; align-self: stretch; display: flex; flex-direction: column; gap: 12px; padding: 28px 24px 0; }
+.mh-btn { display: flex; align-items: center; justify-content: center; gap: 8px; height: 48px; border-radius: 24px; font-weight: 600; font-size: 15px; line-height: 20px; }
+.mh-btn--primary { background: #5b7f2b; color: #fff; }
+.mh-btn--secondary { border: 1.5px solid #bfdc98; background: #e4f2d2; color: #2f4d14; }
+.mh-btn svg { display: block; flex: none; }
+.mh-btn:active { filter: brightness(0.94); }
+.mh-activate { margin: 4px 0 0; text-align: center; font-weight: 500; font-size: 14px; line-height: 20px; color: #3d3f44; }
+.mh-link { color: #2f62a8; font-weight: 600; font-size: 14px; }
+.mh-home { position: absolute; left: 0; bottom: 0; display: block; }
+
+/* ---------- Find a doctor (Widget 3) ----------
+   tht-demo-studio's /gen-ui/appointment-scheduling booking screens, ported from src/screens there
+   (ActionScreen photo card, DoctorsScreen, TimesScreen, DetailsScreen, AppointmentScreen, EndScreen
+   with the Humana preset) and its library components (AppHeader, AppFooter, Button, PageHeader).
+   Tokens are the studio's (styles/tokens.css), scoped to these screens. */
+.app-screen[data-variant^="ci"] {
+  --ci-text-strong: #1f2247;
+  --ci-text-weak: #565a86;
+  --ci-text-weaker: #696d9b;
+  --ci-text-brand: #4754eb;
+  --ci-icon-weak: #565a86;
+  --ci-icon-brand: #4754eb;
+  --ci-icon-success: #7fc54d;
+  --ci-fill-brand-strong: #4754eb;
+  --ci-fill-brand-weaker: #4754eb1a;
+  --ci-fill-brand-weak: #d9e1f7;
+  --ci-fill-success-weak: #7fc54d1f;
+  --ci-fill-mid: #696d9b;
+  --ci-fill-weaker: #0c0f410d;
+  --ci-fill-white: #fff;
+  --ci-fill-disabled: #0f123e26;
+  --ci-fill-inverse-mid-weak: #ffffffa6;
+  --ci-fill-inverse-weak: #ffffff80;
+  --ci-background-base: #f9f9fb;
+  --ci-background-sunken: #ecedf3;
+  --ci-stroke-brand-strong: #4754eb;
+  --ci-stroke-selected: #4754eb;
+  --ci-stroke-inverse-strong: #fff;
+  --ci-state-overlay: #0c0f410d;
+  --ci-state-overlay-pressed: #0c0f411a;
+  --ci-state-overlay-on-brand: #ffffff1a;
+  --ci-state-overlay-pressed-on-brand: #ffffff33;
+  --ci-effect-raised: 0 2px 8px #0c0f410d;
+  --ci-effect-chip: 0 2px 4px #0c0f410d;
+  --ci-effect-scroll: 0 0 12px #0d11401a;
+  --ci-effect-glow-check-in-big: 0 8px 64px #4754eb1a;
+  --ci-effect-glow-card: 0 16px 64px #4754eb1a;
+  --ci-effect-glow-contact: 0 0 32px #4754eb1a;
+  --ci-effect-glow-bottom-bar-big: 0 64px 128px #4754eb33;
+  --ci-weight-weak: 500;
+  --ci-weight-strong: 600;
+  --ci-ease-in: cubic-bezier(0.05, 0.7, 0.1, 1); /* emphasized decelerate */
+  background: var(--ci-background-base);
+}
+.app-screen[data-variant="ci-card"] { background: #ecedf3 url("assets/doctor/gradient-bg.svg") 0 0 / 360px 800px no-repeat; } /* background/sunken + gradientBG */
+.app-screen[data-variant^="ci"] .app-bar { display: none; }
+.app-screen[data-variant^="ci"] .app-body { display: flex; flex-direction: column; padding: 0; gap: 0; overflow: hidden; }
+.app-screen[data-variant="ci-end"] .app-body { overflow: visible; } /* its message and glows are placed on the whole screen */
+.ci-screen {
+  position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column;
+  color: var(--ci-text-strong); font-family: var(--font-body);
+}
+.ci-screen p, .ci-screen h1, .ci-screen dl, .ci-screen dd { margin: 0; }
+/* Screens dissolve in (studio T_ANSWER: 0.3s ease-out) */
+@media (prefers-reduced-motion: no-preference) {
+  .ci-screen { animation: ci-fade 300ms ease-out both; }
+}
+
+/* Text styles (studio typography.css) */
+.ci-h3 { font-weight: var(--ci-weight-strong); font-size: 24px; line-height: 32px; }
+.ci-h4 { font-weight: var(--ci-weight-strong); font-size: 20px; line-height: 28px; }
+.ci-small { font-weight: var(--ci-weight-weak); font-size: 16px; line-height: 24px; }
+.ci-small-bold { font-weight: var(--ci-weight-strong); font-size: 16px; line-height: 24px; }
+.ci-tiny { font-weight: var(--ci-weight-weak); font-size: 14px; line-height: 20px; }
+.ci-tiny-bold { font-weight: 600; font-size: 14px; line-height: 20px; }
+.ci-tiny-link { font-weight: 600; font-size: 14px; line-height: 20px; text-decoration: underline; text-decoration-skip-ink: none; text-underline-position: from-font; }
+.ci-upper { font-weight: var(--ci-weight-strong); font-size: 11px; line-height: 14px; letter-spacing: 0.3px; text-transform: uppercase; }
+.ci-underline { text-decoration: underline; text-decoration-skip-ink: none; text-underline-position: from-font; }
+.ci-strong { color: var(--ci-text-strong); }
+.ci-weak { color: var(--ci-text-weak); }
+
+/* Library icons, drawn as masks so they take the text colour */
+.ci-icon {
+  display: block; flex: none; width: 24px; height: 24px; background: currentColor;
+  -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat;
+}
+.ci-icon--16 { width: 16px; height: 16px; }
+.ci-icon--20 { width: 20px; height: 20px; }
+.ci-icon--cal { width: 13.333px; height: 13.333px; }
+.ci-checkbox { display: block; flex: none; }
+
+/* appHeader: top app bar (back, Need help? / Help) and progress bar */
+.ci-header { position: relative; z-index: 1; flex: none; }
+.ci-header--bg { background: var(--ci-background-base); }
+.ci-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 56px; padding: 16px; }
+.ci-back { display: grid; place-items: center; width: 48px; height: 48px; margin: -12px; border-radius: 50%; }
+.ci-back > span { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 4px; transition: background-color 120ms ease-out; }
+.ci-back img { display: block; }
+.ci-back:active > span { background: var(--ci-state-overlay-pressed); }
+.ci-help { color: var(--ci-text-brand); white-space: nowrap; }
+.ci-help-pill { align-self: stretch; display: flex; align-items: center; margin: -6px 0; padding: 6px 16px; border-radius: 12px; background: var(--ci-fill-brand-weaker); color: var(--ci-text-brand); white-space: nowrap; }
+.ci-track { position: relative; height: 4px; overflow: hidden; background: var(--ci-fill-weaker); }
+/* Always full width, slid left so only the progress shows (keeps the rounded end) */
+.ci-fill { position: absolute; inset: 0; border-radius: 0 8px 8px 0; background: var(--ci-fill-mid); transform: translateX(-100%); will-change: transform; }
+
+/* Scrolling content, pageHeader */
+.ci-main { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 16px; scrollbar-width: none; }
+.ci-main::-webkit-scrollbar { display: none; }
+.ci-page-header { padding: 16px 0 8px; }
+.ci-page-header h1 { padding: 16px 16px 0; color: var(--ci-text-strong); }
+.ci-page-header p { padding: 12px 16px 0; }
+.ci-card-frame { padding: 16px 16px 0; }
+
+/* appFooter (stacked buttons above our 24px gesture bar) and button */
+.ci-footer { position: relative; z-index: 1; flex: none; padding-bottom: 24px; }
+.ci-footer--fill { background: var(--ci-background-base); box-shadow: var(--ci-effect-scroll); }
+.ci-buttons { display: flex; flex-direction: column; gap: 16px; padding: 16px; }
+.ci-btn {
+  position: relative; isolation: isolate;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  width: 100%; padding: 12px 16px; border-radius: 12px;
+  font-weight: 600; font-size: 16px; line-height: 24px; text-align: center;
+}
+.ci-btn::after { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; transition: background-color 120ms ease-out; }
+.ci-btn-label { padding: 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ci-btn-icon { display: flex; flex: none; }
+.ci-btn--primary { background: var(--ci-fill-brand-strong); color: #fff; }
+.ci-btn--secondary { padding: 11px 15px; border: 1px solid var(--ci-stroke-brand-strong); color: var(--ci-text-brand); }
+.ci-btn--link { color: var(--ci-text-weak); }
+.ci-btn--link .ci-btn-label { text-decoration: underline; text-decoration-skip-ink: none; text-underline-position: from-font; }
+.ci-btn:disabled { background: var(--ci-fill-disabled); border-color: transparent; color: #fff; cursor: default; }
+.ci-btn--primary:not(:disabled):active::after { background: var(--ci-state-overlay-pressed-on-brand); }
+.ci-btn--secondary:active::after, .ci-btn--link:active::after { background: var(--ci-state-overlay-pressed); }
+@media (hover: hover) {
+  .ci-btn--primary:not(:disabled):hover::after { background: var(--ci-state-overlay-on-brand); }
+  .ci-btn--secondary:hover::after, .ci-btn--link:hover::after { background: var(--ci-state-overlay); }
+}
+
+/* 1 · Photo action card (studio ActionScreen "actionCard02" = thriveGuideFlow08) */
+.ci-card-area { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 48px 24px; }
+.ci-photo-card {
+  position: relative; display: flex; flex-direction: column; padding: 0 0 16px; border-radius: 24px;
+  background: var(--ci-fill-inverse-mid-weak);
+  box-shadow: inset 0 0 0 1px var(--ci-stroke-inverse-strong), var(--ci-effect-glow-bottom-bar-big);
+}
+.ci-photo-frame { position: relative; margin: 16px 16px 0; height: 191px; }
+.ci-photo { display: block; width: 100%; height: 100%; border-radius: 8px; object-fit: cover; }
+.ci-photo-badge {
+  position: absolute; top: 16px; left: 16px; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
+  background: var(--ci-fill-inverse-mid-weak); color: var(--ci-icon-brand);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.ci-photo-heading { padding: 16px 16px 0; color: var(--ci-text-strong); }
+.ci-photo-caption { display: flex; align-items: center; gap: 8px; padding: 16px 16px 4px; }
+.ci-photo-caption img { display: block; }
+.ci-photo-body { padding: 12px 16px 0; }
+.ci-photo-cta { padding: 16px 16px 0; }
+
+/* 2 · Pick your primary care doctor (studio DoctorsScreen) */
+.ci-doc-list { display: flex; flex-direction: column; }
+.ci-doc-btn { display: block; width: 100%; padding: 16px 16px 0; text-align: left; border-radius: 16px; }
+.ci-doc-btn:focus-visible { outline: none; }
+.ci-doc-btn:focus-visible .ci-doc { outline: 2px solid var(--ci-stroke-brand-strong); outline-offset: 2px; }
+.ci-doc {
+  position: relative; display: flex; flex-direction: column; padding-bottom: 16px; border-radius: 16px;
+  background: var(--ci-fill-inverse-mid-weak);
+  box-shadow: inset 0 0 0 1px var(--ci-stroke-inverse-strong), var(--ci-effect-raised), var(--ci-effect-glow-check-in-big);
+  transition: background-color 160ms ease-out, box-shadow 160ms ease-out;
+}
+.ci-doc.is-selected { background: var(--ci-fill-white); box-shadow: inset 0 0 0 2px var(--ci-stroke-selected), var(--ci-effect-raised), var(--ci-effect-glow-check-in-big); }
+.ci-doc::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; transition: background-color 120ms ease-out; }
+.ci-doc-btn:active .ci-doc::after { background: var(--ci-state-overlay-pressed); }
+@media (hover: hover) { .ci-doc-btn:hover .ci-doc::after { background: var(--ci-state-overlay); } }
+.ci-doc-top { display: flex; align-items: flex-start; gap: 16px; padding: 16px 16px 0; }
+.ci-doc-photo { flex: none; display: block; width: 68px; height: 68px; border-radius: 8px; object-fit: cover; }
+.ci-doc-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ci-doc-distance { display: flex; align-items: center; gap: 8px; padding-top: 4px; color: var(--ci-icon-weak); }
+.ci-check { flex: none; display: flex; width: 20px; height: 20px; }
+.ci-tip-frame { display: flex; padding: 16px 16px 0; }
+.ci-tip { flex: 1; display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 12px; background: var(--ci-fill-brand-weaker); color: var(--ci-text-brand); }
+.ci-more { display: flex; align-items: center; gap: 8px; padding: 16px 16px 0; color: var(--ci-text-brand); }
+/* DES-97: Thrive orchestrates Humana's own provider data */
+.ci-source { padding: 16px 16px 0; color: var(--ci-text-weaker); text-align: center; }
+
+/* 3 · What time works for you? (studio TimesScreen) */
+.ci-times-card {
+  position: relative; display: flex; flex-direction: column; padding-bottom: 16px; border-radius: 24px;
+  background: var(--ci-fill-inverse-weak);
+  box-shadow: inset 0 0 0 1px var(--ci-stroke-inverse-strong), var(--ci-effect-glow-bottom-bar-big);
+}
+.ci-tabs-row { display: flex; align-items: center; gap: 8px; padding: 16px 16px 0; }
+.ci-tabs { flex: 1; min-width: 0; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.ci-tab {
+  flex: none; padding: 5px 15px; border: 1px solid var(--ci-stroke-inverse-strong); border-radius: 12px;
+  background: var(--ci-fill-inverse-weak); box-shadow: var(--ci-effect-chip); color: var(--ci-text-weak); white-space: nowrap;
+  transition: background-color 160ms ease-out, color 160ms ease-out;
+}
+.ci-tab.is-on { border-color: transparent; background: var(--ci-fill-brand-weaker); box-shadow: none; color: var(--ci-text-brand); }
+.ci-cal { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: var(--ci-fill-mid); box-shadow: var(--ci-effect-chip); color: #fff; }
+.ci-day-title { padding: 16px 16px 0; color: var(--ci-text-weaker); }
+.ci-times { display: flex; flex-wrap: wrap; gap: 12px; padding: 16px 16px 0; }
+.ci-chip {
+  position: relative; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 12px;
+  background: var(--ci-fill-inverse-weak); box-shadow: inset 0 0 0 1px var(--ci-stroke-inverse-strong), var(--ci-effect-raised);
+  color: var(--ci-text-weak); white-space: nowrap;
+  transition: background-color 160ms ease-out, box-shadow 160ms ease-out, color 160ms ease-out;
+}
+.ci-chip.is-on { background: var(--ci-fill-white); box-shadow: inset 0 0 0 2px var(--ci-stroke-selected); color: var(--ci-text-strong); }
+.ci-chip::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; transition: background-color 120ms ease-out; }
+.ci-chip:active::after { background: var(--ci-state-overlay-pressed); }
+@media (hover: hover) { .ci-chip:hover::after, .ci-tab:not(.is-on):hover { background-color: var(--ci-state-overlay); } }
+.ci-free { padding: 16px 16px 0; }
+.ci-entry { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 16px; background: var(--ci-fill-inverse-mid-weak); box-shadow: inset 0 0 0 1px var(--ci-stroke-inverse-strong), var(--ci-effect-raised); }
+.ci-entry-btn { flex: none; display: grid; place-items: center; width: 32px; height: 32px; color: var(--ci-icon-weak); }
+.ci-entry-btn--brand { color: var(--ci-icon-brand); }
+.ci-entry-text { flex: 1; min-width: 0; color: var(--ci-text-weaker); }
+.ci-entry-hint { padding: 12px 12px 0; color: var(--ci-text-weaker); }
+
+/* 4 · Confirm your details (studio DetailsScreen) */
+.ci-details {
+  display: flex; flex-direction: column; gap: 8px; padding: 15px; border: 1px solid var(--ci-stroke-inverse-strong); border-radius: 16px;
+  background: var(--ci-fill-inverse-weak); box-shadow: var(--ci-effect-glow-contact);
+}
+.ci-item { display: flex; flex-direction: column; }
+.ci-item dt { color: var(--ci-text-weak); }
+.ci-item dd { color: var(--ci-text-strong); overflow-wrap: anywhere; }
+.ci-line { height: 1px; background: var(--ci-fill-weaker); }
+
+/* 5 · You're all set (studio AppointmentScreen) */
+.ci-appt {
+  display: flex; flex-direction: column; padding-bottom: 16px; border: 1px solid var(--ci-stroke-inverse-strong); border-radius: 16px;
+  background: var(--ci-fill-inverse-weak); box-shadow: var(--ci-effect-glow-card);
+}
+.ci-badge-frame { display: flex; padding: 16px 16px 0; }
+.ci-badge { display: flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 8px; background: var(--ci-fill-brand-weak); color: var(--ci-text-brand); white-space: nowrap; }
+/* Thrive Guide's "badgeItem / Confirmed" (studio .badgeSuccess): fill/successWeak, text/success */
+.ci-badge--success { background: #7fc54d1f; color: #65ab33; }
+.ci-when { padding: 12px 16px 0; color: var(--ci-text-strong); }
+.ci-appt-body { display: flex; flex-direction: column; gap: 8px; padding: 4px 16px 0; color: var(--ci-text-weak); }
+.ci-actions { display: flex; flex-wrap: wrap; gap: 12px; padding: 16px 16px 0; }
+.ci-action {
+  position: relative; display: flex; align-items: center; padding: 6px 12px; border-radius: 12px;
+  background: var(--ci-fill-brand-weaker); color: var(--ci-text-brand); white-space: nowrap;
+  transition: background-color 160ms ease-out, color 160ms ease-out;
+}
+.ci-action.is-on { background: var(--ci-fill-brand-strong); color: #fff; }
+.ci-action::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; transition: background-color 120ms ease-out; }
+.ci-action:active::after { background: var(--ci-state-overlay-pressed); }
+.ci-action.is-on:active::after { background: var(--ci-state-overlay-pressed-on-brand); }
+.ci-action-label { padding: 0 4px; }
+
+/* 6 · Done (studio EndScreen, Humana preset "SNS_13"): placed on the whole 360×800 screen, as in Figma */
+.ci-gradient { position: absolute; inset: -52px 0 0; overflow: hidden; pointer-events: none; }
+.ci-gradient img { position: absolute; width: 779px; height: 779px; max-width: none; }
+.ci-gradient-green { right: -389px; top: calc(39.125% - 200px); }
+.ci-gradient-blue { left: -377px; top: calc(54.875% - 200px); }
+.ci-message {
+  position: absolute; inset: -52px 0 0; padding: 16px; pointer-events: none;
+  display: grid; grid-template-rows: minmax(0, 1fr) 112px minmax(0, 1fr);
+}
+.ci-message-top { grid-row: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+/* The Success Lottie's 224×224 at half size, its start dot 32px off the bottom of the slot (studio .success) */
+.ci-success-anim { flex: none; width: 112px; height: 112px; margin-bottom: 32px; }
+.ci-success { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 100px; background: var(--ci-fill-success-weak); color: var(--ci-icon-success); }
+.ci-message-middle { grid-row: 2 / span 2; display: flex; flex-direction: column; align-items: center; padding: 8px 0; text-align: center; }
+.ci-message-middle h1 { width: 100%; padding: 16px 16px 0; color: var(--ci-text-strong); }
+.ci-message-middle p { width: 100%; padding: 12px 16px 0; }
+.ci-client { position: relative; margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px; }
+.ci-client img { display: block; margin: 2.6px 0; }
+
+/* Coming in (studio motion tokens): the doctors one after another, the time picker's and the booked
+   visit's card gliding up and settling, then what's on them in turn. */
+@media (prefers-reduced-motion: no-preference) {
+  .ci-doc-btn { animation: ci-rise 380ms var(--ci-ease-in) calc(70ms * var(--i, 0)) both; }
+  .ci-more, .ci-source { animation: ci-rise 380ms var(--ci-ease-in) 210ms both; }
+  .ci-times-card, .ci-appt { animation: ci-card-rise 620ms var(--ci-ease-in) 60ms both, ci-fade 280ms ease-out 60ms both; }
+  .ci-tabs-row, .ci-day-title, .ci-times, .ci-free,
+  .ci-badge-frame, .ci-when, .ci-appt-body, .ci-actions { animation: ci-part 420ms var(--ci-ease-in) both; }
+  .ci-tabs-row, .ci-badge-frame { animation-delay: 180ms; }
+  .ci-day-title, .ci-when { animation-delay: 230ms; }
+  .ci-times, .ci-appt-body { animation-delay: 280ms; }
+  .ci-free, .ci-actions { animation-delay: 330ms; }
+}
+@keyframes ci-fade { from { opacity: 0; } }
+@keyframes ci-rise { from { opacity: 0; transform: translateY(24px); } }
+@keyframes ci-card-rise { from { transform: translateY(40px) scale(0.95); } }
+@keyframes ci-part { from { opacity: 0; transform: translateY(12px); } }
+
+/* ---------- Perks and Account tabs (tht-demo-studio navigator, ThriveAppScreen.module.css) ---------- */
+.pk-pills { display: flex; gap: 8px; padding: 16px 16px 8px; overflow-x: auto; scrollbar-width: none; }
+.pk-pills::-webkit-scrollbar { display: none; }
+.pk-pill {
+  flex: none; display: flex; align-items: center; height: 40px; padding: 8px 16px; border-radius: 12px;
+  background: #fff; box-shadow: 0 2px 8px var(--shadow-weaker);
+  font-weight: 500; font-size: 16px; line-height: 24px; color: var(--text-weak); white-space: nowrap;
+  transition: transform 150ms ease-out, background-color 150ms ease-out, color 150ms ease-out;
+}
+.pk-pill:active { transform: scale(0.96); }
+.pk-pill.is-on { background: #d9e1f7; color: var(--text-strong); } /* fill/brandWeak */
+.pk-cards { display: flex; flex-direction: column; }
+.pk-card-frame { padding: 16px 16px 0; }
+.pk-card {
+  display: flex; align-items: flex-start; width: 100%; border-radius: 16px;
+  background: #fff; box-shadow: 0 2px 8px var(--shadow-weaker); color: var(--text-strong); text-align: left;
+  transition: transform 150ms ease-out;
+}
+.pk-card:active { transform: scale(0.98); }
+.pk-logo { flex: none; display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; margin: 16px 0 0 16px; overflow: hidden; background: #fff; }
+.pk-logo img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
+.pk-text { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 16px; }
+.pk-brand { font-weight: 600; font-size: 11px; line-height: 14px; letter-spacing: 0.3px; text-transform: uppercase; color: var(--text-weak); }
+.pk-lines { display: flex; flex-direction: column; padding-top: 4px; }
+.pk-title { font-weight: 600; font-size: 16px; line-height: 24px; }
+.pk-offer { font-weight: 500; font-size: 16px; line-height: 24px; color: var(--text-weak); }
+.pk-brand, .pk-title, .pk-offer { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pk-end { flex: none; height: 24px; }
+
+.ac { display: flex; flex-direction: column; gap: 24px; padding-bottom: 24px; }
+.ac-group { margin: 0; padding: 24px 16px 8px; font-weight: 600; font-size: 11px; line-height: 14px; letter-spacing: 0.3px; text-transform: uppercase; color: #696d9b; } /* text/weaker */
+.ac-list { margin: 0; padding: 0; list-style: none; }
+.ac-list > li + li { border-top: 1px solid rgba(13, 17, 64, 0.1); } /* stroke/weak */
+.ac-row { display: flex; align-items: center; gap: 16px; width: 100%; padding: 24px 16px; color: var(--text-strong); text-align: left; }
+.ac-row:active { background: rgba(12, 15, 65, 0.05); }
+.ac-row .ci-icon { color: var(--text-weak); }
+.ac-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ac-title { font-weight: 600; font-size: 16px; line-height: 24px; }
+.ac-detail { font-weight: 500; font-size: 16px; line-height: 24px; color: var(--text-weak); white-space: pre-line; }
+
+/* ---------- Thrive app Home tab (Figma Core App Experience 5513:10984) ---------- */
+.th-divider { padding: 24px 16px 0; }
+.th-divider span { display: block; height: 1px; background: #d9e1f7; } /* illo/brandWeak */
+.th-tabs { display: flex; gap: 24px; padding: 16px 32px 8px 16px; }
+.th-tab { padding: 8px 0; font-weight: 500; font-size: 16px; line-height: 24px; color: #696d9b; white-space: nowrap; } /* text/weaker */
+.th-tab.is-on { padding-bottom: 6px; border-bottom: 2px solid var(--text-brand); font-weight: 600; color: var(--text-strong); }
+.th-status { display: flex; flex-direction: column; align-items: center; padding-top: 32px; }
+.th-icon { display: flex; margin-top: 16px; padding: 12px; border-radius: 100px; background: var(--fill-weaker); }
+.th-icon img { display: block; }
+.th-title { padding: 16px 16px 0; font-weight: 600; font-size: 16px; line-height: 24px; color: var(--text-strong); text-align: center; }
+.th-caption { padding: 8px 16px; font-weight: 500; font-size: 14px; line-height: 20px; color: var(--text-weak); text-align: center; }
+
+/* ---------- Care hub: the booked visit (studio navigator AppointmentCard + AppointmentBadge) ---------- */
+.ap-card { display: flex; flex-direction: column; align-items: flex-start; padding: 16px 0; border-radius: 16px; background: #fff; box-shadow: 0 2px 8px var(--shadow-weaker); }
+.ap-badge { display: inline-flex; align-items: center; height: 24px; margin: 0 16px; padding: 0 8px; border-radius: 8px; font-weight: 600; font-size: 11px; line-height: 14px; letter-spacing: 0.3px; text-transform: uppercase; white-space: nowrap; }
+.ap-badge--brand { background: #d9e1f7; color: var(--text-brand); }
+.ap-badge--warning { background: #e7873d1a; color: #e7873d; }
+.ap-badge--neutral { background: var(--fill-weaker); color: var(--text-weak); }
+.ap-heading, .ap-body { display: flex; flex-direction: column; align-self: stretch; padding: 12px 16px 0; }
+.ap-body { padding-top: 16px; }
+.ap-when { font-weight: 600; font-size: 20px; line-height: 28px; color: var(--text-strong); }
+.ap-title { font-weight: 500; font-size: 16px; line-height: 24px; color: var(--text-strong); }
+.ap-note, .ap-address { font-weight: 500; font-size: 14px; line-height: 20px; color: var(--text-weak); }
+.ap-where { font-weight: 600; font-size: 14px; line-height: 20px; color: var(--text-strong); }
+.ap-link { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-weight: 600; font-size: 14px; line-height: 20px; color: var(--text-brand); text-decoration: underline; text-decoration-skip-ink: none; text-underline-position: from-font; }
+.ap-buttons { display: flex; flex-direction: column; gap: 12px; align-self: stretch; padding: 20px 16px 0; }
+.ap-btn { display: flex; align-items: center; justify-content: center; padding: 6px 12px; border-radius: 12px; font-weight: 600; font-size: 14px; line-height: 20px; white-space: nowrap; }
+.ap-btn span { padding: 0 4px; }
+.ap-btn--primary { background: var(--text-brand); color: #fff; }
+.ap-btn--secondary { background: var(--fill-brandweaker); color: var(--text-brand); }
+.ap-btn:active { filter: brightness(0.94); }

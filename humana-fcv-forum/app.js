@@ -56,7 +56,7 @@ const timeNow = () => new Date().toLocaleTimeString("en-US", { hour: "numeric", 
 const balanceAsOf = () => `As of ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}, ${timeNow()}`;
 
 const pageHeader = (title, body) => `
-  <div class="ch-page-header"><h2 class="ch-h2">${title}</h2><p class="ch-body">${body}</p></div>`;
+  <div class="ch-page-header"><h2 class="ch-h2">${title}</h2>${body ? `<p class="ch-body">${body}</p>` : ""}</div>`;
 const section = (title) => `<h3 class="ch-section">${title}</h3>`;
 
 // Care hub (Figma 6283:1802) — work-in-progress mock
@@ -78,7 +78,470 @@ const RESOURCE_SKELETONS = [
   { title: "36%", lines: ["90%", "48%"] },
 ];
 
+/* ---------- Find a doctor (Widget 3) ----------
+   The booking flow from tht-demo-studio's /gen-ui/appointment-scheduling demo (Figma "Example check-in
+   flow – Gen UI"): pick a doctor → pick a time → confirm details → booked → done, as full check-in
+   screens with the studio's look and motion (src/screens/*Screen.tsx there). The first screen is
+   Client-Demos thriveGuideFlow08 (9205:36385), which the studio draws as its photo action card.
+   "Powered by Humana Provider Directory" under the doctors is the DES-97 nod that Thrive
+   orchestrates Humana's own data. */
+const D = "assets/doctor/";
+const K = "assets/checkin/";
+// Progress through the booking: this flow starts from the widget, so the bar starts near empty
+// (the studio's values assume a check-in came before it)
+const STEP_PROGRESS = { findDoctor: 0.1, doctors: 0.3, times: 0.5, confirm: 0.7, booked: 0.9 };
+// A library icon drawn as a mask, so it takes the text colour (studio LibraryIcon)
+const icon = (name, size = "") => `<span class="ci-icon${size ? ` ci-icon--${size}` : ""}" style="--icon: url('${K}${name}.svg')" aria-hidden="true"></span>`;
+const checkbox = (size = 20) => `<img class="ci-checkbox" src="${K}checkbox-selected.svg" width="${size}" height="${size}" alt="" />`;
+// Library "appHeader": back arrow, "Need help?" (or Thrive Guide's Help pill), progress bar
+const ciHeader = ({ progress, help = "link", background = true, back = true } = {}) => `
+  <header class="ci-header${background ? " ci-header--bg" : ""}">
+    <div class="ci-bar">
+      ${back ? `<button class="ci-back" type="button" data-ci-back aria-label="Back"><span><img src="${K}arrow-left.svg" width="24" height="24" alt="" /></span></button>` : "<span></span>"}
+      ${help === "pill" ? `<button class="ci-help-pill ci-tiny-bold" type="button" data-ci-help>Help</button>` : `<button class="ci-help ci-tiny-link" type="button" data-ci-help>Need help?</button>`}
+    </div>
+    ${progress === undefined ? "" : `<div class="ci-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(progress * 100)}"><span class="ci-fill" data-progress="${progress}"></span></div>`}
+  </header>`;
+// Library "pageHeader"
+const ciPageHeader = (heading, body, id) => `
+  <div class="ci-page-header">
+    <h1 class="ci-h4"${id ? ` id="${id}"` : ""}>${heading}</h1>
+    ${body ? `<p class="ci-small ci-weak">${body}</p>` : ""}
+  </div>`;
+// Library "button" and "appFooter" (fill + raised when a list scrolls under it)
+const ciButton = (label, attrs = "", { variant = "primary", iconName = "" } = {}) =>
+  `<button class="ci-btn ci-btn--${variant}" type="button" ${attrs}>${iconName ? `<span class="ci-btn-icon">${icon(iconName, "20")}</span>` : ""}<span class="ci-btn-label">${label}</span></button>`;
+const ciFooter = (buttons, { fill = false } = {}) => `<footer class="ci-footer${fill ? " ci-footer--fill" : ""}"><div class="ci-buttons">${buttons}</div></footer>`;
+
+// The doctor picked is the one named through to the booking.
+// PLACEHOLDER clinic addresses: Bellevue's is from Figma; Tusculum's is only the city.
+const DOCTORS = [
+  { name: "Dr. May Melyn Galbreath, APRN", practice: "CenterWell Bellevue", address: "7643 Hwy 70 S, Nashville, TN 37221",
+    distance: "12.33 mi away", photo: "doctor-galbreath.jpg",
+    tip: "Soonest opening for your Annual Wellness Visit, and your plan covers a ride there and back." },
+  { name: "Dr. Eric Foley, APRN", practice: "CenterWell Tusculum", address: "Nashville, TN",
+    distance: "17.77 mi away", photo: "doctor-foley.jpg" },
+  { name: "Dr. Sabrina Tanis Finney, MD", practice: "CenterWell Tusculum", address: "Nashville, TN",
+    distance: "17.77 mi away", photo: "doctor-finney.jpg" },
+];
+// John, as on the widget. PLACEHOLDER details (the studio's are Loretta's).
+const MEMBER = [
+  ["Legal name", "John Carter"],
+  ["Email", "john.carter@gmail.com"],
+  ["Phone number", "615-555-0147"],
+  ["Sex", "Male"],
+  ["Address", "4213 Old Hillsboro Rd, Leiper’s Fork, TN 37064"],
+  ["Birthday", "March 12, 1958"],
+];
+// Openings over the next three days from today (the studio's: Today / Jun 11 / Jun 12)
+const OPENINGS = [
+  ["12:30 PM", "1:00 PM", "2:30 PM", "3:30 PM", "3:45 PM"],
+  ["9:00 AM", "10:00 AM", "11:30 AM", "2:00 PM"],
+  ["8:30 AM", "1:15 PM", "4:00 PM"],
+];
+const APPT_ACTIONS = [
+  ["Add to calendar", "calendar-blank"],
+  ["Modify", "clock-clockwise"],
+  ["Directions", "navigation-arrow"],
+  ["Get a free ride", "car"],
+];
+const dayAt = (i) => { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() + i); return d; };
+const fmtDay = (d, o) => d.toLocaleDateString("en-US", o);
+const dayTab = (i) => (i === 0 ? "Today" : fmtDay(dayAt(i), { month: "short", day: "numeric" }));
+const dayTitle = (i) => `${i === 0 ? "Today, " : ""}${fmtDay(dayAt(i), { weekday: "short", month: "short", day: "numeric" })}`;
+// booking.doctor / booking.pick start empty: Next stays off until one is picked, as in the studio
+const booking = { doctor: null, day: 0, pick: null };
+const slotLabel = () => `${fmtDay(dayAt(booking.pick.day), { weekday: "long", month: "long", day: "numeric" })} at ${booking.pick.time}`;
+const resetBooking = () => Object.assign(booking, { doctor: null, day: 0, pick: null });
+
+const doctorCard = (d, i) => {
+  const on = booking.doctor === i;
+  return `
+    <button class="ci-doc-btn" type="button" role="radio" aria-checked="${on}" data-ci-doctor="${i}" style="--i: ${i}">
+      <span class="ci-doc${on ? " is-selected" : ""}">
+        <span class="ci-doc-top">
+          <img class="ci-doc-photo" src="${D}${d.photo}" width="68" height="68" alt="" />
+          <span class="ci-doc-text">
+            <span class="ci-small-bold ci-strong">${d.name}</span>
+            <span class="ci-tiny ci-weak">${d.practice}</span>
+            <span class="ci-doc-distance">${icon("map-pin", "16")}<span class="ci-tiny ci-underline ci-weak">${d.distance}</span></span>
+          </span>
+          <span class="ci-check">${on ? checkbox() : ""}</span>
+        </span>
+        ${d.tip ? `<span class="ci-tip-frame"><span class="ci-tip">${icon("sparkle", "16")}<span class="ci-tiny">${d.tip}</span></span></span>` : ""}
+      </span>
+    </button>`;
+};
+const dayTabs = () => OPENINGS.map((_, i) =>
+  `<button class="ci-tab ci-small${i === booking.day ? " is-on" : ""}" type="button" role="tab" aria-selected="${i === booking.day}" data-ci-day="${i}">${dayTab(i)}</button>`).join("");
+const timeChips = () => OPENINGS[booking.day].map((t) => {
+  const on = booking.pick?.day === booking.day && booking.pick.time === t;
+  return `<button class="ci-chip ci-small${on ? " is-on" : ""}" type="button" role="radio" aria-checked="${on}" data-ci-time="${t}">${t}${on ? checkbox(16) : ""}</button>`;
+}).join("");
+
+/* Find a doctor: picks update the screen in place (a re-render would replay its way in) */
+const setNextEnabled = (on) => { const b = appBody.querySelector("[data-ci-next]"); if (b) b.disabled = !on; };
+function pickDoctor(i) {
+  booking.doctor = i;
+  appBody.querySelectorAll("[data-ci-doctor]").forEach((btn) => {
+    const on = Number(btn.dataset.ciDoctor) === i;
+    btn.setAttribute("aria-checked", on);
+    btn.querySelector(".ci-doc").classList.toggle("is-selected", on);
+    btn.querySelector(".ci-check").innerHTML = on ? checkbox() : "";
+  });
+  setNextEnabled(true);
+}
+function showDay(i) {
+  booking.day = i;
+  appBody.querySelector(".ci-tabs").innerHTML = dayTabs();
+  appBody.querySelector(".ci-day-title").textContent = dayTitle(i);
+  appBody.querySelector(".ci-times").innerHTML = timeChips();
+}
+// End screen: the check-ins' Success Lottie (studio assets/lottie/success.json, lottie-web light build),
+// played once to its held check (frames 0–239; 240+ is its way out). If it can't load, a static check.
+let lottieLib = null;
+const loadLottie = () => (lottieLib ??= new Promise((resolve, reject) => {
+  const el = document.createElement("script");
+  el.src = `${K}lottie_light.min.js`;
+  el.onload = () => resolve(window.lottie);
+  el.onerror = () => { lottieLib = null; reject(); };
+  document.head.append(el);
+}));
+let successData = null;
+const loadSuccess = () => (successData ??= fetch(`${K}success.json`).then((r) => r.json()).catch((e) => { successData = null; throw e; }));
+let successAnim = null;
+function playSuccess() {
+  const host = appBody.querySelector("#ciSuccess");
+  if (!host) return;
+  successAnim?.destroy();
+  successAnim = null;
+  Promise.all([loadLottie(), loadSuccess()]).then(([lottie, data]) => {
+    if (!host.isConnected) return;
+    successAnim = lottie.loadAnimation({
+      container: host, renderer: "svg", loop: false, autoplay: false,
+      animationData: structuredClone(data), // lottie mutates its input
+      rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
+    });
+    if (reduceMotion.matches) successAnim.goToAndStop(239, true);
+    else successAnim.playSegments([0, 239], true);
+  }).catch(() => {
+    if (host.isConnected) host.outerHTML = `<span class="ci-success">${icon("check")}</span>`;
+  });
+}
+// The progress bar eases from where the last screen left it (studio ProgressOverlay, 0.6s ease-in-out);
+// from the widget it fills from empty.
+let ciProgress = 0;
+function enterCheckin() {
+  const fill = appBody.querySelector(".ci-fill");
+  if (!fill) return;
+  const to = Number(fill.dataset.progress);
+  const at = (v) => `translateX(${(Math.min(1, Math.max(0, v)) - 1) * 100}%)`;
+  fill.style.transform = at(ciProgress);
+  if (!reduceMotion.matches) {
+    reflow(fill);
+    fill.style.transition = "transform 600ms cubic-bezier(0.42, 0, 0.58, 1)";
+  }
+  fill.style.transform = at(to);
+  ciProgress = to;
+}
+
+/* ---------- Thrive app Home tab, and the visit booked in Widget 3's flow ---------- */
+let homeTab = 0;
+const homeStatus = () => {
+  const [title, caption] = homeTab === 0
+    ? ["You’re all caught up", "You’ll get a new check-in each week."]
+    : ["No completed check-ins yet", "Check-ins you finish show up here."];
+  return `
+    <span class="th-icon"><img src="assets/home/icon-list-checks.svg" width="24" height="24" alt="" /></span>
+    <p class="th-title">${title}</p>
+    <p class="th-caption">${caption}</p>`;
+};
+// Set when "Looks good, book it" is tapped; Care hub then shows it under Upcoming appointments.
+let bookedVisit = null;
+// Thrive Guide "badgeItem / appointment" (studio AppointmentBadge): counted from today
+function visitStatus(date) {
+  const today = new Date(); today.setHours(12, 0, 0, 0);
+  const days = Math.round((date - today) / 864e5);
+  if (days < 0) return { label: "Past", tone: "neutral" };
+  if (days === 0) return { label: "Today", tone: "warning" };
+  if (days === 1) return { label: "Tomorrow", tone: "brand" };
+  if (days < 7) return { label: `In ${days} days`, tone: "brand" };
+  return { label: "Upcoming", tone: "brand" };
+}
+// Library "appointmentCard" (studio navigator AppointmentCard). Its buttons are shown but do nothing.
+const visitCard = (v) => {
+  const doc = DOCTORS[v.doctor];
+  const st = visitStatus(v.date);
+  return `
+    <div class="ch-pad"><section class="ap-card" aria-label="Annual Wellness Visit, ${fmtDay(v.date, { weekday: "long", month: "long", day: "numeric" })} at ${v.time}">
+      <span class="ap-badge ap-badge--${st.tone}">${st.label}</span>
+      <div class="ap-heading">
+        <p class="ap-when">${fmtDay(v.date, { weekday: "short", month: "short", day: "numeric" })} at ${v.time}</p>
+        <p class="ap-title">Annual Wellness Visit</p>
+        <p class="ap-note">With ${doc.name}</p>
+      </div>
+      <div class="ap-body">
+        <p class="ap-where">${doc.practice}</p>
+        <p class="ap-address">${doc.address}</p>
+        <button class="ap-link" type="button">${icon("navigation-arrow", "16")}Directions</button>
+      </div>
+      <div class="ap-buttons">
+        <button class="ap-btn ap-btn--primary" type="button">${icon("calendar-blank", "16")}<span>Add to calendar</span></button>
+        <button class="ap-btn ap-btn--secondary" type="button">${icon("clock-clockwise", "16")}<span>Modify</span></button>
+      </div>
+    </section></div>`;
+};
+
+/* ---------- Perks and Account tabs ----------
+   From tht-demo-studio's navigator Thrive app (branch navigator/voice, ThriveAppScreen PerksTab /
+   AccountTab: Figma Core App Experience "perksR5" 4712:19381 and "account" 5513:15861). Offers and
+   logos are the design's; an offer reacts to a tap but goes nowhere. Account is John's (PLACEHOLDER
+   details, as on the booking flow); the phone number and email copy themselves. */
+const PK = "assets/perks/";
+const PERK_CATEGORIES = ["All", "Automotive", "Entertainment", "Finance", "Food", "Health"];
+const PERKS = [
+  { brand: "H&R Block", title: "Make tax filing easy", offer: "20% off tax software products", logo: "hr-block.svg", categories: ["Finance"] },
+  { brand: "Pandora", title: "Music & podcasts", offer: "90 days free", logo: "pandora.png", categories: ["Entertainment"] },
+  { brand: "Factor", title: "Fully-prepared food", offer: "$130 off across 6 boxes", logo: "factor.jpg", categories: ["Food", "Health"] },
+  { brand: "Hulu", title: "TV & Movies you love", offer: "One month free", logo: "hulu.png", categories: ["Entertainment"] },
+  { brand: "SiriusXM", title: "Ad free music, just for you", offer: "4 months free", logo: "siriusxm.png", categories: ["Entertainment"] },
+  { brand: "Valvoline", title: "Automobile upkeep & support", offer: "$8 - $10 off", logo: "valvoline.png", categories: ["Automotive"] },
+  { brand: "DoorDash", title: "Food delivery", offer: "30% off first order", logo: "doordash.png", categories: ["Food"] },
+  { brand: "HelloFresh", title: "Meal kit", offer: "$125 off across 7 boxes", logo: "hellofresh.png", categories: ["Food", "Health"] },
+  { brand: "Omaha Steaks", title: "Steaks, burger, & chicken", offer: "50% off (exclusions apply)", logo: "omaha-steaks.png", categories: ["Food"] },
+  { brand: "Sam’s Club", title: "$19.99 membership", offer: "60% off original cost", logo: "sams-club.svg", categories: ["Food", "Health"] },
+  { brand: "Discount Tire", title: "Best prices on tires", offer: "5% off", logo: "discount-tire.jpg", categories: ["Automotive"] },
+  { brand: "Disney+", title: "Home of everything Disney", offer: "Bundle today to save", logo: "disney-plus.png", categories: ["Entertainment"] },
+];
+let perkCategory = "All";
+const perkPills = () => PERK_CATEGORIES.map((c) =>
+  `<button class="pk-pill${c === perkCategory ? " is-on" : ""}" type="button" role="tab" aria-selected="${c === perkCategory}" data-perk-cat="${c}">${c}</button>`).join("");
+const perkCards = () => PERKS.filter((p) => perkCategory === "All" || p.categories.includes(perkCategory)).map((p) => `
+  <div class="pk-card-frame">
+    <button class="pk-card" type="button" data-perk>
+      <span class="pk-logo"><img src="${PK}${p.logo}" alt="" /></span>
+      <span class="pk-text">
+        <span class="pk-brand">${p.brand}</span>
+        <span class="pk-lines"><span class="pk-title">${p.title}</span><span class="pk-offer">${p.offer}</span></span>
+      </span>
+    </button>
+  </div>`).join("");
+const ACCOUNT = [
+  { title: "Manage plan", rows: [
+    { title: "My plan", detail: "Manage & view plan details", end: "caret" },
+    { title: "Thrive wallet", detail: "Manage & view balance", end: "caret" },
+    { title: "Data usage", detail: "Manage & view data", end: "caret" },
+    { title: "Lifeline benefit", detail: "Manage Lifeline", end: "caret" },
+  ] },
+  { title: "Personal details", rows: [
+    { title: "Name", detail: "John Carter", end: "caret" },
+    { title: "Address", detail: "4213 Old Hillsboro Rd\nLeiper’s Fork, TN 37064", end: "caret" },
+    { title: "Your phone number", detail: "+1 615-555-0147", end: "copy" },
+    { title: "Email address", detail: "john.carter@gmail.com", end: "copy" },
+  ] },
+  { title: "Thrive settings", rows: [
+    { title: "Check-in time", detail: "Mondays, 9:30 AM", end: "caret" },
+    { title: "Important contacts", detail: "Humana Member Services · 24/7 Nurse Line", end: "caret" },
+    { title: "Location sharing", detail: "On for ER visits", end: "caret" },
+  ] },
+  { title: "Notices", rows: [
+    { title: "Terms & conditions", end: "out" },
+    { title: "Privacy policy", end: "out" },
+  ] },
+];
+const ACCOUNT_END = { caret: "caret-right", copy: "copy", out: "arrow-square-out" };
+
 const DESTINATIONS = {
+  // Widget 1: today's hand-off. The widget opens the MyHumana app, which asks the member to sign in first.
+  myhumana: {
+    title: "MyHumana",
+    variant: "myhumana",
+    // Mocked after the MyHumana app's welcome screen: sky line art, the MyHumana mark, "Your health plan in
+    // your pocket", password / Face ID sign-in, and the home-under-a-dome illustration at the foot.
+    // The art is drawn here in the app's line-art style (not Humana's own files). Signing in isn't part of the demo.
+    html: () => `
+      <div class="mh">
+        <svg class="mh-sky" viewBox="0 0 360 120" width="360" height="120" aria-hidden="true">
+          <g fill="none" stroke="#3d4b63" stroke-width="1.4" stroke-linecap="round">
+            <circle cx="62" cy="52" r="19" fill="#f6d24a" />
+            ${Array.from({ length: 12 }, (_, i) => { const t = (i / 12) * Math.PI * 2; const r1 = i % 2 ? 25 : 26, r2 = i % 2 ? 31 : 35;
+              return `<line x1="${(62 + Math.cos(t) * r1).toFixed(1)}" y1="${(52 + Math.sin(t) * r1).toFixed(1)}" x2="${(62 + Math.cos(t) * r2).toFixed(1)}" y2="${(52 + Math.sin(t) * r2).toFixed(1)}" />`; }).join("")}
+            <path d="M58 64 q4 -9 13 -6 q4 -8 12 -3 q8 0 7 8 q5 2 2 7 h-34 q-6 -3 0 -6z" fill="#fff" />
+            <path d="M28 76 q3 -5 9 -3 q4 -4 9 0 h3 m-24 3 h20" />
+            <path d="M206 82 q2 -16 18 -16 q14 0 16 16 z" fill="#dfe8fb" /><line x1="196" y1="82" x2="250" y2="86" />
+            <path d="M282 96 q2 -14 16 -14 q6 -10 18 -6 q14 -2 18 12 q8 2 8 10 z" fill="#dfe8fb" /><line x1="270" y1="98" x2="350" y2="104" />
+          </g>
+        </svg>
+        <p class="mh-brand"><span class="mh-my">My</span><img src="assets/logo-humana.svg" width="86" height="22" alt="Humana" /></p>
+        <h2 class="mh-title">Your health plan in your pocket</h2>
+        <div class="mh-actions">
+          <button class="mh-btn mh-btn--primary" type="button" data-signin>Sign in with password</button>
+          <button class="mh-btn mh-btn--secondary" type="button" data-signin>
+            <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6V4a2 2 0 0 1 2-2h2M14 2h2a2 2 0 0 1 2 2v2M18 14v2a2 2 0 0 1-2 2h-2M6 18H4a2 2 0 0 1-2-2v-2" /><path d="M7 7.5v1M13 7.5v1M10 8v3h-1M7.5 13.5q2.5 2 5 0" /></g></svg>
+            Sign in with Face ID
+          </button>
+          <p class="mh-activate">Don’t have an account? <button class="mh-link" type="button" data-signin>Activate now</button></p>
+        </div>
+        <svg class="mh-home" viewBox="0 0 360 210" width="360" height="210" aria-hidden="true">
+          <path d="M0 150 L360 186 V210 H0 Z" fill="#e2efd2" />
+          <g stroke="#3d4b63" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M42 150 l4 -38 m12 40 l3 -40" fill="none" />
+            <circle cx="44" cy="96" r="20" fill="#bfe0a3" /><circle cx="64" cy="92" r="21" fill="#a9d48b" />
+            <path d="M108 176 a90 90 0 0 1 180 0 z" fill="#e6eefb" />
+            <path d="M150 112 l48 -22 l48 22 z" fill="#25406b" />
+            <rect x="214" y="82" width="10" height="16" fill="#25406b" />
+            <rect x="156" y="112" width="84" height="56" fill="#f6d24a" />
+            <path d="M174 110 l24 -18 l24 18" fill="none" />
+            <circle cx="198" cy="104" r="7" fill="#fff" /><path d="M198 97 v14 M191 104 h14" fill="none" />
+            <rect x="166" y="124" width="16" height="14" fill="#fff" /><path d="M174 124 v14 M166 131 h16" fill="none" />
+            <rect x="214" y="124" width="16" height="14" fill="#fff" /><path d="M222 124 v14 M214 131 h16" fill="none" />
+            <rect x="191" y="140" width="14" height="28" rx="2" fill="#5f8f2d" />
+            <path d="M198 66 q-12 -12 -14 -4 q-3 10 14 20 q17 -10 14 -20 q-2 -8 -14 4 z" fill="#78a943" transform="translate(-11.9 -4) scale(1.06)" />
+            <path d="M198 70 v10 M193 75 h10" stroke="#fff" stroke-width="2" fill="none" />
+            <path d="M130 196 l3 -6 m4 6 l1 -7 M296 200 l2 -6 m5 7 l1 -6" fill="none" />
+          </g>
+        </svg>
+      </div>`,
+  },
+  // Widget 3: "Schedule an appointment" lands here. Client-Demos thriveGuideFlow08 (9205:36385), drawn
+  // as the studio's photo action card (ActionScreen "actionCard02"): Help pill, no header fill.
+  findDoctor: {
+    title: "Find a doctor",
+    variant: "ci-card",
+    html: () => `
+      <div class="ci-screen">
+        ${ciHeader({ progress: STEP_PROGRESS.findDoctor, help: "pill", background: false })}
+        <main class="ci-card-area">
+          <section class="ci-photo-card" aria-labelledby="ciFindHeading">
+            <div class="ci-photo-frame">
+              <img class="ci-photo" src="${D}find-doctor-photo.jpg" alt="A doctor going over results with a patient" />
+              <span class="ci-photo-badge">${icon("stethoscope")}</span>
+            </div>
+            <h1 class="ci-h3 ci-photo-heading" id="ciFindHeading">Let’s find you a doctor close to home</h1>
+            <p class="ci-photo-caption ci-tiny ci-weak">Covered by <img src="${D}logo-humana-16.svg" width="77.676" height="16" alt="Humana" /></p>
+            <p class="ci-photo-body ci-small ci-weak">Your yearly wellness visit is covered. Tell us what works and we’ll find a doctor nearby and book it.</p>
+            <div class="ci-photo-cta">${ciButton("Find me a doctor", 'data-ci-next="doctors"', { iconName: "sparkle" })}</div>
+          </section>
+        </main>
+        ${ciFooter(ciButton("Not right now", "data-ci-close", { variant: "link" }))}
+      </div>`,
+  },
+  // Studio DoctorsScreen ("Pick your primary care doctor"): one to pick, then Next
+  doctors: {
+    title: "Pick your doctor",
+    variant: "ci",
+    html: () => `
+      <div class="ci-screen">
+        ${ciHeader({ progress: STEP_PROGRESS.doctors })}
+        <main class="ci-main">
+          ${ciPageHeader("Pick your primary care doctor", "Here are in-network doctors near Leiper’s Fork that are taking new patients.", "ciDocHeading")}
+          <div class="ci-doc-list" role="radiogroup" aria-labelledby="ciDocHeading">${DOCTORS.map(doctorCard).join("")}</div>
+          <p class="ci-more"><span class="ci-small ci-underline">See more</span>${icon("caret-right", "16")}</p>
+          <p class="ci-source ci-tiny">Powered by Humana Provider Directory</p>
+        </main>
+        ${ciFooter(ciButton("Next", `data-ci-next="times"${booking.doctor === null ? " disabled" : ""}`), { fill: true })}
+      </div>`,
+  },
+  // Studio TimesScreen ("What time works for you?"): day tabs, then that day's times. The calendar
+  // button and "Something else…" are shown as in Figma but do nothing.
+  times: {
+    title: "Pick a time",
+    variant: "ci",
+    html: () => `
+      <div class="ci-screen">
+        ${ciHeader({ progress: STEP_PROGRESS.times })}
+        <main class="ci-main">
+          ${ciPageHeader("What time works for you?", "Tap a time below, or tell us what you’re looking for.")}
+          <div class="ci-card-frame">
+            <div class="ci-times-card">
+              <div class="ci-tabs-row">
+                <div class="ci-tabs" role="tablist" aria-label="Day">${dayTabs()}</div>
+                <span class="ci-cal" aria-hidden="true">${icon("calendar-blank", "cal")}</span>
+              </div>
+              <p class="ci-day-title ci-upper" id="ciDay">${dayTitle(booking.day)}</p>
+              <div class="ci-times" role="radiogroup" aria-labelledby="ciDay">${timeChips()}</div>
+              <div class="ci-free" aria-hidden="true">
+                <div class="ci-entry">
+                  <span class="ci-entry-btn">${icon("pencil-simple", "20")}</span>
+                  <span class="ci-entry-text ci-small">Something else…</span>
+                  <span class="ci-entry-btn ci-entry-btn--brand">${icon("sparkle-fill", "20")}</span>
+                </div>
+                <p class="ci-entry-hint ci-tiny">Eg. “Saturday afternoons”</p>
+              </div>
+            </div>
+          </div>
+        </main>
+        ${ciFooter(ciButton("Next", `data-ci-next="confirm"${booking.pick ? "" : " disabled"}`))}
+      </div>`,
+  },
+  // Studio DetailsScreen ("Confirm your details")
+  confirm: {
+    title: "Confirm your details",
+    variant: "ci",
+    html: () => `
+      <div class="ci-screen">
+        ${ciHeader({ progress: STEP_PROGRESS.confirm })}
+        <main class="ci-main">
+          ${ciPageHeader("Confirm your details", "We’ll share these with the clinic to book your visit.")}
+          <div class="ci-card-frame">
+            <dl class="ci-details">${MEMBER.map(([k, v], i) => `${i ? '<span class="ci-line" aria-hidden="true"></span>' : ""}<div class="ci-item ci-small"><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
+          </div>
+        </main>
+        ${ciFooter(ciButton("Looks good, book it", 'data-ci-next="booked"') + ciButton("Edit details", "data-ci-edit", { variant: "secondary" }), { fill: true })}
+      </div>`,
+  },
+  // Studio AppointmentScreen ("You’re all set"): names the doctor and time picked. Its buttons only
+  // mark themselves done (a second tap clears it).
+  booked: {
+    title: "You’re all set",
+    variant: "ci",
+    html: () => {
+      const doc = DOCTORS[booking.doctor];
+      return `
+      <div class="ci-screen">
+        ${ciHeader({ progress: STEP_PROGRESS.booked })}
+        <main class="ci-main">
+          ${ciPageHeader("You’re all set, John")}
+          <div class="ci-card-frame">
+            <section class="ci-appt" aria-label="Confirmed appointment">
+              <span class="ci-badge-frame"><span class="ci-badge ci-badge--success ci-upper">Confirmed</span></span>
+              <p class="ci-when ci-small-bold">${slotLabel()}</p>
+              <div class="ci-appt-body ci-tiny">
+                <p>Annual Wellness Visit with ${doc.name}</p>
+                <p>${doc.practice}<br />${doc.address}</p>
+              </div>
+              <div class="ci-actions">${APPT_ACTIONS.map(([label, name]) =>
+                `<button class="ci-action ci-tiny-bold" type="button" aria-pressed="false" data-ci-action>${icon(name, "16")}<span class="ci-action-label">${label}</span></button>`).join("")}</div>
+            </section>
+          </div>
+        </main>
+        ${ciFooter(ciButton("Next", 'data-ci-next="done"'))}
+      </div>`;
+    },
+  },
+  // Studio EndScreen (Figma "M1 - end"): the check-ins' Success Lottie over the gradient, the bar full,
+  // no back arrow; plus the Humana preset's "Brought to you by Humana" above Done. Done goes back to the widget.
+  done: {
+    title: "See you there",
+    variant: "ci-end",
+    html: () => `
+      <div class="ci-screen">
+        <div class="ci-gradient" aria-hidden="true"><img class="ci-gradient-green" src="${K}gradient-green.svg" alt="" /><img class="ci-gradient-blue" src="${K}gradient-blue.svg" alt="" /></div>
+        ${ciHeader({ progress: 1, background: false, back: false })}
+        <div class="ci-message">
+          <div class="ci-message-top"><div class="ci-success-anim" id="ciSuccess" role="img" aria-label="Booking complete"></div></div>
+          <div class="ci-message-middle">
+            <h1 class="ci-h4">See you at your visit</h1>
+            <p class="ci-small ci-weak">We’ll send you a reminder the day before.</p>
+          </div>
+        </div>
+        <div class="ci-client">
+          <p class="ci-upper ci-weak">Brought to you by</p>
+          <img src="${K}humana-logo.svg" width="100.669" height="20.736" alt="Humana" />
+        </div>
+        ${ciFooter(ciButton("Done", "data-ci-close"))}
+      </div>`,
+  },
   // Healthy Spending Card (Figma 2737:10925): purse name + available balance only, named as on the Nations
   // portal. No "lives in Care hub" copy: it opens with Care hub underneath, which shows where it lives.
   flex: {
@@ -134,6 +597,51 @@ const DESTINATIONS = {
     },
   },
   // Care hub (Figma 6283:1802): tab root, so no back arrow
+  // Home tab: Figma Core App Experience "homeMDM - None available" (5513:10984). Available / Completed
+  // switch in place; there are no check-ins to show in this prototype.
+  thrivehome: {
+    title: "Home",
+    core: true,
+    root: true,
+    tab: "home",
+    html: () => `
+      ${pageHeader("Hi John!")}
+      <div class="th-divider"><span></span></div>
+      ${section("Latest check-ins")}
+      <div class="th-tabs" role="tablist" aria-label="Check-ins">${["Available", "Completed"].map((t, i) =>
+        `<button class="th-tab${i === homeTab ? " is-on" : ""}" type="button" role="tab" aria-selected="${i === homeTab}" data-home-tab="${i}">${t}</button>`).join("")}</div>
+      <div class="th-status">${homeStatus()}</div>`,
+  },
+  // Perks tab (navigator PerksTab): category pills narrow the offers
+  perks: {
+    title: "Perks",
+    core: true,
+    root: true,
+    tab: "perks",
+    html: () => `
+      ${pageHeader("Perks", "Tap to redeem your exclusive offers.")}
+      <div class="pk-pills" role="tablist" aria-label="Perk categories">${perkPills()}</div>
+      <div class="pk-cards">${perkCards()}</div>
+      <div class="pk-end"></div>`,
+  },
+  // Account tab (navigator AccountTab)
+  account: {
+    title: "Account",
+    core: true,
+    root: true,
+    tab: "account",
+    html: () => `
+      ${pageHeader("Account")}
+      <div class="ac">${ACCOUNT.map((g, gi) => `
+        <section aria-labelledby="acGroup${gi}">
+          <h3 class="ac-group" id="acGroup${gi}">${g.title}</h3>
+          <ul class="ac-list">${g.rows.map((r) => `
+            <li><button class="ac-row" type="button"${r.end === "copy" ? ` data-copy="${r.detail}" aria-label="${r.title}: ${r.detail}. Copy"` : ""}>
+              <span class="ac-text"><span class="ac-title">${r.title}</span>${r.detail ? `<span class="ac-detail">${r.detail}</span>` : ""}</span>
+              ${icon(ACCOUNT_END[r.end])}
+            </button></li>`).join("")}</ul>
+        </section>`).join("")}</div>`,
+  },
   home: {
     title: "Care hub",
     core: true,
@@ -144,6 +652,7 @@ const DESTINATIONS = {
         <span class="ch-member-icon"><img src="${C}logo-humana-symbol.svg" width="17.6" height="22" alt="" /></span>
         <span><span class="ch-member-label">Humana member ID</span><span class="ch-member-id">W123456789</span></span>
       </div>
+      ${bookedVisit ? `${section("Upcoming appointments")}${visitCard(bookedVisit)}` : ""}
       ${section("Your benefits")}
       <div class="ch-pad">
         <button class="ch-nav-card" data-goto="flex" type="button">
@@ -217,16 +726,17 @@ function windowAt(el) {
   const W = appScreen.offsetWidth, H = appScreen.offsetHeight;
   const r = phoneRect(el);
   const k = r.w / W;
+  const radius = el.classList.contains("dock-app") ? r.w * 0.2 : 16; // a dock icon: its rounded-square corners
   return {
     transform: `translate(${r.x}px, ${r.y}px) scale(${k})`,
-    clipPath: `inset(0px 0px ${Math.max(0, H - r.h / k)}px 0px round ${16 / k}px)`,
+    clipPath: `inset(0px 0px ${Math.max(0, H - r.h / k)}px 0px round ${radius / k}px)`,
   };
 }
 // Full screen has square corners (the real screen supplies its own)
 const screenRadius = () => (document.documentElement.classList.contains("full") ? 0 : 32);
 const fullWindow = () => ({ transform: "translate(0px, 0px) scale(1)", clipPath: `inset(0px 0px 0px 0px round ${screenRadius()}px)` });
 const appLayers = () => [...appScreen.children];
-const homeLayers = () => [...phone.querySelectorAll(".widget-frame")];
+const homeLayers = () => [...phone.querySelectorAll(".widget-frame, .dock-app")];
 
 function stopLaunch() {
   launchAnims.forEach((a) => a.cancel());
@@ -323,14 +833,14 @@ window.addEventListener("resize", queueFit);
 
 /* Full screen: the button adds ?full to the URL (Back leaves it) and, where the browser allows
    (Android, desktop), hides the browser UI too. Pressing Esc out of that also leaves full screen. */
-const fullUrl = () => `${location.origin}${location.pathname}?full`;
+const fullUrl = () => `${location.origin}${location.pathname}?full&widget=${phone.dataset.widget || "1"}`;
 let fullFromButton = false;
 function setFull(on) {
   document.documentElement.classList.toggle("full", on);
   fitDevice();
 }
 document.getElementById("fullBtn").addEventListener("click", () => {
-  history.pushState({ full: true }, "", `${location.pathname}?full${location.hash}`);
+  history.pushState({ full: true }, "", `${location.pathname}?full&widget=${phone.dataset.widget || "1"}${location.hash}`);
   fullFromButton = true;
   setFull(true);
   document.documentElement.requestFullscreen?.({ navigationUI: "hide" }).catch(() => {});
@@ -365,9 +875,13 @@ function renderApp() {
   appTitle.textContent = dest.title;
   appScreen.classList.toggle("app-screen--core", !!dest.core);
   appScreen.classList.toggle("app-screen--sub", !!dest.sub); // sub-page: no tab bar
+  appScreen.dataset.variant = dest.variant || ""; // screens with their own look (MyHumana, find a doctor)
   appBack.hidden = !!dest.root && appStack.length === 1;
+  // Bottom nav: the tab this page belongs to (Care hub's own pages under Care hub)
+  document.querySelectorAll("#appNav [data-tab]").forEach((b) => b.classList.toggle("is-active", b.dataset.tab === (dest.tab || "carehub")));
   appBody.innerHTML = dest.html(opts);
   appBody.scrollTop = 0;
+  if (dest.variant?.startsWith("ci")) { enterCheckin(); playSuccess(); } // studio check-in screens: progress eases on
 }
 function openApp(key, fromEl, opts = {}) {
   if (!DESTINATIONS[key]) return;
@@ -395,17 +909,25 @@ function closeApp() {
   done.then(() => { if (!phone.classList.contains("app-open")) stopLaunch(); });
 }
 
+// Widget 1 is today's widget: its links hand off to the MyHumana app instead
 document.querySelectorAll("[data-open]").forEach((el) => {
-  el.addEventListener("click", () => openApp(el.dataset.open, el.closest(".card") || el));
+  el.addEventListener("click", () => openApp(phone.dataset.widget === "1" ? "myhumana" : el.dataset.open, el.closest(".card") || el));
 });
+// Dock: Thrive opens the Thrive app (its Home tab), MyHumana its sign-in, each growing out of its icon
+document.getElementById("dockThrive").addEventListener("click", (e) => openApp("thrivehome", e.currentTarget));
+document.getElementById("dockHumana").addEventListener("click", (e) => openApp("myhumana", e.currentTarget));
+// Widget 3
+document.getElementById("dynCard").addEventListener("click", (e) => { resetBooking(); ciProgress = 0; loadLottie().catch(() => {}); loadSuccess().catch(() => {}); openApp("findDoctor", e.currentTarget); });
+document.getElementById("w3Flex").addEventListener("click", (e) => openApp("flex", e.currentTarget, { source: "widget" }));
 appBack.addEventListener("click", () => {
   if (appStack.length > 1) { appStack.pop(); renderApp(); }
   else closeApp();
 });
-// Bottom nav: Care hub tab → Care hub root. Other tabs aren't part of this prototype.
+// Bottom nav: Home, Perks, Care hub and Account switch tabs
+const NAV_TABS = { home: "thrivehome", perks: "perks", carehub: "home", account: "account" };
 document.getElementById("appNav").addEventListener("click", (e) => {
-  const tab = e.target.closest("[data-tab]");
-  if (tab?.dataset.tab === "carehub") { appStack = [{ key: "home", opts: {} }]; renderApp(); }
+  const key = NAV_TABS[e.target.closest("[data-tab]")?.dataset.tab];
+  if (key) { appStack = [{ key, opts: {} }]; renderApp(); }
 });
 document.getElementById("appHelp").addEventListener("click", () => openDialer("member"));
 /* ---------- In the app: pulse for getting back to the widget ----------
@@ -429,7 +951,7 @@ homePulse.addEventListener("animationend", (e) => { if (e.target === homePulse.l
 appScreen.addEventListener("click", (e) => {
   const hit = e.target.closest("button, a, [data-goto], [data-call]");
   const tab = hit?.dataset.tab;
-  if (!hit || (tab && tab !== "carehub")) return pulseHome();
+  if (!hit || (tab && !NAV_TABS[tab])) return pulseHome();
   stopHomePulse();
 });
 appBody.addEventListener("click", (e) => {
@@ -441,6 +963,55 @@ appBody.addEventListener("click", (e) => {
     renderApp();
     return;
   }
+  // Home: Available / Completed
+  const homeTabBtn = e.target.closest("[data-home-tab]");
+  if (homeTabBtn) {
+    homeTab = Number(homeTabBtn.dataset.homeTab);
+    appBody.querySelectorAll("[data-home-tab]").forEach((b) => { const on = b === homeTabBtn; b.classList.toggle("is-on", on); b.setAttribute("aria-selected", on); });
+    appBody.querySelector(".th-status").innerHTML = homeStatus();
+    return;
+  }
+  // Perks: a pill narrows the offers (in place, so the pills keep their scroll); an offer goes nowhere
+  const perkCat = e.target.closest("[data-perk-cat]");
+  if (perkCat) {
+    perkCategory = perkCat.dataset.perkCat;
+    appBody.querySelectorAll("[data-perk-cat]").forEach((b) => { const on = b === perkCat; b.classList.toggle("is-on", on); b.setAttribute("aria-selected", on); });
+    appBody.querySelector(".pk-cards").innerHTML = perkCards();
+    return;
+  }
+  if (e.target.closest("[data-perk]")) return;
+  // Account: the phone number and email copy themselves
+  const copyRow = e.target.closest("[data-copy]");
+  if (copyRow) {
+    const text = copyRow.dataset.copy;
+    navigator.clipboard?.writeText(text).catch(() => {});
+    const detail = copyRow.querySelector(".ac-detail");
+    detail.textContent = "Copied";
+    setTimeout(() => { if (detail.isConnected) detail.textContent = text; }, 1500);
+    return;
+  }
+  if (e.target.closest("[data-signin]")) { toast("Signing in isn’t part of this demo"); return; }
+  // Find a doctor screens (studio check-in flow)
+  if (e.target.closest("[data-ci-back]")) { appBack.click(); return; }
+  if (e.target.closest("[data-ci-close]")) { closeApp(); return; }
+  if (e.target.closest("[data-ci-help]")) { openDialer("member"); return; }
+  if (e.target.closest("[data-ci-edit]")) { toast("Editing details isn’t part of this demo"); return; }
+  const ciNext = e.target.closest("[data-ci-next]");
+  if (ciNext) {
+    if (ciNext.disabled) return;
+    // "Looks good, book it": the visit is booked, so Care hub lists it from now on
+    if (ciNext.dataset.ciNext === "booked") bookedVisit = { doctor: booking.doctor, date: dayAt(booking.pick.day), time: booking.pick.time };
+    appStack.push({ key: ciNext.dataset.ciNext, opts: {} }); renderApp();
+    return;
+  }
+  const doctor = e.target.closest("[data-ci-doctor]");
+  if (doctor) { pickDoctor(Number(doctor.dataset.ciDoctor)); return; }
+  const day = e.target.closest("[data-ci-day]");
+  if (day) { showDay(Number(day.dataset.ciDay)); return; }
+  const time = e.target.closest("[data-ci-time]");
+  if (time) { booking.pick = { day: booking.day, time: time.dataset.ciTime }; appBody.querySelector(".ci-times").innerHTML = timeChips(); setNextEnabled(true); return; }
+  const apptAction = e.target.closest("[data-ci-action]");
+  if (apptAction) { const on = apptAction.getAttribute("aria-pressed") !== "true"; apptAction.setAttribute("aria-pressed", on); apptAction.classList.toggle("is-on", on); return; }
   const acc = e.target.closest("[data-accordion]");
   if (acc) { toggleAccordion(acc); return; }
   const call = e.target.closest("[data-call]");
@@ -911,9 +1482,11 @@ hintInputs.forEach((inp) => inp.addEventListener("change", applyHints));
 document.getElementById("hintRecommended").addEventListener("click", () => { setFlip("slide"); setCtl("v4-right"); setHints([]); });
 document.getElementById("hintFigma").addEventListener("click", () => { setFlip("slide"); setCtl("dots"); setHints([]); });
 
-/* Widget 1 = static, tap-only link tile ("no"). Widget 2 = flippable purse tile ("pager").
-   (Swapped from the Healthy Spending Card prototype, where Widget 1 is the flippable one.) */
-const PAGER_WIDGET = "2"; // the switch value that shows the flippable tile
+/* Widget 1 = today's widget: static call tiles ("no"); its links open MyHumana.
+   Widget 2 = flippable purse tile ("pager"). (Swapped from the Healthy Spending Card prototype.)
+   Widget 3 = dynamic: a personal next-step card, a Healthy Spending Card tile and two call tiles
+   (its own markup, .w3; data-widget="3").
+   ?widget=1|2|3 in the address opens on that widget (the phone link uses it). */
 const answerInputs = [...document.querySelectorAll('input[name="answer"]')];
 const widgetInputs = [...document.querySelectorAll('input[name="widget"]')];
 const nameInputs = [...document.querySelectorAll('input[name="names"]')];
@@ -924,17 +1497,25 @@ function setAnswer(value) {
     w2Version = value;
     answerInputs.forEach((r) => (r.checked = r.value === value));
   }
-  widgetInputs.forEach((r) => (r.checked = (r.value === PAGER_WIDGET) === (value === "pager")));
   phone.dataset.answer = value;
   notes.dataset.answer = value;
   if (value === "pager") startAuto(); else stopAuto();
 }
-answerInputs.forEach((r) => r.addEventListener("change", () => setAnswer(r.value)));
-widgetInputs.forEach((r) => r.addEventListener("change", () => setAnswer(r.value === PAGER_WIDGET ? "pager" : w2Version)));
-// Touching any flippable-widget option switches to it (Widget 2)
-document.querySelectorAll("#modeControls, #hintControls, #namesControls").forEach((f) =>
-  f.addEventListener("change", () => { if (phone.dataset.answer !== "pager") setAnswer("pager"); }));
-document.querySelectorAll("#hintRecommended, #hintFigma").forEach((b) => b.addEventListener("click", () => setAnswer("pager")));
+function setWidget(n) {
+  if (!["1", "2", "3"].includes(n)) n = "1";
+  phone.dataset.widget = n;
+  notes.dataset.widget = n;
+  widgetInputs.forEach((r) => (r.checked = r.value === n));
+  setAnswer(n === "2" ? "pager" : w2Version);
+  topLink.textContent = n === "3" ? "See benefits" : "See more";
+}
+const topLink = document.querySelector(".widget-top-bar .link");
+answerInputs.forEach((r) => r.addEventListener("change", () => { w2Version = r.value; setWidget("1"); }));
+widgetInputs.forEach((r) => r.addEventListener("change", () => setWidget(r.value)));
+// Touching any flippable-tile option switches to a widget that has it (Widget 2)
+const toPager = () => { if (phone.dataset.answer !== "pager") setWidget("2"); };
+document.querySelectorAll("#modeControls, #hintControls, #namesControls").forEach((f) => f.addEventListener("change", toPager));
+document.querySelectorAll("#hintRecommended, #hintFigma").forEach((b) => b.addEventListener("click", toPager));
 
 nameInputs.forEach((r) => r.addEventListener("change", () => {
   page = 0;
@@ -948,7 +1529,7 @@ flexLinkTile.addEventListener("click", () => openApp("flex", flexLinkTile, { sou
 
 setMode("flipper");
 applyHints();
-setAnswer(widgetInputs.find((r) => r.checked).value === PAGER_WIDGET ? "pager" : w2Version);
+setWidget(new URLSearchParams(location.search).get("widget") || widgetInputs.find((r) => r.checked).value);
 
 /* Android engineering notes: hidden by default; the toggle shows them (remembered on this device) */
 const androidToggle = document.getElementById("androidToggle");
@@ -1035,6 +1616,8 @@ dlEnd.addEventListener("click", () => {
 });
 callTile.addEventListener("click", () => openDialer("member"));
 document.getElementById("nurseTile").addEventListener("click", () => openDialer("nurse"));
+document.getElementById("w3Member").addEventListener("click", () => openDialer("member"));
+document.getElementById("w3Nurse").addEventListener("click", () => openDialer("nurse"));
 
 /* ---------- Clock ----------
    Status bar shows the real time, Android style (12-hour, no AM/PM: "3:42"), and keeps ticking. */

@@ -1,0 +1,25 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="360" height="800" viewBox="0 0 360 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="gradientBG" opacity="0.5" clip-path="url(#clip0_0_1197)">
+<g id="green" opacity="0.3" filter="url(#filter0_f_0_1197)">
+<circle cx="359.5" cy="502.5" r="189.5" fill="#A4ECBB"/>
+</g>
+<g id="blue" opacity="0.3" filter="url(#filter1_f_0_1197)">
+<circle cx="12.5" cy="628.5" r="189.5" fill="#4754EB"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_f_0_1197" x="-30" y="113" width="779" height="779" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="100" result="effect1_foregroundBlur_0_1197"/>
+</filter>
+<filter id="filter1_f_0_1197" x="-377" y="239" width="779" height="779" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="100" result="effect1_foregroundBlur_0_1197"/>
+</filter>
+<clipPath id="clip0_0_1197">
+<rect width="360" height="800" fill="white"/>
+</clipPath>
+</defs>
+</svg>
