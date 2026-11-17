@@ -416,7 +416,7 @@ html, body { overflow: hidden; }
 /* ---------- Dock (tht-demo-studio navigator/voice: NavigatorHomeScreen .dock) ----------
    48px rounded-square icons (Google Play style) spread across the bottom, 24px in from the sides, 8px above the gesture bar. */
 .dock { position: relative; z-index: 1; /* over the wallpaper, like .widget-frame */ flex: none; display: flex; justify-content: space-between; padding: 0 24px 8px; }
-.dock-app { display: block; width: 48px; height: 48px; border-radius: 20%; box-shadow: 0 1px 3px rgba(12, 15, 65, 0.18); } /* Google Play style: rounded square (MyHumana's own icon corners), lifted off the wallpaper */
+.dock-app { display: block; width: 48px; height: 48px; border-radius: 26%; box-shadow: 0 1px 3px rgba(12, 15, 65, 0.18); } /* Google Play style: rounded square (MyHumana's own icon corners), lifted off the wallpaper */
 .dock-app img { display: block; width: 100%; height: 100%; border-radius: inherit; }
 .dock-app--thrive { display: grid; place-items: center; background: var(--background-base); }
 .dock-app--thrive img { width: 24px; height: 24px; border-radius: 0; }
@@ -1463,18 +1463,17 @@ html.full .phone { box-shadow: none; }
 .app-screen[data-variant="myhumana"] .app-body { padding: 0; overflow: hidden; }
 .mh { position: relative; flex: 1; min-height: 100%; display: flex; flex-direction: column; align-items: center; color: #2d2f33; }
 .mh-sky { display: block; flex: none; }
-.mh-brand { display: flex; align-items: flex-end; gap: 1px; margin: 10px 0 0; }
-.mh-my { font-family: "Brush Script MT", "Segoe Script", cursive; font-style: italic; font-size: 22px; line-height: 22px; color: #3c5a1e; transform: translateY(-1px); }
-.mh-brand img { display: block; }
-.mh-title { margin: 20px 0 0; padding: 0 40px; font-weight: 700; font-size: 30px; line-height: 36px; color: #5b8a2b; text-align: center; letter-spacing: -0.3px; }
-.mh-actions { position: relative; z-index: 1; align-self: stretch; display: flex; flex-direction: column; gap: 12px; padding: 28px 24px 0; }
-.mh-btn { display: flex; align-items: center; justify-content: center; gap: 8px; height: 48px; border-radius: 24px; font-weight: 600; font-size: 15px; line-height: 20px; }
+.mh-brand { display: block; flex: none; margin: 46px 0 0; }
+.mh-title { margin: 64px 0 0; padding: 0 40px; font-weight: 600; font-size: 27px; line-height: 34px; color: #5b8a2b; text-align: center; }
+/* Buttons as on the reference: 40px pills, 12px apart, 14px in from the screen edges, 13px labels */
+.mh-actions { position: relative; z-index: 1; align-self: stretch; display: flex; flex-direction: column; gap: 12px; padding: 80px 14px 0; }
+.mh-btn { display: flex; align-items: center; justify-content: center; gap: 6px; height: 40px; border-radius: 20px; font-weight: 600; font-size: 13px; line-height: 18px; }
 .mh-btn--primary { background: #5b7f2b; color: #fff; }
 .mh-btn--secondary { border: 1.5px solid #bfdc98; background: #e4f2d2; color: #2f4d14; }
-.mh-btn svg { display: block; flex: none; }
+.mh-btn svg { display: block; flex: none; width: 14px; height: 14px; }
 .mh-btn:active { filter: brightness(0.94); }
-.mh-activate { margin: 4px 0 0; text-align: center; font-weight: 500; font-size: 14px; line-height: 20px; color: #3d3f44; }
-.mh-link { color: #2f62a8; font-weight: 600; font-size: 14px; }
+.mh-activate { margin: 0; text-align: center; font-weight: 500; font-size: 13px; line-height: 18px; color: #3d3f44; }
+.mh-link { color: #2f62a8; font-weight: 600; font-size: 13px; }
 .mh-home { position: absolute; left: 0; bottom: 0; display: block; }
 
 /* ---------- Find a doctor (Widget 3) ----------

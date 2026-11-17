@@ -361,18 +361,21 @@ const DESTINATIONS = {
     // The art is drawn here in the app's line-art style (not Humana's own files). Signing in isn't part of the demo.
     html: () => `
       <div class="mh">
-        <svg class="mh-sky" viewBox="0 0 360 120" width="360" height="120" aria-hidden="true">
-          <g fill="none" stroke="#3d4b63" stroke-width="1.4" stroke-linecap="round">
-            <circle cx="62" cy="52" r="19" fill="#f6d24a" />
-            ${Array.from({ length: 12 }, (_, i) => { const t = (i / 12) * Math.PI * 2; const r1 = i % 2 ? 25 : 26, r2 = i % 2 ? 31 : 35;
-              return `<line x1="${(62 + Math.cos(t) * r1).toFixed(1)}" y1="${(52 + Math.sin(t) * r1).toFixed(1)}" x2="${(62 + Math.cos(t) * r2).toFixed(1)}" y2="${(52 + Math.sin(t) * r2).toFixed(1)}" />`; }).join("")}
-            <path d="M58 64 q4 -9 13 -6 q4 -8 12 -3 q8 0 7 8 q5 2 2 7 h-34 q-6 -3 0 -6z" fill="#fff" />
-            <path d="M28 76 q3 -5 9 -3 q4 -4 9 0 h3 m-24 3 h20" />
-            <path d="M206 82 q2 -16 18 -16 q14 0 16 16 z" fill="#dfe8fb" /><line x1="196" y1="82" x2="250" y2="86" />
-            <path d="M282 96 q2 -14 16 -14 q6 -10 18 -6 q14 -2 18 12 q8 2 8 10 z" fill="#dfe8fb" /><line x1="270" y1="98" x2="350" y2="104" />
+        <svg class="mh-sky" viewBox="0 0 360 100" width="360" height="100" aria-hidden="true">
+          <g fill="none" stroke="#3d4b63" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="50" cy="54" r="18" fill="#f6d24a" />
+            ${Array.from({ length: 14 }, (_, i) => { // short wavy rays
+              const t = (i / 14) * Math.PI * 2 - 0.2, r1 = 23, r2 = i % 2 ? 30 : 33, w = i % 2 ? 1.6 : -1.6;
+              const P = (r, o = 0) => [50 + Math.cos(t) * r - Math.sin(t) * o, 54 + Math.sin(t) * r + Math.cos(t) * o].map((n) => n.toFixed(1)).join(" ");
+              return `<path d="M${P(r1)} Q${P((r1 + r2) / 2, w)} ${P(r2)}" />`; }).join("")}
+            <path d="M54 72 a5 5 0 0 1 8 -4 a6 6 0 0 1 11 1 a4 4 0 0 1 2 6 h-21 a3 3 0 0 1 0 -3z" fill="#fff" />
+            <path d="M78 75 h6 M80 72 h3" />
+            <path d="M22 79 a3.5 3.5 0 0 1 6 -2 a4 4 0 0 1 7 1 a2 2 0 0 1 1 3 h-14 z" fill="#fff" />
+            <path d="M151 65 a16 16 0 0 1 32 0 z" fill="#dfe8fb" /><line x1="141" y1="65" x2="190" y2="65" />
+            <path d="M257 73 a12 12 0 0 1 21 -8 a19 19 0 0 1 36 3 a5 5 0 0 1 4 5 z" fill="#dfe8fb" /><line x1="246" y1="73" x2="347" y2="73" />
           </g>
         </svg>
-        <p class="mh-brand"><span class="mh-my">My</span><img src="assets/logo-humana.svg" width="86" height="22" alt="Humana" /></p>
+        <img class="mh-brand" src="assets/myhumana-logo.svg" width="108" height="22.66" alt="MyHumana" />
         <h2 class="mh-title">Your health plan in your pocket</h2>
         <div class="mh-actions">
           <button class="mh-btn mh-btn--primary" type="button" data-signin>Sign in with password</button>
@@ -726,7 +729,7 @@ function windowAt(el) {
   const W = appScreen.offsetWidth, H = appScreen.offsetHeight;
   const r = phoneRect(el);
   const k = r.w / W;
-  const radius = el.classList.contains("dock-app") ? r.w * 0.2 : 16; // a dock icon: its rounded-square corners
+  const radius = el.classList.contains("dock-app") ? r.w * 0.26 : 16; // a dock icon: its rounded-square corners
   return {
     transform: `translate(${r.x}px, ${r.y}px) scale(${k})`,
     clipPath: `inset(0px 0px ${Math.max(0, H - r.h / k)}px 0px round ${radius / k}px)`,
