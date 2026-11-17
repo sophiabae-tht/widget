@@ -113,12 +113,13 @@
                   <span class="tile-icon"><img src="assets/icon-cardholder.svg" width="16" height="16" alt="" /></span>
                 </button>
 
-                <button class="tile" id="callTile" type="button">
+                <!-- Widget 2 (Molina): calls the member's Care Manager -->
+                <button class="tile" id="callTile" type="button" aria-label="Call your Care Manager">
                   <span class="tile-text">
                     <span class="tile-face">
-                      <span class="tile-line">Call</span>
-                      <span class="tile-line">Member</span>
-                      <span class="tile-line">Services</span>
+                      <span class="tile-line">Call your</span>
+                      <span class="tile-line">Care</span>
+                      <span class="tile-line">Manager</span>
                     </span>
                   </span>
                   <span class="tile-icon"><img src="assets/icon-phone.svg" width="16" height="16" alt="" /></span>
@@ -196,8 +197,11 @@
         <img class="dock-app" src="assets/dock/phone.webp" width="48" height="48" alt="Phone" />
         <img class="dock-app" src="assets/dock/messages.webp" width="48" height="48" alt="Messages" />
         <button class="dock-app dock-app--thrive" id="dockThrive" type="button" aria-label="Thrive"><img src="assets/dock/thrive-symbol.svg" width="24" height="24" alt="" /></button>
-        <button class="dock-app" id="dockHumana" type="button" aria-label="MyHumana"><img src="assets/dock/myhumana.webp" width="48" height="48" alt="" /></button>
-        <img class="dock-app" src="assets/dock/centerwell-pharmacy.webp" width="48" height="48" alt="CenterWell Pharmacy" />
+        <button class="dock-app dock-humana" id="dockHumana" type="button" aria-label="MyHumana"><img src="assets/dock/myhumana.webp" width="48" height="48" alt="" /></button>
+        <img class="dock-app dock-humana" src="assets/dock/centerwell-pharmacy.webp" width="48" height="48" alt="CenterWell Pharmacy" />
+        <!-- Widget 2 is Molina's, so the dock carries Molina's apps instead (the Care hub's My Molina + CVS Caremark) -->
+        <button class="dock-app dock-molina dock-app--molina" id="dockMolina" type="button" aria-label="My Molina"><img src="assets/carehub/app-molina-mark.svg" width="34" height="29" alt="" /></button>
+        <img class="dock-app dock-molina" src="assets/carehub/app-cvs.webp" width="48" height="48" alt="CVS Caremark" />
       </nav>
 
       <!-- Simulated app launch (opened from widget taps) -->

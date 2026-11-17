@@ -139,7 +139,7 @@ html, body { overflow: hidden; }
   z-index: 1;
   flex: none;
   display: flex;
-  padding: 16px 24px; /* 24px in from the screen's sides, like a launcher's widget margin */
+  padding: 16px; /* 16px in from the screen's sides (was 24px), so the top card's copy fits on 2 lines */
 }
 .widget {
   position: relative;
@@ -495,6 +495,12 @@ html, body { overflow: hidden; }
 .dock-app--thrive { display: grid; place-items: center; background: var(--background-base); }
 .dock-app--thrive img { width: 24px; height: 24px; border-radius: 0; }
 button.dock-app:active { filter: brightness(0.92); }
+/* Widget 2 (Molina): Molina's apps in the dock instead of Humana's */
+.dock-molina { display: none; }
+.phone[data-widget="2"] .dock-humana { display: none; }
+.phone[data-widget="2"] .dock-molina { display: block; }
+.phone[data-widget="2"] .dock-app--molina { display: grid; place-items: center; background: #009fab; }
+.dock-app--molina img { width: 34px; height: auto; border-radius: 0; }
 
 /* ---------- Simulated app launch ---------- */
 .app-screen {
@@ -1463,6 +1469,10 @@ html.full .toast { bottom: calc(48px + var(--home-lift)); }
 
 /* One line that always shows in full: a little smaller if it runs long (app.js), else "…" */
 .dl-fit { min-width: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* The Android type styles trim the box to cap height and baseline, so overflow: hidden would crop
+   descenders and tall letters (the "g" in "Manager"). Room above and below, given back by the margins,
+   so nothing moves. */
+.dl-display .dl-fit { padding-block: 8px; margin-block: -8px; }
 
 /* Dialer */
 .dl-items { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 16px; margin: 0; padding: 16px 0 0; list-style: none; }
@@ -1492,7 +1502,7 @@ html.full .toast { bottom: calc(48px + var(--home-lift)); }
 .dl-top { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 80px; text-align: center; }
 .dl-top img { display: block; }
 .dl-status { padding: 8px 24px; font-variant-numeric: tabular-nums; }
-.dl-top .dl-fit { align-self: stretch; padding: 8px 24px 0; }
+.dl-top .dl-fit { align-self: stretch; padding: 8px 24px; margin-bottom: -8px; }
 .dl-panel--call { border-radius: 16px 16px 0 0; box-shadow: none; }
 .dl-controls { display: flex; justify-content: space-between; padding: 24px 24px 0; }
 .dl-control { display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--android-on-surface-variant); }

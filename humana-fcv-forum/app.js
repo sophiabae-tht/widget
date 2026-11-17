@@ -934,6 +934,8 @@ document.querySelectorAll("[data-open]").forEach((el) => {
 // Dock: Thrive opens the Thrive app (its Home tab), MyHumana its sign-in, each growing out of its icon
 document.getElementById("dockThrive").addEventListener("click", (e) => openApp("thrivehome", e.currentTarget));
 document.getElementById("dockHumana").addEventListener("click", (e) => openApp("myhumana", e.currentTarget));
+// Widget 2's dock: My Molina isn't mocked here (real app: launches My Molina)
+document.getElementById("dockMolina").addEventListener("click", () => toast("Opening My Molina…"));
 // Widget 3
 // Before booking: "Schedule an appointment" starts the booking flow. Once booked: "View my appointment"
 // opens Care hub, which lists the visit under Upcoming appointments.
@@ -1609,6 +1611,7 @@ setAndroidNotes((() => { try { return localStorage.getItem("humana-fcv-forum:and
 const CALLS = {
   member: { name: "Humana Member Services", number: "1-800-555-0142" },
   nurse: { name: "24/7 Nurse Line", number: "1-800-555-0150" },
+  care: { name: "My Care Manager", number: "1-800-555-0166" },
 };
 const CALL_MS = { callingToConnected: 800, endedToClose: 800 }; // tht-demo-studio flow/motion.ts
 const dialer = document.getElementById("dialer");
@@ -1677,7 +1680,7 @@ dlEnd.addEventListener("click", () => {
   setCallState("ended");
   callTimers.push(setTimeout(closeDialer, CALL_MS.endedToClose));
 });
-callTile.addEventListener("click", () => openDialer("member"));
+callTile.addEventListener("click", () => openDialer("care"));
 document.getElementById("nurseTile").addEventListener("click", () => openDialer("nurse"));
 document.getElementById("w3Member").addEventListener("click", () => openDialer("member"));
 document.getElementById("w3Nurse").addEventListener("click", () => openDialer("nurse"));
