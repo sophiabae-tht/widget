@@ -345,6 +345,9 @@ document.getElementById("fullBtn").addEventListener("click", () => {
   history.pushState({ full: true }, "", `${location.pathname}?full${location.hash}`);
   fullFromButton = true;
   setFull(true);
+  // iPhone and Android phones: the "Use it full screen" sheet (Add to Home Screen / install), as in
+  // tht-demo-studio's demos (fullscreen-guide.js). Elsewhere, straight to full screen.
+  if (window.fullscreenGuide?.(phone)) return;
   document.documentElement.requestFullscreen?.({ navigationUI: "hide" }).catch(() => {});
 });
 window.addEventListener("popstate", () => {
@@ -364,7 +367,7 @@ copyBtn.addEventListener("click", async () => {
   } catch {
     window.prompt("Phone link", fullUrl());
   }
-  setTimeout(() => { copyBtn.textContent = "Copy phone link"; }, 2000);
+  setTimeout(() => { copyBtn.textContent = "Copy mobile-view link"; }, 2000);
 });
 // Notes content changes height (widget switch, Android notes, Dropped open/closed) → re-fit
 new ResizeObserver(queueFit).observe(notesPanel);

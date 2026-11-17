@@ -6,10 +6,13 @@
   <!-- Added to the home screen, it opens straight into full screen with no browser UI -->
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="FCV Forum" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/app-icon/apple-touch-icon.png" />
   <script>
     // Full screen (?full, or launched from the home screen): just the phone, filling the screen.
     // Set before first paint so the notes never flash.
-    if (new URLSearchParams(location.search).has("full") || navigator.standalone || matchMedia("(display-mode: standalone)").matches)
+    if (new URLSearchParams(location.search).has("full") || navigator.standalone || matchMedia("(display-mode: standalone), (display-mode: fullscreen)").matches)
       document.documentElement.classList.add("full");
   </script>
   <title>Widget prototype · v2/link</title>
@@ -232,10 +235,10 @@
       <h1>Widget prototype</h1>
       <p>Android Large 360×800</p>
       <div class="full-actions">
-        <button class="reset reset--primary" id="fullBtn" type="button">Full screen</button>
-        <button class="reset" id="copyFullLink" type="button">Copy phone link</button>
+        <button class="reset" id="fullBtn" type="button">Full screen</button>
+        <button class="reset" id="copyFullLink" type="button">Copy mobile-view link</button>
       </div>
-      <p class="full-hint">On a phone, full screen shows just the prototype, filling the screen. The phone link opens on the widget shown here. Add it to the home screen to hide the browser bar too.</p>
+      <p class="full-hint">On a phone, full screen shows just the prototype, filling the screen. The mobile-view link opens on the widget shown here. Add it to the home screen to hide the browser bar too.</p>
       <h2 class="notes-h2">Healthy Spending Card on the widget</h2>
       <p class="notes-sub">Three widgets to flip between for the FCV Forum (DES-97): today's Humana widget, which hands off to a MyHumana sign-in; the flippable Healthy Spending Card; and a dynamic widget that picks the member's next step and completes it on the device.</p>
       <label class="android-toggle">
@@ -454,6 +457,7 @@
 
     </aside>
   </main>
-  <script src="app.js?v=126"></script>
+  <script src="fullscreen-guide.js?v=1"></script>
+  <script src="app.js?v=127"></script>
 </body>
 </html>

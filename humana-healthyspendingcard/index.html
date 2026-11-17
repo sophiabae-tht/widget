@@ -6,10 +6,13 @@
   <!-- Added to the home screen, it opens straight into full screen with no browser UI -->
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Humana HSC" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/app-icon/apple-touch-icon.png" />
   <script>
     // Full screen (?full, or launched from the home screen): just the phone, filling the screen.
     // Set before first paint so the notes never flash.
-    if (new URLSearchParams(location.search).has("full") || navigator.standalone || matchMedia("(display-mode: standalone)").matches)
+    if (new URLSearchParams(location.search).has("full") || navigator.standalone || matchMedia("(display-mode: standalone), (display-mode: fullscreen)").matches)
       document.documentElement.classList.add("full");
   </script>
   <title>Widget prototype · v2/link</title>
@@ -152,8 +155,8 @@
       <h1>Widget prototype</h1>
       <p>Android Large 360×800</p>
       <div class="full-actions">
-        <button class="reset reset--primary" id="fullBtn" type="button">Full screen</button>
-        <button class="reset" id="copyFullLink" type="button">Copy phone link</button>
+        <button class="reset" id="fullBtn" type="button">Full screen</button>
+        <button class="reset" id="copyFullLink" type="button">Copy mobile-view link</button>
       </div>
       <p class="full-hint">On a phone, full screen shows just the prototype, filling the screen. Add it to the home screen to hide the browser bar too.</p>
       <h2 class="notes-h2">Healthy Spending Card on the widget</h2>
@@ -360,6 +363,7 @@
 
     </aside>
   </main>
-  <script src="app.js?v=113"></script>
+  <script src="fullscreen-guide.js?v=1"></script>
+  <script src="app.js?v=114"></script>
 </body>
 </html>
