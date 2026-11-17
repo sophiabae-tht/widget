@@ -433,7 +433,8 @@ html, body { overflow: hidden; }
   border: 0; border-radius: 12px; background: var(--fill-brandweaker); color: var(--text-brand);
   cursor: pointer; transition: background-color 0.15s, transform 0.15s var(--ease-standard);
 }
-.demo-btn:active { transform: scale(0.94); }
+.demo-btn:active:not(:disabled) { transform: scale(0.94); }
+.demo-btn:disabled { opacity: 0.4; cursor: default; }
 .demo-btn[aria-expanded="true"] { background: rgba(71, 84, 235, 0.18); }
 .demo-btn:focus-visible { outline: 2px solid var(--text-brand); outline-offset: 2px; }
 .demo-icon { display: block; width: 24px; height: 24px; background: currentColor; -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat; }
@@ -1395,9 +1396,13 @@ html.full:not(.no-system-bar) .status-bar > * { display: none; }
    phone's own gesture bar / home indicator and the browser's bottom bar */
 html.full .phone { --home-lift: 16px; padding-bottom: var(--home-lift); }
 html.full .phone { --fsg-pill-bottom: calc(144px + var(--home-lift)); }
-/* The gesture bar stays over apps and the dialer, so their bottoms come up with it (backgrounds still
-   reach the edge), and so do the glow behind the handle and the toast */
-html.full .app-screen, html.full .dialer { padding-bottom: var(--home-lift); }
+/* Apps and the dialer still run to the screen's bottom edge (their backgrounds, illustrations and scrolling
+   content go on under the gesture bar, as on Android); only what sits at the bottom makes room for the
+   higher gesture bar: the tab bar, the end of a page, the footer buttons, the dialer's Call button */
+html.full .app-nav button { padding-bottom: calc(16px + var(--home-lift)); }
+html.full .ch-accordions { padding-bottom: calc(40px + var(--home-lift)); }
+html.full .ci-footer { padding-bottom: calc(24px + var(--home-lift)); }
+html.full .dl-cta:not(.dl-cta--end) { height: calc(108px + var(--home-lift)); }
 html.full .home-pulse { bottom: calc(12px + var(--home-lift)); }
 html.full .toast { bottom: calc(48px + var(--home-lift)); }
 

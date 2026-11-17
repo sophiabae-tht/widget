@@ -1360,6 +1360,10 @@ html.full:not(.no-system-bar) .status-bar > * { display: none; }
    bar / home indicator and the browser's bottom bar; apps, the glow behind the handle and the toast
    come up with it (backgrounds still reach the edge) */
 html.full .phone { --home-lift: 16px; padding-bottom: var(--home-lift); --fsg-pill-bottom: calc(48px + var(--home-lift)); }
-html.full .app-screen { padding-bottom: var(--home-lift); }
+/* Apps and the dialer still run to the screen's bottom edge (their backgrounds, illustrations and scrolling
+   content go on under the gesture bar, as on Android); only what sits at the bottom makes room for the
+   higher gesture bar: the tab bar, the end of a page, the footer buttons, the dialer's Call button */
+html.full .app-nav button { padding-bottom: calc(16px + var(--home-lift)); }
+html.full .ch-accordions { padding-bottom: calc(40px + var(--home-lift)); }
 html.full .home-pulse { bottom: calc(12px + var(--home-lift)); }
 html.full .toast { bottom: calc(48px + var(--home-lift)); }
