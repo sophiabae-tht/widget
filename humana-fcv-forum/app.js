@@ -1504,6 +1504,10 @@ function setWidget(n) {
   widgetInputs.forEach((r) => (r.checked = r.value === n));
   setAnswer(n === "2" ? "pager" : w2Version);
   topLink.textContent = n === "3" ? "See benefits" : "See more";
+  // Home page 2's restart only starts Widget 3 over, so it's off for Widgets 1 and 2
+  const restart = document.getElementById("demoRestart");
+  restart.disabled = n !== "3";
+  restart.title = n === "3" ? "" : "Restart is for Widget 3";
 }
 const topLink = document.querySelector(".widget-top-bar .link");
 // Switching widgets from the project page while the phone is in an app (or the dialer, or on home page
