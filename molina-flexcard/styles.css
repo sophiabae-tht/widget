@@ -108,7 +108,7 @@ html, body { overflow: hidden; }
 .status-bar {
   position: relative;
   z-index: 40;
-  height: 52px;
+  height: var(--sb, 52px);
   flex: none;
   display: flex;
   align-items: flex-end;
@@ -139,7 +139,7 @@ html, body { overflow: hidden; }
   z-index: 1;
   flex: none;
   display: flex;
-  padding: 16px;
+  padding: 16px 24px; /* 24px in from the screen's sides, like a launcher's widget margin */
 }
 .widget {
   position: relative;
@@ -182,7 +182,7 @@ html, body { overflow: hidden; }
 
 .widget-top-bar {
   position: relative;
-  width: 330px;
+  width: 100%;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -203,7 +203,7 @@ html, body { overflow: hidden; }
 .chat-frame { position: relative; width: 100%; display: flex; flex-direction: column; }
 
 .card-content {
-  width: 327px;
+  width: 100%;
   max-height: 200px;
   display: flex;
   padding: 16px 16px 0;
@@ -428,7 +428,7 @@ html, body { overflow: hidden; }
   width: 360px;
   height: var(--ph, 800px);
   background: var(--background-base);
-  padding-top: 52px;
+  padding-top: var(--sb, 52px);
   opacity: 0;
   pointer-events: none;
   /* Launch / return morph is played in JS (Web Animations), from the widget's bounds */
@@ -1352,3 +1352,18 @@ html.full body::before, html.full body::after { display: none; }
 html.full .stage { padding: 0; gap: 0; }
 html.full .notes { display: none; }
 html.full .phone { box-shadow: none; }
+/* Mobile view in a browser tab or from the iPhone Home Screen: the phone shows its own time and signal,
+   so the prototype's status bar goes, leaving a little room at the top. Kept where nothing else shows
+   them: installed on Android (opens full screen) or in the browser's full screen. */
+@media not all and (display-mode: fullscreen) {
+  html.full:not(:fullscreen) { --sb: 8px; }
+  html.full:not(:fullscreen) .status-bar { padding: 0; }
+  html.full:not(:fullscreen) .status-bar > * { display: none; }
+}
+/* Mobile view on a real phone: the gesture bar sits a little higher, clear of the phone's own gesture
+   bar / home indicator and the browser's bottom bar; apps, the glow behind the handle and the toast
+   come up with it (backgrounds still reach the edge) */
+html.full .phone { --home-lift: 16px; padding-bottom: var(--home-lift); --fsg-pill-bottom: calc(48px + var(--home-lift)); }
+html.full .app-screen { padding-bottom: var(--home-lift); }
+html.full .home-pulse { bottom: calc(12px + var(--home-lift)); }
+html.full .toast { bottom: calc(48px + var(--home-lift)); }

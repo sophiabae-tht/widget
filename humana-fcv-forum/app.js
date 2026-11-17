@@ -909,7 +909,11 @@ document.getElementById("dynCard").addEventListener("click", (e) => {
   resetBooking(); ciProgress = 0; loadLottie().catch(() => {}); loadSuccess().catch(() => {}); openApp("findDoctor", e.currentTarget);
 });
 const w3ChipLabel = document.getElementById("w3ChipLabel");
-const updateW3 = () => { w3ChipLabel.textContent = bookedVisit ? "View my appointment" : "Schedule an appointment"; };
+const w3Greeting = document.getElementById("w3Greeting");
+const updateW3 = () => {
+  w3Greeting.innerHTML = bookedVisit ? "<b>Hi John,</b> you’ve booked your annual wellness checkup!" : "<b>Hi John,</b> it’s time for your annual wellness checkup!";
+  w3ChipLabel.textContent = bookedVisit ? "View my appointment" : "Schedule an appointment";
+};
 document.getElementById("w3Flex").addEventListener("click", (e) => openApp("flex", e.currentTarget, { source: "widget" }));
 appBack.addEventListener("click", () => {
   if (appStack.length > 1) { appStack.pop(); renderApp(); }
