@@ -123,7 +123,7 @@
                   <span class="tile-icon"><img src="assets/icon-phone.svg" width="16" height="16" alt="" /></span>
                 </button>
 
-                <!-- Widget 1 only: second call tile -->
+                <!-- Widget 1 only: second call tile (opens MyHumana, like everything on Widget 1) -->
                 <button class="tile" id="nurseTile" type="button">
                   <span class="tile-text">
                     <span class="tile-face">
@@ -447,11 +447,11 @@
       <section class="widget-section w2-only" aria-labelledby="w2Title">
         <h2 class="widget-section-title" id="w2Title"><span class="widget-num">Widget 1</span>Static, tap-only</h2>
         <ul class="widget-points">
-          <li>Today's Humana widget. "Explore your benefits" and "See more" hand off to the MyHumana app, where the member has to sign in first.</li>
-          <li>No balances on the widget: two call tiles, "Call Member Services" and "24/7 Nurse Line".</li>
-          <li>Each tap goes straight to the phone dialer with that line filled in; the member taps Call.</li>
+          <li>Today's Humana widget. Every button hands off to the MyHumana app, where the member has to sign in first.</li>
+          <li>No balances on the widget: "Explore your benefits", "See more", and two call tiles, "Call Member Services" and "24/7 Nurse Line".</li>
+          <li>Even the call tiles open the app, not the dialer: the member signs in and finds the number there.</li>
         </ul>
-        <p class="notes-android"><i>Android</i>Two plain tiles (TextView + ImageView), each with its own setOnClickPendingIntent → Intent.ACTION_DIAL with that line's tel: number (opens the dialer, no call permission needed). No collection widget and no balance data on the widget.</p>
+        <p class="notes-android"><i>Android</i>Plain views (TextView + ImageView), each with a setOnClickPendingIntent that launches the MyHumana app. No collection widget, no balance data and no deep links on the widget.</p>
         <input type="radio" name="answer" value="no" checked hidden />
       </section>
 
