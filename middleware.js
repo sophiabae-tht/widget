@@ -1,14 +1,18 @@
-// Vercel Routing Middleware: puts a shared team password on the home page and the experimental
-// archives (/molina-flexcard/archive/ and /humana-fcv-forum/archive/, linked from each prototype's notes). Exploration pages (/<slug>/)
-// and their assets stay public.
+// Vercel Routing Middleware: two password walls.
+//   Home page (/): the shared team password.
+//   Experimental archives (/molina-flexcard/archive/, /humana-fcv-forum/archive/, linked from each
+//   prototype's notes): a second wall with its own sign-in. Signing in to the home page does NOT open
+//   the archives; signing in to one archive opens both archives.
+// Exploration pages (/<slug>/) and their assets stay public.
 //
-// Visitors without a valid sign-in cookie see a password screen instead of the home page.
-// Submitting the right password sets a cookie for 30 days (for the whole site, so signing in on one
-// protected page opens the other too) and goes back to the page that asked. The cookie is derived from the
-// password, so changing the password signs everyone out.
+// Visitors without a valid sign-in cookie for that wall see a password screen. Submitting the right
+// password sets that wall's cookie for 30 days and goes back to the page that asked. Each cookie is
+// derived from its password and wall, so changing a password signs everyone out of that wall.
 //
-// The password lives in the Vercel project's environment variable SITE_PASSWORD
-// (Project → Settings → Environment Variables). If it is not set, the home page stays locked.
+// Passwords live in the Vercel project's environment variables (Project → Settings → Environment
+// Variables): SITE_PASSWORD for the home page, ARCHIVE_PASSWORD for the archives (if ARCHIVE_PASSWORD
+// isn't set, the archives use SITE_PASSWORD, still behind their own sign-in). If no password is set,
+// the page stays locked.
 
 export const config = {
   matcher: [
@@ -18,21 +22,30 @@ export const config = {
   ],
 };
 
-const COOKIE = "home_auth";
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+const WALLS = {
+  home: { cookie: "home_auth", label: "widget-home-v1", title: "Widget Explorations", password: () => process.env.SITE_PASSWORD },
+  archive: {
+    cookie: "archive_auth", label: "widget-archive-v1", title: "Experimental archive",
+    password: () => process.env.ARCHIVE_PASSWORD || process.env.SITE_PASSWORD,
+  },
+};
 
 export default async function middleware(request) {
-  const password = process.env.SITE_PASSWORD;
-  if (!password) return page({ message: "The home page password isn’t set up yet.", status: 503, form: false });
-
-  const token = await tokenFor(password);
   // The protected page that was asked for (the matcher only lets protected paths through), to come back to
   const here = new URL(request.url).pathname;
+  const wall = WALLS[/\/archive(\/|$)/.test(here) ? "archive" : "home"];
+  const { cookie: COOKIE, title } = wall;
+
+  const password = wall.password();
+  if (!password) return page({ message: `The ${title.toLowerCase()} password isn’t set up yet.`, status: 503, form: false, title });
+
+  const token = await tokenFor(password, wall.label);
 
   if (request.method === "POST") {
     let given = "";
     try { given = String((await request.formData()).get("password") ?? ""); } catch {}
-    if (!safeEqual(given, password)) return page({ message: "That password isn’t right. Try again.", status: 401, action: here });
+    if (!safeEqual(given, password)) return page({ message: "That password isn’t right. Try again.", status: 401, action: here, title });
     return new Response(null, {
       status: 303,
       headers: {
@@ -43,17 +56,18 @@ export default async function middleware(request) {
     });
   }
 
-  if (!safeEqual(readCookie(request, COOKIE) ?? "", token)) return page({ status: 401, action: here });
+  if (!safeEqual(readCookie(request, COOKIE) ?? "", token)) return page({ status: 401, action: here, title });
 
   // Signed in: let the request through to the static home page (same signal as next() from @vercel/functions).
   return new Response(null, { headers: { "x-middleware-next": "1" } });
 }
 
-// HMAC of a fixed label, keyed by the password. Proves the visitor knew the password without storing it.
-async function tokenFor(password) {
+// HMAC of the wall's label, keyed by its password. Proves the visitor knew the password without storing
+// it, and a home-page cookie never matches the archive wall (different label), even with the same password.
+async function tokenFor(password, label) {
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey("raw", enc.encode(password), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const sig = new Uint8Array(await crypto.subtle.sign("HMAC", key, enc.encode("widget-home-v1")));
+  const sig = new Uint8Array(await crypto.subtle.sign("HMAC", key, enc.encode(label)));
   return [...sig].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
@@ -76,14 +90,14 @@ function safeEqual(a, b) {
 
 const attr = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-function page({ message = "", status = 401, form = true, action = "/" }) {
+function page({ message = "", status = 401, form = true, action = "/", title = "Widget Explorations" }) {
   const html = `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex" />
-  <title>Sign in · Widget Explorations</title>
+  <title>Sign in · ${title}</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap" />
   <style>
@@ -117,8 +131,8 @@ function page({ message = "", status = 401, form = true, action = "/" }) {
 <body>
   <main class="panel">
     <img class="logo" src="/assets/thrive-logo.svg" alt="Thrive Mobile" />
-    <h1>Widget Explorations</h1>
-    <p>Enter the team password to continue.</p>
+    <h1>${title}</h1>
+    <p>${title === "Widget Explorations" ? "Enter the team password to continue." : "This area has its own password. Enter it to continue."}</p>
     ${form ? `<form method="post" action="${attr(action)}">
       <label for="password">Password</label>
       <input id="password" name="password" type="password" autocomplete="current-password" required autofocus${message ? ` aria-invalid="true" aria-describedby="error"` : ""} />
