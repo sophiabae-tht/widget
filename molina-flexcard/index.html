@@ -3,10 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Added to the home screen, it opens straight into full screen with no browser UI -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <script>
+    // Full screen (?full, or launched from the home screen): just the phone, filling the screen.
+    // Set before first paint so the notes never flash.
+    if (new URLSearchParams(location.search).has("full") || navigator.standalone || matchMedia("(display-mode: standalone)").matches)
+      document.documentElement.classList.add("full");
+  </script>
   <title>Widget prototype · v2/link</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=109" />
+  <link rel="stylesheet" href="styles.css?v=110" />
 </head>
 <body>
   <main class="stage">
@@ -142,6 +151,11 @@
       <div class="notes-intro">
       <h1>Widget prototype</h1>
       <p>Android Large 360×800</p>
+      <div class="full-actions">
+        <button class="reset reset--primary" id="fullBtn" type="button">Full screen</button>
+        <button class="reset" id="copyFullLink" type="button">Copy phone link</button>
+      </div>
+      <p class="full-hint">On a phone, full screen shows just the prototype, filling the screen. Add it to the home screen to hide the browser bar too.</p>
       <h2 class="notes-h2">Flex Card on the widget</h2>
       <p class="notes-sub">Two widget directions, built only with what a real Android home-screen widget can do. Tap a Flex Card tile to see the full list, then Back to see where it lives in Care hub.</p>
       <label class="android-toggle">
@@ -350,6 +364,6 @@
 
     </aside>
   </main>
-  <script src="app.js?v=111"></script>
+  <script src="app.js?v=112"></script>
 </body>
 </html>

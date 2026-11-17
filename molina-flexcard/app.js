@@ -234,7 +234,9 @@ function windowAt(el) {
     clipPath: `inset(0px 0px ${Math.max(0, H - r.h / k)}px 0px round ${16 / k}px)`,
   };
 }
-const FULL = { transform: "translate(0px, 0px) scale(1)", clipPath: "inset(0px 0px 0px 0px round 32px)" };
+// Full screen has square corners (the real screen supplies its own)
+const screenRadius = () => (document.documentElement.classList.contains("full") ? 0 : 32);
+const fullWindow = () => ({ transform: "translate(0px, 0px) scale(1)", clipPath: `inset(0px 0px 0px 0px round ${screenRadius()}px)` });
 const appLayers = () => [...appScreen.children];
 const homeLayers = () => [...phone.querySelectorAll(".widget-frame")];
 
@@ -252,7 +254,8 @@ function playLaunch(opening) {
   const d = opening ? LAUNCH.open : LAUNCH.close;
   const opts = { duration: d, easing: LAUNCH.ease };
   // Window: morphs between the widget's bounds and the full screen
-  launchAnims.push(appScreen.animate(opening ? [from, FULL] : [FULL, from], opts));
+  const full = fullWindow();
+  launchAnims.push(appScreen.animate(opening ? [from, full] : [full, from], opts));
   // Window surface: covers the widget at its exact bounds, so fading it is the widget → app cross-fade
   launchAnims.push(appScreen.animate(opening
     ? [{ opacity: 0 }, { opacity: 1, offset: 0.16 }, { opacity: 1 }]
@@ -291,8 +294,23 @@ function playLaunch(opening) {
 //   windows): phone on top, notes below, and the page scrolls.
 const NOTES_MIN = 320;   // narrowest readable notes column
 const notesPanel = document.querySelector(".notes");
+// Full screen: the frame is scaled to the screen width, and its height is whatever the screen's shape
+// gives (fills it edge to edge). If that's too short for the layout (landscape, desktop windows),
+// keep the 360×800 frame and scale it to the window height instead.
+const FULL_MIN_H = 560;
 function fitDevice() {
   const root = document.documentElement;
+  if (root.classList.contains("full")) {
+    root.classList.remove("stacked");
+    notesPanel.style.zoom = "";
+    let s = window.innerWidth / 360;
+    let h = window.innerHeight / s;
+    if (h < FULL_MIN_H) { s = window.innerHeight / 800; h = 800; }
+    root.style.setProperty("--s", s.toFixed(4));
+    root.style.setProperty("--ph", `${h.toFixed(2)}px`);
+    return;
+  }
+  root.style.removeProperty("--ph");
   const availH = window.innerHeight - 48;
   const sideScale = Math.min(1, availH / 800);
   const notesW = window.innerWidth - 48 - 40 - 360 * sideScale;
@@ -314,6 +332,40 @@ const queueFit = () => {
   requestAnimationFrame(() => { fitQueued = false; fitDevice(); });
 };
 window.addEventListener("resize", queueFit);
+
+/* Full screen: the button adds ?full to the URL (Back leaves it) and, where the browser allows
+   (Android, desktop), hides the browser UI too. Pressing Esc out of that also leaves full screen. */
+const fullUrl = () => `${location.origin}${location.pathname}?full`;
+let fullFromButton = false;
+function setFull(on) {
+  document.documentElement.classList.toggle("full", on);
+  fitDevice();
+}
+document.getElementById("fullBtn").addEventListener("click", () => {
+  history.pushState({ full: true }, "", `${location.pathname}?full${location.hash}`);
+  fullFromButton = true;
+  setFull(true);
+  document.documentElement.requestFullscreen?.({ navigationUI: "hide" }).catch(() => {});
+});
+window.addEventListener("popstate", () => {
+  const on = new URLSearchParams(location.search).has("full");
+  if (!on) fullFromButton = false;
+  setFull(on);
+  if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+});
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement && fullFromButton && document.documentElement.classList.contains("full")) history.back();
+});
+const copyBtn = document.getElementById("copyFullLink");
+copyBtn.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(fullUrl());
+    copyBtn.textContent = "Link copied";
+  } catch {
+    window.prompt("Phone link", fullUrl());
+  }
+  setTimeout(() => { copyBtn.textContent = "Copy phone link"; }, 2000);
+});
 // Notes content changes height (widget switch, Android notes, Dropped open/closed) → re-fit
 new ResizeObserver(queueFit).observe(notesPanel);
 fitDevice();

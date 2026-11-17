@@ -75,7 +75,7 @@ html, body { overflow: hidden; }
 .device {
   flex: none;
   width: calc(360px * var(--s, 1));
-  height: calc(800px * var(--s, 1));
+  height: calc(var(--ph, 800px) * var(--s, 1));
   position: relative;
 }
 .device > .phone { transform: scale(var(--s, 1)); transform-origin: 0 0; }
@@ -84,9 +84,9 @@ html, body { overflow: hidden; }
 .phone {
   position: relative;
   width: 360px;
-  height: 800px;
+  height: var(--ph, 800px); /* taller or shorter in full screen, to match the device */
   flex: none;
-  border-radius: 32px;
+  border-radius: var(--screen-r, 32px);
   overflow: hidden;
   background: #fff;
   display: flex;
@@ -426,14 +426,14 @@ html, body { overflow: hidden; }
   left: 0;
   top: 0;
   width: 360px;
-  height: 800px;
+  height: var(--ph, 800px);
   background: var(--background-base);
   padding-top: 52px;
   opacity: 0;
   pointer-events: none;
   /* Launch / return morph is played in JS (Web Animations), from the widget's bounds */
   transform-origin: 0 0;
-  clip-path: inset(0 round 32px);
+  clip-path: inset(0 round var(--screen-r, 32px));
 }
 .phone.app-open .app-screen { opacity: 1; pointer-events: auto; }
 .app-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
@@ -1330,3 +1330,16 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
   80%  { transform: scale(1);   opacity: 0; }
   100% { transform: scale(1);   opacity: 1; }
 }
+
+/* ---------- Full screen (?full, or launched from the home screen) ----------
+   Just the phone, no notes. On a phone it fills the screen edge to edge: the 360px-wide frame is
+   scaled to the screen width and its height follows the screen's shape (app.js sets --s and --ph).
+   On a wide window it's scaled to the window height instead, on black. */
+.full-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.full-hint { margin-top: 8px; font-size: 13px; line-height: 18px; color: #8b8eb1; }
+html.full { --screen-r: 0px; background: #000; }
+html.full body { background: #000; overscroll-behavior: none; touch-action: manipulation; }
+html.full body::before, html.full body::after { display: none; }
+html.full .stage { padding: 0; gap: 0; }
+html.full .notes { display: none; }
+html.full .phone { box-shadow: none; }
