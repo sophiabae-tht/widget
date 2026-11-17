@@ -1,5 +1,5 @@
 // Vercel Routing Middleware: puts a shared team password on the home page and the experimental
-// archive (/molina-flexcard/archive/, linked from each prototype's notes). Exploration pages (/<slug>/)
+// archives (/molina-flexcard/archive/ and /humana-fcv-forum/archive/, linked from each prototype's notes). Exploration pages (/<slug>/)
 // and their assets stay public.
 //
 // Visitors without a valid sign-in cookie see a password screen instead of the home page.
@@ -11,7 +11,11 @@
 // (Project → Settings → Environment Variables). If it is not set, the home page stays locked.
 
 export const config = {
-  matcher: ["/", "/index.html", "/molina-flexcard/archive", "/molina-flexcard/archive/:path*"],
+  matcher: [
+    "/", "/index.html",
+    "/molina-flexcard/archive", "/molina-flexcard/archive/:path*",
+    "/humana-fcv-forum/archive", "/humana-fcv-forum/archive/:path*",
+  ],
 };
 
 const COOKIE = "home_auth";

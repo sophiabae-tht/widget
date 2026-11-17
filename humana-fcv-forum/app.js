@@ -69,6 +69,27 @@ const APPS = [
   { name: "MyHumana", desc: "See your ID card, benefits, and doctors near you", img: "app-myhumana.png" },
   { name: "CenterWell Pharmacy", desc: "Refill prescriptions, get them delivered, and track your orders", img: "app-centerwell.png" },
 ];
+// Widget 2 is Molina's Widget 1 as-is (molina-flexcard): Molina logo, "Flex card", Molina's Care hub
+// (member ID, My Molina + CVS Caremark, Benefits Pro on a purse). Widgets 1 and 3 are Humana.
+const BRANDS = {
+  humana: {
+    plan: "Humana", card: "Healthy Spending Card", memberLine: "Humana Member Services",
+    logo: { src: "assets/logo-humana.svg", width: 78, height: 20, alt: "Humana" },
+    memberIcon: `<img src="${C}logo-humana-symbol.svg" width="17.6" height="22" alt="" />`,
+    apps: APPS, benefitsPro: false,
+  },
+  molina: {
+    plan: "Molina", card: "Flex card", memberLine: "Molina Member Services",
+    logo: { src: "assets/logo-molina.svg", width: 68.637, height: 20, alt: "Molina Healthcare" },
+    memberIcon: `<img src="${C}logo-molina-icon.svg" width="22" height="19" alt="" />`,
+    apps: [
+      { name: "My Molina", desc: "See your ID card, benefits, and doctors near you", molina: true },
+      { name: "CVS Caremark", desc: "Access prescriptions, compare prices, find pharmacies in one app", img: "app-cvs.webp" },
+    ],
+    benefitsPro: true,
+  },
+};
+const brand = () => BRANDS[document.getElementById("phone")?.dataset.widget === "2" ? "molina" : "humana"];
 // Resources: skeleton rows until Humana's real resource list is decided.
 // Each entry = widths of the title bar and the description lines.
 const RESOURCE_SKELETONS = [
@@ -351,7 +372,7 @@ const ACCOUNT = [
   ] },
   { title: "Thrive settings", rows: [
     { title: "Check-in time", detail: "Mondays, 9:30 AM", end: "caret" },
-    { title: "Important contacts", detail: "Humana Member Services · 24/7 Nurse Line", end: "caret" },
+    { title: "Important contacts", get detail() { return `${brand().memberLine} · 24/7 Nurse Line`; }, end: "caret" },
     { title: "Location sharing", detail: "On for ER visits", end: "caret" },
   ] },
   { title: "Notices", rows: [
@@ -557,10 +578,10 @@ const DESTINATIONS = {
   // Healthy Spending Card (Figma 2737:10925): purse name + available balance only, named as on the Nations
   // portal. No "lives in Care hub" copy: it opens with Care hub underneath, which shows where it lives.
   flex: {
-    title: "Healthy Spending Card",
+    get title() { return brand().card; },
     core: true,
     html: () => `
-      ${pageHeader("Healthy Spending Card", "View your available balance for each benefit.")}
+      ${pageHeader(brand().card, "View your available balance for each benefit.")}
       ${NATIONS_PURSES.map((p, i) => `
       <div class="ch-pad"><button class="ch-perk" type="button" data-goto="purse" data-purse="${i}">
         <span class="ch-circle ch-circle--32"><img src="${C}${p.icon}" width="20" height="20" alt="" /></span>
@@ -579,7 +600,7 @@ const DESTINATIONS = {
   // The balance always reads "Available balance" with the time it was fetched, so it can't be
   // mistaken for the purse's total (Molina feedback, 11/6). Copy is placeholder; see NATIONS_PURSES.
   purse: {
-    title: "Healthy Spending Card",
+    get title() { return brand().card; },
     core: true,
     sub: true,
     html: ({ purse = 0 } = {}) => {
@@ -605,7 +626,17 @@ const DESTINATIONS = {
       <div class="ch-accordions">
         ${accordion("How you get it", `<p class="ch-purse-copy">${p.earn}</p>`)}
         ${accordion("Where you can use it", `<ul class="ch-tags">${p.spend.map((s) => `<li>${s}</li>`).join("")}</ul>`)}
-      </div>`;
+      </div>${brand().benefitsPro ? `
+      ${section("Shop with your card")}
+      <div class="ch-pad ch-purse-shop">
+        <button class="ch-nav-card" type="button" data-benefits-pro>
+          <span class="ch-nav-main">
+            <img class="ch-purse-app" src="${C}app-benefits-pro.webp" width="48" height="48" alt="" />
+            <span class="ch-nav-text"><span class="ch-nav-title">Benefits Pro</span><span class="ch-nav-body">Find eligible items and stores near you</span></span>
+            <img src="${C}icon-arrow-square-out.svg" width="20" height="20" alt="" />
+          </span>
+        </button>
+      </div>` : ""}`;
     },
   },
   // Care hub (Figma 6283:1802): tab root, so no back arrow
@@ -659,10 +690,10 @@ const DESTINATIONS = {
     core: true,
     root: true,
     html: () => `
-      ${pageHeader("Care hub", "Easy access to all the tools and services your Humana plan offers.")}
+      ${pageHeader("Care hub", `Easy access to all the tools and services your ${brand().plan} plan offers.`)}
       <div class="ch-member">
-        <span class="ch-member-icon"><img src="${C}logo-humana-symbol.svg" width="17.6" height="22" alt="" /></span>
-        <span><span class="ch-member-label">Humana member ID</span><span class="ch-member-id">W123456789</span></span>
+        <span class="ch-member-icon">${brand().memberIcon}</span>
+        <span><span class="ch-member-label">${brand().plan} member ID</span><span class="ch-member-id">W123456789</span></span>
       </div>
       ${bookedVisit ? `${section("Upcoming appointments")}${visitCard(bookedVisit)}` : ""}
       ${section("Your benefits")}
@@ -670,7 +701,7 @@ const DESTINATIONS = {
         <button class="ch-nav-card" data-goto="flex" type="button">
           <span class="ch-nav-main">
             <span class="ch-circle ch-circle--48"><img src="${C}icon-cardholder-24.svg" width="24" height="24" alt="" /></span>
-            <span class="ch-nav-text"><span class="ch-nav-title">Healthy Spending Card</span><span class="ch-nav-body">Check your card’s balances</span></span>
+            <span class="ch-nav-text"><span class="ch-nav-title">${brand().card}</span><span class="ch-nav-body">Check your card’s balances</span></span>
             <img src="${C}icon-caret-right-20.svg" width="20" height="20" alt="" />
           </span>
           <span class="ch-nav-foot">Last updated at ${timeNow()}</span>
@@ -688,10 +719,12 @@ const DESTINATIONS = {
       <div class="ch-spacer"></div>
       ${section("Useful Apps")}
       <div class="ch-hscroll">
-        ${APPS.map((a) => `
+        ${brand().apps.map((a) => `
         <div class="ch-app">
           <span class="ch-app-top">
-            <img class="ch-app-logo" src="${C}${a.img}" width="64" height="64" alt="" />
+            ${a.molina
+              ? `<span class="ch-app-logo ch-app-logo--molina"><img src="${C}app-molina-mark.svg" width="50" height="43" alt="" /></span>`
+              : `<img class="ch-app-logo" src="${C}${a.img}" width="64" height="64" alt="" />`}
             <img src="${C}icon-download.svg" width="20" height="20" alt="" />
           </span>
           <span class="ch-app-name">${a.name}</span>
@@ -988,6 +1021,8 @@ appBody.addEventListener("click", (e) => {
     return;
   }
   if (e.target.closest("[data-signin]")) { toast("Signing in isn’t part of this demo"); return; }
+  // Real app: deep link into the Nations Benefits Pro app, or its store listing if not installed
+  if (e.target.closest("[data-benefits-pro]")) { toast("Opening Benefits Pro…"); return; }
   // Find a doctor screens (studio check-in flow)
   if (e.target.closest("[data-ci-back]")) { appBack.click(); return; }
   if (e.target.closest("[data-ci-close]")) { closeApp(); return; }
@@ -1480,7 +1515,7 @@ document.getElementById("hintRecommended").addEventListener("click", () => { set
 document.getElementById("hintFigma").addEventListener("click", () => { setFlip("slide"); setCtl("dots"); setHints([]); });
 
 /* Widget 1 = today's widget: two "Click to Visit" tiles ("no"); every tap on it opens MyHumana.
-   Widget 2 = flippable purse tile ("pager"). (Swapped from the Healthy Spending Card prototype.)
+   Widget 2 = flippable purse tile ("pager"): Molina's Widget 1 as-is, Molina branding (see BRANDS).
    Widget 3 = dynamic: a personal next-step card, a Healthy Spending Card tile and two call tiles
    (its own markup, .w3; data-widget="3").
    ?widget=1|2|3 in the address opens on that widget (the phone link uses it). */
@@ -1499,7 +1534,8 @@ function setAnswer(value) {
   if (value === "pager") startAuto(); else stopAuto();
 }
 function setWidget(n) {
-  if (!["1", "2", "3"].includes(n)) n = "1";
+  // Widget 3 lives in archive/ now; this page has Widgets 1 and 2 (its code stays, unused)
+  if (!["1", "2"].includes(n)) n = "1";
   phone.dataset.widget = n;
   notes.dataset.widget = n;
   widgetInputs.forEach((r) => (r.checked = r.value === n));
@@ -1508,6 +1544,9 @@ function setWidget(n) {
   // Widget 1's copy is Humana DSNP 2027's configured widget (configuration menu, Widget tab)
   cardBody.textContent = n === "1" ? "Learn about your benefits and find care" : "Find out what your plan covers and how to make the most of it.";
   cardBtn.textContent = n === "1" ? "MyHumana" : "Explore your benefits";
+  const b = brand();
+  Object.assign(widgetLogo, { src: b.logo.src, width: b.logo.width, height: b.logo.height, alt: b.logo.alt });
+  flexTile.setAttribute("aria-label", `${b.card[0].toUpperCase()}${b.card.slice(1)} balances`);
   // Home page 2's restart only starts Widget 3 over, so it's off for Widgets 1 and 2
   const restart = document.getElementById("demoRestart");
   restart.disabled = n !== "3";
@@ -1516,6 +1555,7 @@ function setWidget(n) {
 const topLink = document.querySelector(".widget-top-bar .link");
 const cardBody = document.getElementById("cardBody");
 const cardBtn = document.getElementById("cardBtn");
+const widgetLogo = document.querySelector(".widget-top-bar .logo");
 // Switching widgets from the project page while the phone is in an app (or the dialer, or on home page
 // 2): back to the home screen's first page, so the new widget is what shows. The app fades out rather
 // than folding into the widget it opened from (that widget may not be on screen any more).
@@ -1602,7 +1642,9 @@ function setCallState(state) {
   fitDialer();
 }
 function openDialer(kind = "member") {
-  const line = CALLS[kind] || CALLS.member;
+  const base = CALLS[kind] || CALLS.member;
+  // Widget 2 is Molina's widget, so its Member Services line is Molina's (same placeholder number)
+  const line = base === CALLS.member ? { ...base, name: brand().memberLine } : base;
   clearCallTimers();
   dlFits[0].firstElementChild.textContent = line.name;
   dlFits[1].firstElementChild.textContent = line.name;

@@ -428,6 +428,7 @@ html, body { overflow: hidden; }
   box-shadow: 0 2px 12px var(--shadow-weaker);
   -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
 }
+.demo-btn[hidden] { display: none; }
 .demo-btn {
   display: grid; place-items: center; width: 48px; height: 48px; padding: 0;
   border: 0; border-radius: 12px; background: var(--fill-brandweaker); color: var(--text-brand);
@@ -1064,7 +1065,7 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 .notes-intro ~ .widget-section { border-top: 0; padding-top: 0; }
 
 /* Widget 1 / Widget 2 switch + sections in the side notes */
-.widget-switch { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 14px; padding: 4px; border-radius: 12px; background: rgba(12, 15, 65, 0.06); }
+.widget-switch { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-top: 14px; padding: 4px; border-radius: 12px; background: rgba(12, 15, 65, 0.06); }
 .widget-switch label { cursor: pointer; }
 .widget-switch input { position: absolute; opacity: 0; pointer-events: none; }
 .widget-switch span { display: flex; flex-direction: column; padding: 6px 10px; border-radius: 9px; color: #565a86; font-size: 13px; line-height: 18px; }
@@ -1933,3 +1934,9 @@ html.full .toast { bottom: calc(48px + var(--home-lift)); }
 .ap-btn--primary { background: var(--text-brand); color: #fff; }
 .ap-btn--secondary { background: var(--fill-brandweaker); color: var(--text-brand); }
 .ap-btn:active { filter: brightness(0.94); }
+
+/* Widget 2 is Molina's Widget 1 (molina-flexcard): My Molina app tile and Benefits Pro on a purse page */
+.ch-app-logo--molina { display: flex; align-items: center; justify-content: center; background: #009fab; border-radius: 6px; }
+.ch-purse-shop { padding-bottom: 40px; }
+.ch-purse-app { flex: none; display: block; width: 48px; height: 48px; border-radius: 12px; }
+html.full .ch-purse-shop { padding-bottom: calc(40px + var(--home-lift)); }

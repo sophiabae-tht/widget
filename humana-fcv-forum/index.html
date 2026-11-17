@@ -39,7 +39,8 @@
 
       <!-- The launcher's pages, side by side as on Android (tht-demo-studio navigator/voice HomePages): swipe
            sideways (or drag with a mouse), dots underneath. Page 1 is the Humana widget; page 2 is a demo
-           controls widget: the gear switches between Widgets 1–3, restart starts Widget 3 over. -->
+           controls widget: the gear switches between Widgets 1 and 2. (Widget 3 and its restart button
+           live in archive/.) -->
       <div class="home-pages" id="homePages">
         <div class="home-page" aria-label="Home page 1 of 2">
         <section class="widget-frame">
@@ -174,12 +175,11 @@
           <section class="demo-widget" aria-label="Demo controls">
             <div class="demo-pill">
               <button class="demo-btn" id="demoWidgets" type="button" aria-label="Switch widget" aria-haspopup="menu" aria-expanded="false" aria-controls="demoMenu"><span class="demo-icon" style="--icon: url('assets/home/icon-gear.svg')" aria-hidden="true"></span></button>
-              <button class="demo-btn" id="demoRestart" type="button" aria-label="Restart Widget 3"><span class="demo-icon" style="--icon: url('assets/home/icon-restart.svg')" aria-hidden="true"></span></button>
+              <button class="demo-btn" id="demoRestart" type="button" aria-label="Restart Widget 3" hidden><span class="demo-icon" style="--icon: url('assets/home/icon-restart.svg')" aria-hidden="true"></span></button>
             </div>
             <div class="demo-menu" id="demoMenu" role="menu" aria-label="Widgets" hidden>
               <button type="button" role="menuitemradio" data-demo-widget="1"><b>Widget 1</b><span>Static, tap-only</span></button>
               <button type="button" role="menuitemradio" data-demo-widget="2"><b>Widget 2</b><span>Flippable card</span></button>
-              <button type="button" role="menuitemradio" data-demo-widget="3"><b>Widget 3</b><span>Dynamic, device-level</span></button>
             </div>
           </section>
         </div>
@@ -282,8 +282,8 @@
         <button class="reset" id="openMobileView" type="button">Open mobile view (full screen)</button>
         <button class="reset" id="shareMobileView" type="button">Copy link</button>
       </div>
-      <h2 class="notes-h2">Three Humana widgets</h2>
-      <p class="notes-sub">Three ways the Humana widget could work, from today's to device-level. Static: today's widget, whose links hand off to the MyHumana sign-in. Flippable card: Healthy Spending Card balances, one at a time. Dynamic: the widget picks the member's next step, and a tap completes it on the device.</p>
+      <h2 class="notes-h2">Two widgets</h2>
+      <p class="notes-sub">Static: today's Humana widget, whose links hand off to the MyHumana sign-in. Flippable card: Molina's Flex card widget, balances one at a time.</p>
       <label class="android-toggle">
         <input type="checkbox" id="androidToggle" role="switch" />
         <span class="android-toggle-track" aria-hidden="true"></span>
@@ -293,7 +293,6 @@
       <div class="widget-switch" id="widgetSwitch" role="radiogroup" aria-label="Widget">
         <label><input type="radio" name="widget" value="1" checked /><span><b>Widget 1</b>Static, tap-only</span></label>
         <label><input type="radio" name="widget" value="2" /><span><b>Widget 2</b>Flippable card</span></label>
-        <label><input type="radio" name="widget" value="3" /><span><b>Widget 3</b>Dynamic, device-level</span></label>
       </div>
       </div>
 
@@ -305,6 +304,7 @@
         </div>
         <div class="look-points" data-for="v4-right">
           <ul class="widget-points">
+            <li>Molina's Widget 1, as in the Molina Flex card prototype: Molina logo, Flex card purses, and Molina's Care hub (with Benefits Pro on each purse).</li>
             <li>Each purse shows its amount and &ldquo;1 of 4&rdquo;, one purse at a time. No total. The &ldquo;1 of 4&rdquo; stays put while the purses slide; only the number changes.</li>
             <li>Tapping the bottom half, with the &rsaquo; in the corner, goes to the next balance: it slides in from the right as the current one slides out to the left. Where the incoming text reaches the wallet icon or the &rsaquo;, it fades out instead of running under them. After the last purse it wraps to the first.</li>
             <li>Tapping the top half opens the full list. The wallet icon in the top-right corner stays the same for every purse.</li>
@@ -317,7 +317,7 @@
               </ul>
             </li>
           </ul>
-          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, horizontal slide: inAnimation and outAnimation are objectAnimator XMLs on translationX (in from the right, out to the left), set on the flipper in the widget layout. The fades by the icon and the &rsaquo; are ImageViews with radial gradient shape drawables (tile colour → transparent), placed outside the flipper, under the icon and the &rsaquo;. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Healthy Spending Card. Two views stacked in the tile: the top half carries the Care hub PendingIntent, the bottom half a fill-in intent → showNext(). "1 of 4" is a static TextView outside the flipper, updated with setTextViewText() in the same partiallyUpdateAppWidget() call as showNext(). The wallet icon is a static ImageView outside the flipper and never changes.</p>
+          <p class="notes-android"><i>Android</i>&lt;AdapterViewFlipper&gt; fed by a RemoteViewsService, one item per purse, horizontal slide: inAnimation and outAnimation are objectAnimator XMLs on translationX (in from the right, out to the left), set on the flipper in the widget layout. The fades by the icon and the &rsaquo; are ImageViews with radial gradient shape drawables (tile colour → transparent), placed outside the flipper, under the icon and the &rsaquo;. The flip control is a view outside the flipper: tap → broadcast → partiallyUpdateAppWidget() with showNext(). Everything else on the tile shares one setOnClickPendingIntent → Care hub › Flex card. Two views stacked in the tile: the top half carries the Care hub PendingIntent, the bottom half a fill-in intent → showNext(). "1 of 4" is a static TextView outside the flipper, updated with setTextViewText() in the same partiallyUpdateAppWidget() call as showNext(). The wallet icon is a static ImageView outside the flipper and never changes.</p>
         </div>
         <!-- Earlier iterations of the flippable widget (Widget 2 here) (labels, StackView, other animations and next controls).
              Kept wired up so the defaults still apply; browse them at ../molina-flexcard/archive/. -->
@@ -477,19 +477,11 @@
         <input type="radio" name="answer" value="no" checked hidden />
       </section>
 
-      <section class="widget-section w3-only" aria-labelledby="w3Title">
-        <h2 class="widget-section-title" id="w3Title"><span class="widget-num">Widget 3</span>Dynamic, device-level</h2>
-        <ul class="widget-points">
-          <li>Device-level orchestration: the widget picks the member's next step and the tap completes it, with no sign-in hand-off.</li>
-          <li>The top card is personal ("Hi John, it's time for your annual wellness checkup!"). "Schedule an appointment" opens "Let's find you a doctor close to home" (Figma Client-Demos), then the booking flow from the tht-demo-studio appointment scheduling demo: pick a doctor, pick a time, confirm John's details, see the booked visit, done.</li>
-          <li>Once the visit is booked, Care hub lists it under "Upcoming appointments", above "Your benefits".</li>
-          <li>Once booked, the widget's chip reads "View my appointment" and opens Care hub with the visit. Swipe to the second home page: the gear switches widgets, restart (on for Widget 3 only) starts it over.</li>
-          <li>"Powered by Humana Provider Directory" sits between the heading and its text: the list is Humana's own data, and Thrive orchestrates the booking.</li>
-          <li>Below it: "Your Healthy Spending Card" opens the balances in Care hub, and "Member Services" and "24/7 Nurse Line" go straight to the dialer.</li>
-          <li>Laid out as the dynamic widget in Figma ([SB] Assets &amp; Experimentations), keeping only its "Hi John" message, without the Thrive Guide frame.</li>
-        </ul>
-        <p class="notes-android"><i>Android</i>The card is a plain TextView layout the app refreshes with updateAppWidget() whenever the next step changes. Its setOnClickPendingIntent deep-links into the Thrive app's find-a-doctor flow.</p>
-      </section>
+      <!-- Widget 3 (Dynamic, device-level) moved to archive/ -->
+      <div class="notes-archive">
+        <a class="archive-btn" href="archive/" aria-describedby="archiveHint">Experimental archive</a>
+        <span class="archive-hint" id="archiveHint" role="tooltip">Widget 3 (Dynamic, device-level): the widget picks the member's next step and books the annual wellness checkup on the device</span>
+      </div>
 
 
 
