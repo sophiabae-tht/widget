@@ -406,14 +406,14 @@ html, body { overflow: hidden; }
 .home-pages::-webkit-scrollbar { display: none; }
 .home-pages[data-dragging] { scroll-snap-type: none; cursor: grabbing; }
 .home-page { flex: 0 0 100%; min-width: 0; display: flex; flex-direction: column; scroll-snap-align: start; scroll-snap-stop: always; }
-.home-dots { position: relative; z-index: 1; flex: none; display: flex; justify-content: center; gap: 4px; padding: 8px 0 12px; }
+.home-dots { position: relative; z-index: 1; flex: none; display: flex; justify-content: center; gap: 4px; padding: 8px 0 24px; } /* room between the dots and the dock */
 /* A 6px dot in a bigger tap target */
 .home-dot { display: grid; place-items: center; width: 16px; height: 16px; padding: 0; border: 0; background: none; cursor: pointer; }
 .home-dot::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #fff; opacity: 0.55; transition: opacity 0.2s; }
 .home-dot.is-on::after { opacity: 1; }
 /* The "Full screen" pill (fullscreen-guide.js, phones only): on the wallpaper just above the page dots,
-   clear of the dock (gesture bar 24 + dock 56 + dots 36 + 16 apart) */
-.phone { --fsg-pill-bottom: 132px; }
+   clear of the dock (gesture bar 24 + dock 56 + dots 48 + 16 apart) */
+.phone { --fsg-pill-bottom: 144px; }
 
 /* Page 2: demo controls, centred on the screen. A frosted panel with the widget's 16px corners, its
    brand-tint buttons rounded squares like the dock's icons (12px); the gear opens a menu of the three
