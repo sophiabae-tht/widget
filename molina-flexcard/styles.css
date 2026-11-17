@@ -400,6 +400,7 @@ html, body { overflow: hidden; }
   height: 24px;
   flex: none;
   cursor: pointer;
+  touch-action: none; /* a swipe up on it is ours (goes home), not the page's scroll */
 }
 .handle {
   position: absolute;

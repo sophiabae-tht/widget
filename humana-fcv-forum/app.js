@@ -1655,6 +1655,25 @@ function goHome() {
   if (onHome) { closeDemoMenu(); goToHomePage(0); }
 }
 document.getElementById("gestureBar").addEventListener("click", goHome);
+// Swiping up from the gesture bar does the same, as on Android. The pointer is captured, so the swipe can
+// leave the 24px bar; the click that follows a swipe is swallowed (it already went home).
+{
+  const bar = document.getElementById("gestureBar");
+  let start = null;
+  let swiped = false;
+  bar.addEventListener("pointerdown", (e) => {
+    start = { y: e.clientY, id: e.pointerId };
+    bar.setPointerCapture?.(e.pointerId);
+  });
+  bar.addEventListener("pointerup", (e) => {
+    if (!start || e.pointerId !== start.id) return;
+    const up = start.y - e.clientY;
+    start = null;
+    if (up > 12) { swiped = true; goHome(); }
+  });
+  bar.addEventListener("pointercancel", () => { start = null; });
+  bar.addEventListener("click", (e) => { if (swiped) { swiped = false; e.stopImmediatePropagation(); } }, true);
+}
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") goHome();
 });
