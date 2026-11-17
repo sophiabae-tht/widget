@@ -1349,12 +1349,12 @@ html.full .notes { display: none; }
 html.full .phone { box-shadow: none; }
 /* Mobile view in a browser tab or from the iPhone Home Screen: the phone shows its own time and signal,
    so the prototype's status bar goes, leaving a little room at the top. Kept where nothing else shows
-   them: installed on Android (opens full screen) or in the browser's full screen. */
-@media not all and (display-mode: fullscreen) {
-  html.full:not(:fullscreen) { --sb: 8px; }
-  html.full:not(:fullscreen) .status-bar { padding: 0; }
-  html.full:not(:fullscreen) .status-bar > * { display: none; }
-}
+   them: installed on Android (opens full screen) or in the browser's full screen; fullscreen-guide.js
+   marks those with .no-system-bar (a class, not :fullscreen, which iPhone Safari doesn't know and would
+   drop the whole rule over). */
+html.full:not(.no-system-bar) { --sb: 8px; }
+html.full:not(.no-system-bar) .status-bar { padding: 0; }
+html.full:not(.no-system-bar) .status-bar > * { display: none; }
 /* Mobile view on a real phone: the gesture bar sits a little higher, clear of the phone's own gesture
    bar / home indicator and the browser's bottom bar; apps, the glow behind the handle and the toast
    come up with it (backgrounds still reach the edge) */

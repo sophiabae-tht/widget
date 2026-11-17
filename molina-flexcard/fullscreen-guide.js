@@ -114,6 +114,15 @@
     el.querySelector(".fsg-title").focus({ preventScroll: true });
   }
 
+  // No system status bar on screen (the browser's full screen, or installed on Android, which opens full
+  // screen): the prototype keeps its own status bar then (styles.css, html.full:not(.no-system-bar))
+  const markSystemBar = () => document.documentElement.classList.toggle("no-system-bar",
+    !!(document.fullscreenElement || document.webkitFullscreenElement) || (isAndroid && matchMedia("(display-mode: fullscreen)").matches));
+  markSystemBar();
+  document.addEventListener("fullscreenchange", markSystemBar);
+  document.addEventListener("webkitfullscreenchange", markSystemBar);
+  matchMedia("(display-mode: fullscreen)").addEventListener?.("change", markSystemBar);
+
   const platformHere = () => (isStandalone() || window.parent !== window ? null : isIPhone ? "ios" : isAndroid ? "android" : null);
 
   /** Shows the sheet over `host` on an iPhone or Android phone; returns false (nothing shown) anywhere else. */
