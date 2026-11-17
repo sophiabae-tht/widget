@@ -393,6 +393,7 @@ document.getElementById("appHelp").addEventListener("click", () => openSheet("me
    around the home button. Cap how often it plays in the real app (e.g. 3 times). */
 const homePulse = document.getElementById("homePulse");
 function pulseHome() {
+  showHandle(HANDLE_ARMED_MS); // the glow points at the handle, so it shows
   homePulse.classList.remove("show");
   reflow(homePulse);
   homePulse.classList.add("show");
@@ -985,6 +986,34 @@ function goHome() {
   closeSheet();
   closeApp();
 }
+/* The gesture handle fades away when it isn't needed, as in an Android app in full screen (tht-demo-studio
+   navigator/voice, GestureBar's ImmersiveBar): it shows as a screen opens (an app, the dialer, back home,
+   the page loading), then fades. Touching or swiping the bar brings it back (it stays while the finger is
+   down), as does a mouse over it, and the glow after a tap that goes nowhere. The bar works whether the
+   handle shows or not. */
+const HANDLE_ARRIVAL_MS = 1500; // showing, by itself, when a screen opens
+const HANDLE_ARMED_MS = 2000;   // showing after a touch, a short swipe or the glow
+const gestureBarEl = document.getElementById("gestureBar");
+let handleTimer = 0;
+function showHandle(ms) {
+  gestureBarEl.classList.add("is-shown");
+  clearTimeout(handleTimer);
+  if (ms) handleTimer = setTimeout(() => gestureBarEl.classList.remove("is-shown"), ms);
+}
+gestureBarEl.addEventListener("pointerdown", () => showHandle(0));
+gestureBarEl.addEventListener("pointerup", () => showHandle(HANDLE_ARMED_MS));
+gestureBarEl.addEventListener("pointercancel", () => showHandle(HANDLE_ARMED_MS));
+// A new screen: an app or the dialer opening or closing
+{
+  let was = "";
+  const screenNow = () => ["app-open", "dialer-open"].filter((c) => phone.classList.contains(c)).join(" ");
+  new MutationObserver(() => {
+    const now = screenNow();
+    if (now !== was) { was = now; showHandle(HANDLE_ARRIVAL_MS); }
+  }).observe(phone, { attributes: true, attributeFilter: ["class"] });
+  was = screenNow();
+}
+showHandle(HANDLE_ARRIVAL_MS);
 document.getElementById("gestureBar").addEventListener("click", goHome);
 /* Swipe up on the gesture bar: tht-demo-studio's (navigator/voice: src/shell/GestureBar.tsx, and App's
    'home' transition, src/flow/motion.ts T_HOME / HOME_EXIT), as Android does it. The open screen (the app,

@@ -480,8 +480,11 @@ html, body { overflow: hidden; }
   border-radius: 12px;
   background: #fff;
   transform: translate(-50%, -50%);
-  transition: background-color 0.3s;
+  opacity: 0; /* fades away; app.js shows it when needed (showHandle) */
+  transition: background-color 0.3s, opacity 300ms ease-out;
 }
+.gesture-bar.is-shown .handle { opacity: 1; transition: background-color 0.3s, opacity 150ms ease-out; }
+@media (hover: hover) { .gesture-bar:hover .handle { opacity: 1; transition: background-color 0.3s, opacity 150ms ease-out; } }
 .phone.app-open .handle { background: #0c0f41; }
 /* ---------- Dock (tht-demo-studio navigator/voice: NavigatorHomeScreen .dock) ----------
    48px rounded-square icons (Google Play style) spread across the bottom, 24px in from the sides, 8px above the gesture bar. */

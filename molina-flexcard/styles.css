@@ -411,8 +411,11 @@ html, body { overflow: hidden; }
   border-radius: 12px;
   background: #fff;
   transform: translate(-50%, -50%);
-  transition: background-color 0.3s;
+  opacity: 0; /* fades away; app.js shows it when needed (showHandle) */
+  transition: background-color 0.3s, opacity 300ms ease-out;
 }
+.gesture-bar.is-shown .handle { opacity: 1; transition: background-color 0.3s, opacity 150ms ease-out; }
+@media (hover: hover) { .gesture-bar:hover .handle { opacity: 1; transition: background-color 0.3s, opacity 150ms ease-out; } }
 .phone.app-open .handle { background: #0c0f41; }
 /* Call modal open: the handle goes light, as if seen through the 50% overlay (Figma 911_10).
    Home screen: white under the overlay = #8a8b9b. In the app the dimmed page behind is about
