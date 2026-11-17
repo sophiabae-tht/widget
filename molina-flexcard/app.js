@@ -1033,7 +1033,8 @@ document.getElementById("gestureBar").addEventListener("click", goHome);
    'home' transition, src/flow/motion.ts T_HOME / HOME_EXIT), as Android does it. The open screen (the app,
    the dialer) follows the finger: rising, shrinking, its corners rounding, the home screen showing behind
    it. Let go far enough up, or flick, and it flies off up and away (shrinking to half, fading) as the home
-   screen settles in from a slight zoom; short of that it springs back. On the home screen a swipe up goes
+   screen settles in from a slight zoom; short of that it springs back, and the glow at the handle hints the
+   way. On the home screen a swipe up goes
    home as a tap does. A tap still goes home (the click above); the click after a swipe is swallowed.
    Mobile view on a real phone: a swipe that starts just above the bar is caught too (useCatchAbove). */
 {
@@ -1058,6 +1059,9 @@ document.getElementById("gestureBar").addEventListener("click", goHome);
   let drag = null; // { id, y, dy, t, speed, layers }
   let swallowClick = false;
 
+  // The gesture bar isn't inside the screen (it's the phone's), so it gets the same move, shrink and
+  // turn-point as the screen: it rides along at the screen's bottom edge and flies off with it.
+  const barOrigin = (layer) => `50% ${layer.offsetTop + layer.offsetHeight / 2 - bar.offsetTop}px`;
   function follow(layers, dy) {
     const d = Math.max(0, dy) * phonePx();
     const p = Math.min(1, d / FULL_PX);
@@ -1068,8 +1072,15 @@ document.getElementById("gestureBar").addEventListener("click", goHome);
       el.style.scale = String(1 - p * 0.3);
       el.style.clipPath = `inset(0 round ${Math.max(screenRadius(), p * 32)}px)`;
     });
+    bar.style.transition = "none";
+    bar.style.transformOrigin = barOrigin(layers[0]);
+    bar.style.translate = `0 ${-d * 0.6}px`;
+    bar.style.scale = String(1 - p * 0.3);
   }
   function springBack(layers) {
+    bar.style.transition = `translate 200ms ${HOME_EASE}, scale 200ms ${HOME_EASE}`;
+    bar.style.translate = bar.style.scale = "";
+    setTimeout(() => { if (!drag) clear(bar); }, 220);
     layers.forEach((el) => {
       el.style.transition = `translate 200ms ${HOME_EASE}, scale 200ms ${HOME_EASE}, clip-path 200ms ${HOME_EASE}`;
       el.style.translate = el.style.scale = el.style.clipPath = "";
@@ -1078,9 +1089,16 @@ document.getElementById("gestureBar").addEventListener("click", goHome);
   }
   function flyHome(layers) {
     const ms = reduceMotion.matches ? 1 : HOME_MS;
+    const up = `0 ${-0.3 * layers[0].offsetHeight}px`; // HOME_EXIT's y: -30% of the screen
     const anims = layers.map((el) => el.animate([
       { translate: el.style.translate || "0 0", scale: el.style.scale || "1", opacity: 1, clipPath: el.style.clipPath || `inset(0 round ${screenRadius()}px)` },
-      { translate: "0 -30%", scale: "0.5", opacity: 0, clipPath: "inset(0 round 32px)" },
+      { translate: up, scale: "0.5", opacity: 0, clipPath: "inset(0 round 32px)" },
+    ], { duration: ms, easing: HOME_EASE, fill: "forwards" }));
+    // The gesture bar flies off with it
+    bar.style.transformOrigin = barOrigin(layers[0]);
+    anims.push(bar.animate([
+      { translate: bar.style.translate || "0 0", scale: bar.style.scale || "1", opacity: 1 },
+      { translate: up, scale: "0.5", opacity: 0 },
     ], { duration: ms, easing: HOME_EASE, fill: "forwards" }));
     // The home screen settles in from a slight zoom underneath
     homeLayers().forEach((el) => el.animate([{ scale: "1.06" }, { scale: "1" }], { duration: ms, easing: HOME_EASE }));
@@ -1088,6 +1106,7 @@ document.getElementById("gestureBar").addEventListener("click", goHome);
       launchFrom = null; // gone home already: no folding back into the widget
       goHome();
       layers.forEach(clear);
+      clear(bar);
       anims.forEach((a) => a.cancel());
     });
   }
@@ -1108,7 +1127,11 @@ document.getElementById("gestureBar").addEventListener("click", goHome);
     const flick = d.dy >= FLICK_PX && d.speed >= FLICK_SPEED && performance.now() - d.t < 100;
     if (!cancelled && (d.dy >= SWIPE_PX || flick)) {
       if (d.layers.length) flyHome(d.layers); else goHome();
-    } else if (d.layers.length) springBack(d.layers);
+      return;
+    }
+    if (d.layers.length) springBack(d.layers);
+    // Tried, but not far enough: the glow at the handle hints the way (swipe up from here)
+    if (!cancelled && Math.abs(d.dy) >= TAP_PX) pulseHome();
   }
 
   bar.addEventListener("pointerdown", (e) => { if (e.button === 0) begin(e.pointerId, e.clientY); });
