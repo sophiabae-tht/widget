@@ -18,7 +18,7 @@
   <title>Widget prototype · v2/link</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=110" />
+  <link rel="stylesheet" href="styles.css?v=111" />
 </head>
 <body>
   <main class="stage">
@@ -155,10 +155,9 @@
       <h1>Widget prototype</h1>
       <p>Android Large 360×800</p>
       <div class="full-actions">
-        <button class="reset" id="fullBtn" type="button">Full screen</button>
-        <button class="reset" id="copyFullLink" type="button">Copy mobile-view link</button>
+        <button class="reset" id="openMobileView" type="button">Open mobile view (full screen)</button>
+        <button class="reset" id="shareMobileView" type="button">Copy link</button>
       </div>
-      <p class="full-hint">On a phone, full screen shows just the prototype, filling the screen. Add it to the home screen to hide the browser bar too.</p>
       <h2 class="notes-h2">Flex Card on the widget</h2>
       <p class="notes-sub">Two widget directions, built only with what a real Android home-screen widget can do. Tap a Flex Card tile to see the full list, then Back to see where it lives in Care hub.</p>
       <label class="android-toggle">
@@ -355,19 +354,16 @@
       </section>
 
 
-      <details class="notes-cut">
-        <summary>Dropped: not possible on Android widgets</summary>
-        <p><b>Content peek</b>: widgets have no fade masks or snap-scrolling, so the half-visible next page would land at random scroll positions.</p>
-        <p><b>Nudge animation</b>: widgets can't run custom animations. Auto-advance is the closest supported way to show motion.</p>
-      </details>
+      <!-- "Dropped: not possible on Android widgets" (content peek, nudge animation) lives in the archive -->
       <div class="notes-archive">
         <a class="archive-btn" href="archive/" aria-describedby="archiveHint">Experimental archive</a>
-        <span class="archive-hint" id="archiveHint" role="tooltip">Earlier iterations: other Widget 1 looks, other controls, animations, StackView, separate Flex Card widget</span>
+        <span class="archive-hint" id="archiveHint" role="tooltip">Earlier iterations: other Widget 1 looks, other controls, animations, StackView, separate Flex Card widget, and what was dropped because Android widgets can’t do it</span>
       </div>
 
     </aside>
   </main>
-  <script src="fullscreen-guide.js?v=1"></script>
-  <script src="app.js?v=113"></script>
+  <script src="fullscreen-guide.js?v=2"></script>
+  <script src="mobile-view-share.js?v=3"></script>
+  <script src="app.js?v=117"></script>
 </body>
 </html>

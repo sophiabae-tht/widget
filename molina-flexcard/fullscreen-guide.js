@@ -5,6 +5,10 @@
    screen with the design's status bar; "Full screen for now" uses Chrome's full screen instead.
    Not shown on desktop or iPad (the Full screen button goes straight to full screen there),
    once it's running from the home screen, or inside another page (the home page's card previews).
+   The mobile-view link (?full) on an iPhone or Android phone also gets the studio's frosted "Full screen"
+   pill near the bottom of the screen (LockScreen's FullscreenPrompt): tapping it opens the sheet. Gone
+   once full screen, and under any app the prototype opens. A prototype can move it with
+   --fsg-pill-bottom on .phone (e.g. above its dock).
    Self-contained (its own styles) so each prototype folder can include the same file. */
 (() => {
   const ua = navigator.userAgent;
@@ -41,6 +45,11 @@
     .fsg-btn:active { background-image: linear-gradient(#ffffff33, #ffffff33); }
     .fsg-btn--link { margin-top: -8px; background: none; color: #565a86; text-decoration: underline; text-underline-position: from-font; }
     .fsg-btn--link:active { background: #0c0f411a; }
+    .fsg-pill { position: absolute; z-index: 20; left: 50%; bottom: var(--fsg-pill-bottom, 48px); display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 16px; border: 0; border-radius: 999px; background: #ffffff29; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); color: #fff; font: 600 14px/20px "General Sans", system-ui, sans-serif; white-space: nowrap; transform: translateX(-50%); cursor: pointer; transition: background-color 120ms ease-out; -webkit-tap-highlight-color: transparent; animation: fsg-fade 300ms ease-out 400ms both; }
+    .fsg-pill:active { background: #ffffff47; }
+    @media (hover: hover) { .fsg-pill:hover { background: #ffffff47; } }
+    .fsg-pill svg { display: block; flex: none; }
+    html:not(.full) .fsg-pill, .fsg-pill.is-hidden { display: none; }
     @keyframes fsg-fade { from { opacity: 0; } }
     @keyframes fsg-up { from { transform: translateY(100%); } }
     @keyframes fsg-down { to { transform: translateY(100%); } }
@@ -105,12 +114,31 @@
     el.querySelector(".fsg-title").focus({ preventScroll: true });
   }
 
+  const platformHere = () => (isStandalone() || window.parent !== window ? null : isIPhone ? "ios" : isAndroid ? "android" : null);
+
   /** Shows the sheet over `host` on an iPhone or Android phone; returns false (nothing shown) anywhere else. */
   window.fullscreenGuide = (host) => {
-    if (isStandalone() || window.parent !== window) return false;
-    const platform = isIPhone ? "ios" : isAndroid ? "android" : null;
+    const platform = platformHere();
     if (!platform) return false;
     open(host, platform);
     return true;
   };
+
+  // The "Full screen" pill (studio FullscreenPrompt, variant "pill"), on phones only
+  const FULLSCREEN_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.25 3.75H3.75V8.25M15.75 3.75H20.25V8.25M20.25 15.75V20.25H15.75M8.25 20.25H3.75V15.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const phone = document.querySelector(".phone");
+  if (phone && platformHere()) {
+    if (!styled) { const st = document.createElement("style"); st.textContent = CSS; document.head.append(st); styled = true; }
+    const pill = document.createElement("button");
+    pill.type = "button";
+    pill.className = "fsg-pill";
+    pill.innerHTML = `${FULLSCREEN_ICON}Full screen`;
+    pill.addEventListener("click", () => window.fullscreenGuide(phone));
+    phone.append(pill);
+    // Android's "Full screen for now", or installed and reopened: nothing left to offer
+    const sync = () => pill.classList.toggle("is-hidden", !!document.fullscreenElement || !platformHere());
+    document.addEventListener("fullscreenchange", sync);
+    matchMedia("(display-mode: standalone), (display-mode: fullscreen)").addEventListener?.("change", sync);
+    sync();
+  }
 })();

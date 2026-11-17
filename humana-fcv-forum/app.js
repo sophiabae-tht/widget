@@ -83,7 +83,7 @@ const RESOURCE_SKELETONS = [
    flow – Gen UI"): pick a doctor → pick a time → confirm details → booked → done, as full check-in
    screens with the studio's look and motion (src/screens/*Screen.tsx there). The first screen is
    Client-Demos thriveGuideFlow08 (9205:36385), which the studio draws as its photo action card.
-   "Powered by Humana Provider Directory" under the doctors is the DES-97 nod that Thrive
+   "Powered by Humana Provider Directory" under the heading is the DES-97 nod that Thrive
    orchestrates Humana's own data. */
 const D = "assets/doctor/";
 const K = "assets/checkin/";
@@ -103,10 +103,20 @@ const ciHeader = ({ progress, help = "link", background = true, back = true } = 
     ${progress === undefined ? "" : `<div class="ci-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(progress * 100)}"><span class="ci-fill" data-progress="${progress}"></span></div>`}
   </header>`;
 // Library "pageHeader"
-const ciPageHeader = (heading, body, id) => `
+const ciPageHeader = (heading, body, id, extra = "") => `
   <div class="ci-page-header">
     <h1 class="ci-h4"${id ? ` id="${id}"` : ""}>${heading}</h1>
     ${body ? `<p class="ci-small ci-weak">${body}</p>` : ""}
+    ${extra}
+  </div>`;
+// "Powered by Humana Provider Directory" lockup ([SB] Assets – Experimentations 2154:15164)
+const poweredByDirectory = () => `
+  <div class="ci-source">
+    <span class="ci-source-label">Powered by</span>
+    <span class="ci-source-brand">
+      <img src="${D}logo-humana-13.svg" width="65.5394" height="13.5" alt="Humana" />
+      <span class="ci-source-name">Provider Directory</span>
+    </span>
   </div>`;
 // Library "button" and "appFooter" (fill + raised when a list scrolls under it)
 const ciButton = (label, attrs = "", { variant = "primary", iconName = "" } = {}) =>
@@ -421,7 +431,7 @@ const DESTINATIONS = {
               <span class="ci-photo-badge">${icon("stethoscope")}</span>
             </div>
             <h1 class="ci-h3 ci-photo-heading" id="ciFindHeading">Let’s find you a doctor close to home</h1>
-            <p class="ci-photo-caption ci-tiny ci-weak">Covered by <img src="${D}logo-humana-16.svg" width="77.676" height="16" alt="Humana" /></p>
+            <p class="ci-photo-caption"><span class="ci-source-label">Covered by</span><img src="${D}logo-humana-13.svg" width="65.5394" height="13.5" alt="Humana" /></p>
             <p class="ci-photo-body ci-small ci-weak">Your yearly wellness visit is covered. Tell us what works and we’ll find a doctor nearby and book it.</p>
             <div class="ci-photo-cta">${ciButton("Find me a doctor", 'data-ci-next="doctors"', { iconName: "sparkle" })}</div>
           </section>
@@ -437,10 +447,9 @@ const DESTINATIONS = {
       <div class="ci-screen">
         ${ciHeader({ progress: STEP_PROGRESS.doctors })}
         <main class="ci-main">
-          ${ciPageHeader("Pick your primary care doctor", "Here are in-network doctors near Leiper’s Fork that are taking new patients.", "ciDocHeading")}
+          ${ciPageHeader("Pick your primary care doctor", "Here are in-network doctors near Leiper’s Fork that are taking new patients.", "ciDocHeading", poweredByDirectory())}
           <div class="ci-doc-list" role="radiogroup" aria-labelledby="ciDocHeading">${DOCTORS.map(doctorCard).join("")}</div>
           <p class="ci-more"><span class="ci-small ci-underline">See more</span>${icon("caret-right", "16")}</p>
-          <p class="ci-source ci-tiny">Powered by Humana Provider Directory</p>
         </main>
         ${ciFooter(ciButton("Next", `data-ci-next="times"${booking.doctor === null ? " disabled" : ""}`), { fill: true })}
       </div>`,
@@ -739,7 +748,7 @@ function windowAt(el) {
 const screenRadius = () => (document.documentElement.classList.contains("full") ? 0 : 32);
 const fullWindow = () => ({ transform: "translate(0px, 0px) scale(1)", clipPath: `inset(0px 0px 0px 0px round ${screenRadius()}px)` });
 const appLayers = () => [...appScreen.children];
-const homeLayers = () => [...phone.querySelectorAll(".widget-frame, .dock-app")];
+const homeLayers = () => [...phone.querySelectorAll(".widget-frame, .home-dots, .dock-app")];
 
 function stopLaunch() {
   launchAnims.forEach((a) => a.cancel());
@@ -789,8 +798,7 @@ function playLaunch(opening) {
 // Layout, decided by real space (no fixed breakpoints):
 // · Side by side (two columns): phone scaled to the window height on the left; on the right the notes
 //   in one column (the card, then the widget notes under it), up to 540px wide for readable lines.
-//   The notes never scroll: when they're taller than the window, the notes panel is scaled down
-//   (CSS zoom) just enough to fit.
+//   The notes keep their size: when they're taller than the window, their column scrolls.
 // · Stacked: only when the window is too narrow for the notes beside the phone (phones, small
 //   windows): phone on top, notes below, and the page scrolls.
 const NOTES_MIN = 320;   // narrowest readable notes column
@@ -819,8 +827,6 @@ function fitDevice() {
   if (notesW >= NOTES_MIN) {
     root.classList.remove("stacked");
     root.style.setProperty("--s", sideScale.toFixed(4));
-    const h = notesPanel.scrollHeight; // natural height at full size
-    if (h > availH) notesPanel.style.zoom = (availH / h).toFixed(4);
   } else {
     root.classList.add("stacked");
     root.style.setProperty("--s", Math.min(1, (window.innerWidth - 32) / 360).toFixed(4));
@@ -834,42 +840,15 @@ const queueFit = () => {
 };
 window.addEventListener("resize", queueFit);
 
-/* Full screen: the button adds ?full to the URL (Back leaves it) and, where the browser allows
-   (Android, desktop), hides the browser UI too. Pressing Esc out of that also leaves full screen. */
+/* The mobile view: the page with ?full (just the phone, filling the screen). On an iPhone or Android
+   phone it offers the "Full screen" pill (fullscreen-guide.js) to add it to the home screen. */
 const fullUrl = () => `${location.origin}${location.pathname}?full&widget=${phone.dataset.widget || "1"}`;
-let fullFromButton = false;
-function setFull(on) {
-  document.documentElement.classList.toggle("full", on);
-  fitDevice();
-}
-document.getElementById("fullBtn").addEventListener("click", () => {
-  history.pushState({ full: true }, "", `${location.pathname}?full&widget=${phone.dataset.widget || "1"}${location.hash}`);
-  fullFromButton = true;
-  setFull(true);
-  // iPhone and Android phones: the "Use it full screen" sheet (Add to Home Screen / install), as in
-  // tht-demo-studio's demos (fullscreen-guide.js). Elsewhere, straight to full screen.
-  if (window.fullscreenGuide?.(phone)) return;
-  document.documentElement.requestFullscreen?.({ navigationUI: "hide" }).catch(() => {});
-});
-window.addEventListener("popstate", () => {
-  const on = new URLSearchParams(location.search).has("full");
-  if (!on) fullFromButton = false;
-  setFull(on);
-  if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
-});
-document.addEventListener("fullscreenchange", () => {
-  if (!document.fullscreenElement && fullFromButton && document.documentElement.classList.contains("full")) history.back();
-});
-const copyBtn = document.getElementById("copyFullLink");
-copyBtn.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(fullUrl());
-    copyBtn.textContent = "Link copied";
-  } catch {
-    window.prompt("Phone link", fullUrl());
-  }
-  setTimeout(() => { copyBtn.textContent = "Copy mobile-view link"; }, 2000);
-});
+// The mobile view (?full, on the widget shown now) in a new tab
+document.getElementById("openMobileView").addEventListener("click", () => window.open(fullUrl(), "_blank", "noopener"));
+// Copy link: the Share dialog (mobile-view-share.js), for the mobile view (with its QR code, to open it
+// on a phone) or this project page
+const projectUrl = () => `${location.origin}${location.pathname}?widget=${phone.dataset.widget || "1"}`;
+document.getElementById("shareMobileView").addEventListener("click", () => window.shareMobileView?.({ mobile: fullUrl(), project: projectUrl() }));
 // Notes content changes height (widget switch, Android notes, Dropped open/closed) → re-fit
 new ResizeObserver(queueFit).observe(notesPanel);
 fitDevice();
@@ -923,7 +902,14 @@ document.querySelectorAll("[data-open]").forEach((el) => {
 document.getElementById("dockThrive").addEventListener("click", (e) => openApp("thrivehome", e.currentTarget));
 document.getElementById("dockHumana").addEventListener("click", (e) => openApp("myhumana", e.currentTarget));
 // Widget 3
-document.getElementById("dynCard").addEventListener("click", (e) => { resetBooking(); ciProgress = 0; loadLottie().catch(() => {}); loadSuccess().catch(() => {}); openApp("findDoctor", e.currentTarget); });
+// Before booking: "Schedule an appointment" starts the booking flow. Once booked: "View my appointment"
+// opens Care hub, which lists the visit under Upcoming appointments.
+document.getElementById("dynCard").addEventListener("click", (e) => {
+  if (bookedVisit) { openApp("home", e.currentTarget); return; }
+  resetBooking(); ciProgress = 0; loadLottie().catch(() => {}); loadSuccess().catch(() => {}); openApp("findDoctor", e.currentTarget);
+});
+const w3ChipLabel = document.getElementById("w3ChipLabel");
+const updateW3 = () => { w3ChipLabel.textContent = bookedVisit ? "View my appointment" : "Schedule an appointment"; };
 document.getElementById("w3Flex").addEventListener("click", (e) => openApp("flex", e.currentTarget, { source: "widget" }));
 appBack.addEventListener("click", () => {
   if (appStack.length > 1) { appStack.pop(); renderApp(); }
@@ -1006,7 +992,7 @@ appBody.addEventListener("click", (e) => {
   if (ciNext) {
     if (ciNext.disabled) return;
     // "Looks good, book it": the visit is booked, so Care hub lists it from now on
-    if (ciNext.dataset.ciNext === "booked") bookedVisit = { doctor: booking.doctor, date: dayAt(booking.pick.day), time: booking.pick.time };
+    if (ciNext.dataset.ciNext === "booked") { bookedVisit = { doctor: booking.doctor, date: dayAt(booking.pick.day), time: booking.pick.time }; updateW3(); }
     appStack.push({ key: ciNext.dataset.ciNext, opts: {} }); renderApp();
     return;
   }
@@ -1643,10 +1629,101 @@ function toast(msg) {
 
 /* ---------- Back / home ---------- */
 function goHome() {
+  // Already on the home screen: Home goes back to the first page, as on Android
+  const onHome = !phone.classList.contains("app-open") && !phone.classList.contains("dialer-open");
   closeDialer();
   closeApp();
+  if (onHome) { closeDemoMenu(); goToHomePage(0); }
 }
 document.getElementById("gestureBar").addEventListener("click", goHome);
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") goHome();
 });
+
+/* ---------- The launcher's pages (tht-demo-studio navigator/voice HomePages) ----------
+   Swipe sideways between them (native scrolling, snapping to a page); on desktop a mouse drag does it
+   too. The dots show where you are and go to a page when tapped. */
+const homePages = document.getElementById("homePages");
+const homeDots = [...document.querySelectorAll("[data-home-page]")];
+const homePageAt = () => Math.round(homePages.scrollLeft / homePages.clientWidth);
+function goToHomePage(i, { instant = false } = {}) {
+  homePages.scrollTo({ left: i * homePages.clientWidth, behavior: instant || reduceMotion.matches ? "instant" : "smooth" });
+}
+const showHomeDot = () => {
+  const at = homePageAt();
+  homeDots.forEach((d, i) => { d.classList.toggle("is-on", i === at); if (i === at) d.setAttribute("aria-current", "true"); else d.removeAttribute("aria-current"); });
+  if (at !== 1) closeDemoMenu();
+};
+homePages.addEventListener("scroll", showHomeDot, { passive: true });
+homeDots.forEach((d) => d.addEventListener("click", () => goToHomePage(Number(d.dataset.homePage))));
+// Mouse drag (touch scrolls natively): one page at most, whichever way it was pulled far enough
+{
+  let drag = null;
+  let dragged = false;
+  homePages.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "mouse" || e.button !== 0) return;
+    drag = { x: e.clientX, left: homePages.scrollLeft, base: homePageAt(), dx: 0 };
+    dragged = false;
+  });
+  homePages.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    drag.dx = e.clientX - drag.x;
+    if (!dragged && Math.abs(drag.dx) < 6) return;
+    if (!dragged) { dragged = true; homePages.dataset.dragging = ""; homePages.setPointerCapture(e.pointerId); }
+    homePages.scrollLeft = drag.left - drag.dx * (phone.offsetWidth / phone.getBoundingClientRect().width); // screen px → phone px
+  });
+  const endDrag = () => {
+    if (!drag) return;
+    const d = drag;
+    drag = null;
+    delete homePages.dataset.dragging;
+    if (!dragged) return;
+    const to = Math.abs(d.dx) > 40 ? d.base - Math.sign(d.dx) : d.base;
+    goToHomePage(Math.min(homeDots.length - 1, Math.max(0, to)));
+  };
+  homePages.addEventListener("pointerup", endDrag);
+  homePages.addEventListener("pointercancel", endDrag);
+  // A drag isn't a tap on whatever it ended over
+  homePages.addEventListener("click", (e) => { if (dragged) { e.stopPropagation(); e.preventDefault(); dragged = false; } }, true);
+}
+
+/* ---------- Page 2: demo controls ----------
+   The gear opens a menu of the three widgets (same as the Widget setting beside the phone); picking one
+   switches to it and turns back to page 1 to show it. Restart starts Widget 3 over: nothing booked, so
+   its chip reads "Schedule an appointment" again and Care hub has no Upcoming appointments. */
+const demoWidgets = document.getElementById("demoWidgets");
+const demoRestart = document.getElementById("demoRestart");
+const demoMenu = document.getElementById("demoMenu");
+function closeDemoMenu() {
+  demoMenu.hidden = true;
+  demoWidgets.setAttribute("aria-expanded", "false");
+}
+demoWidgets.addEventListener("click", () => {
+  if (!demoMenu.hidden) { closeDemoMenu(); return; }
+  demoMenu.querySelectorAll("[data-demo-widget]").forEach((b) => b.setAttribute("aria-checked", b.dataset.demoWidget === phone.dataset.widget));
+  demoMenu.hidden = false;
+  demoWidgets.setAttribute("aria-expanded", "true");
+  demoMenu.querySelector('[aria-checked="true"]')?.focus({ preventScroll: true });
+});
+demoMenu.addEventListener("click", (e) => {
+  const item = e.target.closest("[data-demo-widget]");
+  if (!item) return;
+  setWidget(item.dataset.demoWidget);
+  closeDemoMenu();
+  goToHomePage(0);
+});
+document.addEventListener("pointerdown", (e) => { if (!demoMenu.hidden && !e.target.closest(".demo-widget")) closeDemoMenu(); });
+demoRestart.addEventListener("click", () => {
+  bookedVisit = null;
+  resetBooking();
+  ciProgress = 0;
+  updateW3();
+  setWidget("3");
+  closeDemoMenu();
+  demoRestart.classList.remove("is-spinning");
+  void demoRestart.offsetWidth;
+  demoRestart.classList.add("is-spinning");
+  setTimeout(() => goToHomePage(0), reduceMotion.matches ? 0 : 450);
+});
+demoRestart.addEventListener("animationend", () => demoRestart.classList.remove("is-spinning"));
+

@@ -60,7 +60,7 @@ body::after { /* green #A4ECBB at 8%: centre at (1124, 475) */
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 p, h1, h2 { margin: 0; }
 
-/* Desktop: phone left, settings right, everything inside the window (no scrolling).
+/* Desktop: phone left, settings right, inside the window (the page doesn't scroll; a long settings column does).
    The phone is scaled to the window height; app.js stacks the layout when the notes don't fit. */
 html, body { overflow: hidden; }
 .stage {
@@ -391,7 +391,75 @@ html, body { overflow: hidden; }
 .thrive-wordmark { position: absolute; left: 31.63px; top: 2.06px; display: block; }
 .spacer-16 { height: 16px; }
 
-.fill { flex: 1; }
+/* ---------- The launcher's pages (tht-demo-studio navigator/voice: NavigatorHomeScreen .pages / .pageDots) ----------
+   Side by side, swiped between (snapping to a page), dots underneath. Over the wallpaper, like the dock. */
+.home-pages {
+  position: relative; z-index: 1;
+  flex: 1; min-height: 0;
+  display: flex;
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-user-select: none; user-select: none;
+}
+.home-pages::-webkit-scrollbar { display: none; }
+.home-pages[data-dragging] { scroll-snap-type: none; cursor: grabbing; }
+.home-page { flex: 0 0 100%; min-width: 0; display: flex; flex-direction: column; scroll-snap-align: start; scroll-snap-stop: always; }
+.home-dots { position: relative; z-index: 1; flex: none; display: flex; justify-content: center; gap: 4px; padding: 8px 0 12px; }
+/* A 6px dot in a bigger tap target */
+.home-dot { display: grid; place-items: center; width: 16px; height: 16px; padding: 0; border: 0; background: none; cursor: pointer; }
+.home-dot::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #fff; opacity: 0.55; transition: opacity 0.2s; }
+.home-dot.is-on::after { opacity: 1; }
+/* The "Full screen" pill (fullscreen-guide.js, phones only): on the wallpaper just above the page dots,
+   clear of the dock (gesture bar 24 + dock 56 + dots 36 + 16 apart) */
+.phone { --fsg-pill-bottom: 132px; }
+
+/* Page 2: demo controls, centred on the screen. A frosted panel with the widget's 16px corners, its
+   brand-tint buttons rounded squares like the dock's icons (12px); the gear opens a menu of the three
+   widgets, restart starts Widget 3 over. */
+.home-page:has(.demo-widget) { justify-content: center; align-items: center; }
+.demo-widget { position: relative; padding: 16px; }
+.demo-pill {
+  display: flex; gap: 12px; padding: 12px;
+  border-radius: 16px;
+  background: var(--fill-inversemidweak);
+  border: 1px solid var(--stroke-inversestrong);
+  box-shadow: 0 2px 12px var(--shadow-weaker);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+}
+.demo-btn {
+  display: grid; place-items: center; width: 48px; height: 48px; padding: 0;
+  border: 0; border-radius: 12px; background: var(--fill-brandweaker); color: var(--text-brand);
+  cursor: pointer; transition: background-color 0.15s, transform 0.15s var(--ease-standard);
+}
+.demo-btn:active { transform: scale(0.94); }
+.demo-btn[aria-expanded="true"] { background: rgba(71, 84, 235, 0.18); }
+.demo-btn:focus-visible { outline: 2px solid var(--text-brand); outline-offset: 2px; }
+.demo-icon { display: block; width: 24px; height: 24px; background: currentColor; -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat; }
+.demo-btn.is-spinning .demo-icon { animation: demo-restart 500ms var(--ease-emphasized); }
+@keyframes demo-restart { from { transform: rotate(0); } to { transform: rotate(-360deg); } }
+.demo-menu {
+  position: absolute; left: 50%; translate: -50% 0; top: calc(100% - 8px); z-index: 2; min-width: 200px;
+  display: flex; flex-direction: column; padding: 6px;
+  border-radius: 20px; background: #fff; box-shadow: 0 8px 28px rgba(12, 15, 65, 0.16);
+  transform-origin: 50% 0; animation: demo-menu-in 180ms var(--ease-emphasized);
+}
+.demo-menu[hidden] { display: none; }
+@keyframes demo-menu-in { from { opacity: 0; transform: scale(0.96) translateY(-4px); } }
+.demo-menu button {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 0;
+  padding: 10px 14px; border: 0; border-radius: 14px; background: none; text-align: left;
+  font: inherit; color: var(--text-strong); cursor: pointer;
+}
+.demo-menu button b { font-weight: 600; font-size: 15px; line-height: 20px; }
+.demo-menu button span { font-size: 13px; line-height: 18px; color: var(--text-weak); }
+.demo-menu button:hover { background: var(--fill-weaker); }
+.demo-menu button[aria-checked="true"] { background: var(--fill-brandweaker); }
+.demo-menu button[aria-checked="true"] b { color: var(--text-brand); }
+@media (prefers-reduced-motion: reduce) {
+  .demo-menu, .demo-btn.is-spinning .demo-icon { animation: none; }
+}
 
 /* Gesture bar */
 .gesture-bar {
@@ -488,8 +556,12 @@ button.dock-app:active { filter: brightness(0.92); }
   flex: 1 1 auto;
   min-width: 320px;
   max-width: 540px; /* one column: the card, then the widget notes under it (~70 characters a line) */
-  /* Never scrolls on its own: app.js stacks the layout when the notes don't fit the window height */
-  padding: 4px 4px 0;
+  /* Always full size: taller than the window, the column scrolls on its own (the phone stays put) */
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding: 4px 4px 24px;
   color: #3b3e66;
   font-size: 14px;
   line-height: 20px;
@@ -1619,7 +1691,8 @@ html.full .phone { box-shadow: none; }
   -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
 }
 .ci-photo-heading { padding: 16px 16px 0; color: var(--ci-text-strong); }
-.ci-photo-caption { display: flex; align-items: center; gap: 8px; padding: 16px 16px 4px; }
+/* Figma 2154:15182: "COVERED BY" (uppercase style) · Humana logo, bottoms aligned like the Provider Directory line */
+.ci-photo-caption { display: flex; align-items: baseline; gap: 8px; padding: 16px 16px 4px; }
 .ci-photo-caption img { display: block; }
 .ci-photo-body { padding: 12px 16px 0; }
 .ci-photo-cta { padding: 16px 16px 0; }
@@ -1648,7 +1721,12 @@ html.full .phone { box-shadow: none; }
 .ci-tip { flex: 1; display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 12px; background: var(--ci-fill-brand-weaker); color: var(--ci-text-brand); }
 .ci-more { display: flex; align-items: center; gap: 8px; padding: 16px 16px 0; color: var(--ci-text-brand); }
 /* DES-97: Thrive orchestrates Humana's own provider data */
-.ci-source { padding: 16px 16px 0; color: var(--ci-text-weaker); text-align: center; }
+/* Figma 2154:15164: "POWERED BY" (uppercase style) · Humana logo · "Provider Directory", bottoms aligned */
+.ci-source { display: flex; align-items: baseline; gap: 8px; padding: 16px 16px 0; } /* one baseline: both words sit on it, and the logo's bottom edge (its wordmark's baseline) does too */
+.ci-source-label { font-weight: 600; font-size: 11px; line-height: 14px; letter-spacing: .3px; text-transform: uppercase; color: var(--ci-text-weaker); }
+.ci-source-brand { display: flex; align-items: baseline; gap: 5px; }
+.ci-source-brand img { display: block; }
+.ci-source-name { font-weight: 600; font-size: 16px; line-height: 20px; color: var(--ci-text-strong); }
 
 /* 3 · What time works for you? (studio TimesScreen) */
 .ci-times-card {
@@ -1740,7 +1818,7 @@ html.full .phone { box-shadow: none; }
    visit's card gliding up and settling, then what's on them in turn. */
 @media (prefers-reduced-motion: no-preference) {
   .ci-doc-btn { animation: ci-rise 380ms var(--ci-ease-in) calc(70ms * var(--i, 0)) both; }
-  .ci-more, .ci-source { animation: ci-rise 380ms var(--ci-ease-in) 210ms both; }
+  .ci-more { animation: ci-rise 380ms var(--ci-ease-in) 210ms both; }
   .ci-times-card, .ci-appt { animation: ci-card-rise 620ms var(--ci-ease-in) 60ms both, ci-fade 280ms ease-out 60ms both; }
   .ci-tabs-row, .ci-day-title, .ci-times, .ci-free,
   .ci-badge-frame, .ci-when, .ci-appt-body, .ci-actions { animation: ci-part 420ms var(--ci-ease-in) both; }

@@ -60,7 +60,7 @@ body::after { /* green #A4ECBB at 8%: centre at (1124, 475) */
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 p, h1, h2 { margin: 0; }
 
-/* Desktop: phone left, settings right, everything inside the window (no scrolling).
+/* Desktop: phone left, settings right, inside the window (the page doesn't scroll; a long settings column does).
    The phone is scaled to the window height; app.js stacks the layout when the notes don't fit. */
 html, body { overflow: hidden; }
 .stage {
@@ -525,8 +525,12 @@ html, body { overflow: hidden; }
   flex: 1 1 auto;
   min-width: 320px;
   max-width: 540px; /* one column: the card, then the widget notes under it (~70 characters a line) */
-  /* Never scrolls on its own: app.js stacks the layout when the notes don't fit the window height */
-  padding: 4px 4px 0;
+  /* Always full size: taller than the window, the column scrolls on its own (the phone stays put) */
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding: 4px 4px 24px;
   color: #3b3e66;
   font-size: 14px;
   line-height: 20px;

@@ -276,8 +276,7 @@ function playLaunch(opening) {
 // Layout, decided by real space (no fixed breakpoints):
 // · Side by side (two columns): phone scaled to the window height on the left; on the right the notes
 //   in one column (the card, then the widget notes under it), up to 540px wide for readable lines.
-//   The notes never scroll: when they're taller than the window, the notes panel is scaled down
-//   (CSS zoom) just enough to fit.
+//   The notes keep their size: when they're taller than the window, their column scrolls.
 // · Stacked: only when the window is too narrow for the notes beside the phone (phones, small
 //   windows): phone on top, notes below, and the page scrolls.
 const NOTES_MIN = 320;   // narrowest readable notes column
@@ -306,8 +305,6 @@ function fitDevice() {
   if (notesW >= NOTES_MIN) {
     root.classList.remove("stacked");
     root.style.setProperty("--s", sideScale.toFixed(4));
-    const h = notesPanel.scrollHeight; // natural height at full size
-    if (h > availH) notesPanel.style.zoom = (availH / h).toFixed(4);
   } else {
     root.classList.add("stacked");
     root.style.setProperty("--s", Math.min(1, (window.innerWidth - 32) / 360).toFixed(4));
@@ -321,42 +318,15 @@ const queueFit = () => {
 };
 window.addEventListener("resize", queueFit);
 
-/* Full screen: the button adds ?full to the URL (Back leaves it) and, where the browser allows
-   (Android, desktop), hides the browser UI too. Pressing Esc out of that also leaves full screen. */
+/* The mobile view: the page with ?full (just the phone, filling the screen). On an iPhone or Android
+   phone it offers the "Full screen" pill (fullscreen-guide.js) to add it to the home screen. */
 const fullUrl = () => `${location.origin}${location.pathname}?full`;
-let fullFromButton = false;
-function setFull(on) {
-  document.documentElement.classList.toggle("full", on);
-  fitDevice();
-}
-document.getElementById("fullBtn").addEventListener("click", () => {
-  history.pushState({ full: true }, "", `${location.pathname}?full${location.hash}`);
-  fullFromButton = true;
-  setFull(true);
-  // iPhone and Android phones: the "Use it full screen" sheet (Add to Home Screen / install), as in
-  // tht-demo-studio's demos (fullscreen-guide.js). Elsewhere, straight to full screen.
-  if (window.fullscreenGuide?.(phone)) return;
-  document.documentElement.requestFullscreen?.({ navigationUI: "hide" }).catch(() => {});
-});
-window.addEventListener("popstate", () => {
-  const on = new URLSearchParams(location.search).has("full");
-  if (!on) fullFromButton = false;
-  setFull(on);
-  if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
-});
-document.addEventListener("fullscreenchange", () => {
-  if (!document.fullscreenElement && fullFromButton && document.documentElement.classList.contains("full")) history.back();
-});
-const copyBtn = document.getElementById("copyFullLink");
-copyBtn.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(fullUrl());
-    copyBtn.textContent = "Link copied";
-  } catch {
-    window.prompt("Phone link", fullUrl());
-  }
-  setTimeout(() => { copyBtn.textContent = "Copy mobile-view link"; }, 2000);
-});
+// The mobile view (?full, on the widget shown now) in a new tab
+document.getElementById("openMobileView").addEventListener("click", () => window.open(fullUrl(), "_blank", "noopener"));
+// Copy link: the Share dialog (mobile-view-share.js), for the mobile view (with its QR code, to open it
+// on a phone) or this project page
+const projectUrl = () => `${location.origin}${location.pathname}`;
+document.getElementById("shareMobileView").addEventListener("click", () => window.shareMobileView?.({ mobile: fullUrl(), project: projectUrl() }));
 // Notes content changes height (widget switch, Android notes, Dropped open/closed) → re-fit
 new ResizeObserver(queueFit).observe(notesPanel);
 fitDevice();
