@@ -1384,6 +1384,7 @@ html.full .phone { --home-lift: 16px; padding-bottom: var(--home-lift); --fsg-pi
    content go on under the gesture bar, as on Android); only what sits at the bottom makes room for the
    higher gesture bar: the tab bar, the end of a page, the footer buttons, the dialer's Call button */
 html.full .app-nav button { padding-bottom: calc(16px + var(--home-lift)); }
+html.full .dl-cta:not(.dl-cta--end) { height: calc(108px + var(--home-lift)); }
 html.full .ch-accordions { padding-bottom: calc(40px + var(--home-lift)); }
 html.full .home-pulse { bottom: calc(12px + var(--home-lift)); }
 html.full .toast { bottom: calc(48px + var(--home-lift)); }
@@ -1406,3 +1407,102 @@ html.full .toast { bottom: calc(48px + var(--home-lift)); }
 .mh-activate { margin: 0; text-align: center; font-weight: 500; font-size: 13px; line-height: 18px; color: #3d3f44; }
 .mh-link { color: #2f62a8; font-weight: 600; font-size: 13px; }
 .mh-home { position: absolute; left: 0; bottom: 0; display: block; }
+
+/* ---------- Android dialer + call screen (ported from tht-demo-studio) ----------
+   DialerScreen / CallScreen and their Android tokens (src/styles/tokens.css, typography.css). */
+@font-face {
+  font-family: "Roboto";
+  src: url("assets/dialer/Roboto-Regular-latin.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+.dialer {
+  --font-family-android: "Roboto", system-ui, sans-serif;
+  --android-surface: #fbfcff;
+  --android-surface-container: #e6eff5;
+  --android-on-surface: #191c1e;
+  --android-on-surface-strong: #000;
+  --android-on-surface-variant: #41484d;
+  --android-primary: #00658c;
+  --android-key-pressed: #dedede;
+  --android-call: #1e8e3e;
+  --android-call-end: #dc362e;
+  --android-divider: #0000000f;
+  --android-panel-shadow: 0 0 8px #00000026;
+  position: absolute; inset: 0; z-index: 35; /* over the app (30), under the status bar (40) */
+  padding-top: var(--sb, 52px); /* the status bar */
+  background: var(--android-surface);
+  color: var(--android-on-surface);
+  font-family: var(--font-family-android);
+  opacity: 0; pointer-events: none;
+  transform: scale(0.96);
+  transition: opacity 0.2s, transform 0.3s var(--ease-emphasized);
+}
+.phone.dialer-open .dialer { opacity: 1; pointer-events: auto; transform: none; }
+.phone.dialer-open .status-bar { color: #0c0f41; }
+.phone.dialer-open .status-icons img { filter: invert(1) brightness(0.2); }
+.phone.dialer-open .handle { background: #0c0f41; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.t-android-display, .t-android-title, .t-android-headline, .t-android-body, .t-android-label, .t-android-caption {
+  font-family: var(--font-family-android); font-weight: 400; text-box: trim-both cap alphabetic;
+}
+.t-android-display { font-size: 30px; line-height: 40px; }
+.t-android-title { font-size: 28px; line-height: 40px; }
+.t-android-headline { font-size: 24px; line-height: 40px; }
+.t-android-body { font-size: 16px; line-height: 24px; }
+.t-android-label { font-size: 14px; line-height: 18px; }
+.t-android-caption { font-size: 10px; line-height: 12px; }
+
+.dl-view { position: absolute; inset: var(--sb, 52px) 0 0; display: flex; flex-direction: column; overflow: hidden; }
+.dialer[data-state="dial"] .dl-view--call,
+.dialer:not([data-state="dial"]) .dl-view--dial { display: none; }
+
+/* One line that always shows in full: a little smaller if it runs long (app.js), else "…" */
+.dl-fit { min-width: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* The Android type styles trim the box to cap height and baseline, so overflow: hidden would crop
+   descenders and tall letters (the "g" in "Manager"). Room above and below, given back by the margins,
+   so nothing moves. */
+.dl-display .dl-fit { padding-block: 8px; margin-block: -8px; }
+
+/* Dialer */
+.dl-items { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 16px; margin: 0; padding: 16px 0 0; list-style: none; }
+.dl-items li { display: flex; align-items: center; gap: 24px; padding: 0 24px; color: var(--android-primary); }
+.dl-panel { flex: none; display: flex; flex-direction: column; background: var(--android-surface-container); box-shadow: var(--android-panel-shadow); }
+.dl-display { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 12px; border-bottom: 1px solid var(--android-divider); }
+.dl-display .dl-fit { flex: 1; color: var(--android-on-surface-strong); }
+.dl-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 12px 12px 0; }
+.dl-key {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  height: 56px; border-radius: 26px;
+  background: var(--android-surface); color: var(--android-on-surface-strong);
+  transition: background-color 0.3s ease-in-out;
+}
+.dl-key:active { background: var(--android-key-pressed); transition-duration: 0s; }
+@media (hover: hover) { .dl-key:hover { background: color-mix(in srgb, var(--android-surface) 70%, var(--android-key-pressed)); } }
+/* 108px CTA in Figma; the gesture bar (24px) overlaps its bottom padding */
+.dl-cta { display: flex; flex-direction: column; align-items: center; height: 108px; padding: 16px 12px 0; }
+.dl-call {
+  display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-radius: 24px;
+  background: var(--android-call); color: #fff;
+  transition: filter 120ms ease-out;
+}
+.dl-call:active { filter: brightness(0.92); }
+
+/* Calling / connected / ended */
+.dl-top { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 80px; text-align: center; }
+.dl-top img { display: block; }
+.dl-status { padding: 8px 24px; font-variant-numeric: tabular-nums; }
+.dl-top .dl-fit { align-self: stretch; padding: 8px 24px; margin-bottom: -8px; }
+.dl-panel--call { border-radius: 16px 16px 0 0; box-shadow: none; }
+.dl-controls { display: flex; justify-content: space-between; padding: 24px 24px 0; }
+.dl-control { display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--android-on-surface-variant); }
+.dl-control > span:first-child { display: grid; place-items: center; padding: 12px; border-radius: 26px; background: var(--android-surface); }
+/* 184px CTA in Figma (48 top, 80 bottom); the gesture bar overlaps its bottom padding */
+.dl-cta--end { flex-direction: row; justify-content: center; height: auto; padding: 48px 12px 80px; }
+.dl-end {
+  display: grid; place-items: center; padding: 12px; border-radius: 32px;
+  background: var(--android-call-end);
+  transition: filter 120ms ease-out;
+}
+.dl-end:not(:disabled):active { filter: brightness(0.9); }
+.dl-end:disabled { cursor: default; }

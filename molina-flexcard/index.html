@@ -18,7 +18,7 @@
   <title>Widget prototype · v2/link</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=123" />
+  <link rel="stylesheet" href="styles.css?v=124" />
 </head>
 <body>
   <main class="stage">
@@ -137,18 +137,49 @@
         </nav>
       </div>
 
-      <!-- Call confirmation sheet -->
-      <div class="scrim" id="scrim"></div>
-      <!-- Call modal (Figma [SB] Assets 2086:4656). Title and text are set per line in app.js (CALLS). -->
-      <div class="sheet" id="callSheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" aria-describedby="sheetText">
-        <div class="sheet-icon"><img src="assets/icon-phone.svg" width="24" height="24" alt="" /></div>
-        <h2 class="sheet-title" id="sheetTitle">Call Member Services</h2>
-        <p class="sheet-text" id="sheetText">Available 24/7. Average wait under 2 minutes.</p>
-        <div class="sheet-actions">
-          <button class="sheet-btn sheet-btn--primary" id="sheetCall" type="button"><img src="assets/icon-phone-20-white.svg" width="20" height="20" alt="" />Call now</button>
-          <button class="sheet-btn sheet-btn--outline" id="sheetCancel" type="button">Not now</button>
+      <!-- Android dialer and call screen, ported from tht-demo-studio (Figma "M5 - call dialer" /
+           "M5 - call calling / connected / ended"). A call tile opens the dialer with the line filled in;
+           Call → calling → connected (live timer) → End call → call ended → back to where it started.
+           Nothing here places a real call. -->
+      <div class="dialer" id="dialer" data-state="dial" aria-hidden="true">
+        <div class="dl-view dl-view--dial">
+          <h2 class="visually-hidden">Phone dialer</h2>
+          <ul class="dl-items">
+            <li class="t-android-label"><img src="assets/dialer/person-add.svg" width="20" height="20" alt="" />Create new contact</li>
+            <li class="t-android-label"><img src="assets/dialer/person-add.svg" width="20" height="20" alt="" />Add to a contact</li>
+            <li class="t-android-label"><img src="assets/dialer/message.svg" width="20" height="20" alt="" />Send a message</li>
+          </ul>
+          <section class="dl-panel" aria-label="Keypad">
+            <div class="dl-display">
+              <img src="assets/dialer/more-vert.svg" width="20" height="20" alt="" />
+              <p class="dl-fit t-android-title" id="dlName"><span>Molina Member Services</span></p>
+              <img src="assets/dialer/backspace.svg" width="20" height="20" alt="" />
+            </div>
+            <div class="dl-keypad" id="dlKeypad"><!-- keys rendered by app.js --></div>
+            <div class="dl-cta">
+              <button class="dl-call t-android-label" id="dlCall" type="button"><img src="assets/dialer/call.svg" width="20" height="20" alt="" />Call</button>
+            </div>
+          </section>
         </div>
-        <p class="sheet-caption">Covered by Molina</p>
+        <div class="dl-view dl-view--call">
+          <div class="dl-top">
+            <img src="assets/dialer/user-icon.svg" width="80" height="80" alt="" />
+            <p class="dl-status t-android-body" id="dlStatus" aria-live="polite">Calling...</p>
+            <p class="dl-fit t-android-title" id="dlCaller"><span>Molina Member Services</span></p>
+            <p class="dl-fit t-android-headline" id="dlNumber"><span>1-800-555-0142</span></p>
+          </div>
+          <section class="dl-panel dl-panel--call">
+            <div class="dl-controls">
+              <div class="dl-control"><span><img src="assets/dialer/dialpad.svg" width="20" height="20" alt="" /></span><span class="t-android-label">Keypad</span></div>
+              <div class="dl-control"><span><img src="assets/dialer/mic-off.svg" width="20" height="20" alt="" /></span><span class="t-android-label">Mute</span></div>
+              <div class="dl-control"><span><img src="assets/dialer/volume-up.svg" width="20" height="20" alt="" /></span><span class="t-android-label">Speaker</span></div>
+              <div class="dl-control"><span><img src="assets/dialer/more-vert.svg" width="20" height="20" alt="" /></span><span class="t-android-label">More</span></div>
+            </div>
+            <div class="dl-cta dl-cta--end">
+              <button class="dl-end" id="dlEnd" type="button" aria-label="End call"><img src="assets/dialer/call-end.svg" width="32" height="32" alt="" /></button>
+            </div>
+          </section>
+        </div>
       </div>
 
       <div class="toast" id="toast" role="status"></div>
@@ -374,6 +405,6 @@
   </main>
   <script src="fullscreen-guide.js?v=3"></script>
   <script src="mobile-view-share.js?v=3"></script>
-  <script src="app.js?v=124"></script>
+  <script src="app.js?v=125"></script>
 </body>
 </html>

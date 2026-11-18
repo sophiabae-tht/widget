@@ -439,7 +439,7 @@ document.getElementById("appNav").addEventListener("click", (e) => {
   const tab = e.target.closest("[data-tab]");
   if (tab?.dataset.tab === "carehub") { appStack = [{ key: "home", opts: {} }]; renderApp(); }
 });
-document.getElementById("appHelp").addEventListener("click", () => openSheet("member"));
+document.getElementById("appHelp").addEventListener("click", () => openDialer("member"));
 /* ---------- In the app: pulse for getting back to the widget ----------
    The way back to the widget is the phone's swipe up from the bottom, outside the app. A tap that
    goes nowhere (a heading, empty space, a tab this prototype doesn't have, or the
@@ -478,7 +478,7 @@ appBody.addEventListener("click", (e) => {
   const acc = e.target.closest("[data-accordion]");
   if (acc) { toggleAccordion(acc); return; }
   const call = e.target.closest("[data-call]");
-  if (call) { openSheet(call.dataset.call); return; }
+  if (call) { openDialer(call.dataset.call); return; }
 });
 
 /* Purse page accordions: the screen stays put when a section closes.
@@ -861,7 +861,7 @@ function startAuto() {
   if (!phone.hasAttribute("data-auto") || used || phone.dataset.answer !== "pager") return;
   const ms = flexTile.dataset.mode === "stack" ? 8000 : 5000;
   autoTimer = setInterval(() => {
-    if (phone.classList.contains("app-open") || phone.classList.contains("sheet-open") || drag) return;
+    if (phone.classList.contains("app-open") || phone.classList.contains("dialer-open") || drag) return;
     go(1);
   }, ms);
 }
@@ -1002,26 +1002,78 @@ const setAndroidNotes = (on) => {
 androidToggle.addEventListener("change", () => setAndroidNotes(androidToggle.checked));
 setAndroidNotes((() => { try { return localStorage.getItem("humana-healthyspendingcard:android-notes") === "1"; } catch { return false; } })());
 
-/* ---------- Member Services: call sheet ---------- */
-// One modal, filled in for whichever line was tapped. Same layout for each (Figma 2086:4656).
-// PLACEHOLDER COPY for the Nurse Line: not yet confirmed with the client.
+/* ---------- Calls: straight to the dialer (as in tht-demo-studio) ----------
+   Call tiles and the call rows in the app open the Android dialer with that line filled in.
+   Call → "Calling..." → connected (live timer) → End call → "Call ended" → back to where it started.
+   PLACEHOLDER numbers (555): not real Humana lines. Same dialer as humana-fcv-forum. */
 const CALLS = {
-  member: { title: "Call Member Services", text: "Available 24/7. Average wait under 2 minutes.", calling: "Calling Member Services…" },
-  nurse: { title: "Call the 24/7 Nurse Line", text: "Talk to a registered nurse any time, day or night.", calling: "Calling the 24/7 Nurse Line…" },
+  member: { name: "Humana Member Services", number: "1-800-555-0142" },
+  nurse: { name: "24/7 Nurse Line", number: "1-800-555-0150" },
 };
-let activeCall = CALLS.member;
-const openSheet = (kind = "member") => {
-  activeCall = CALLS[kind] || CALLS.member;
-  document.getElementById("sheetTitle").textContent = activeCall.title;
-  document.getElementById("sheetText").textContent = activeCall.text;
-  phone.classList.add("sheet-open");
-};
-const closeSheet = () => phone.classList.remove("sheet-open");
-document.getElementById("scrim").addEventListener("click", closeSheet);
-document.getElementById("sheetCancel").addEventListener("click", closeSheet);
-document.getElementById("sheetCall").addEventListener("click", () => {
-  closeSheet();
-  toast(activeCall.calling);
+const CALL_MS = { callingToConnected: 800, endedToClose: 800 }; // tht-demo-studio flow/motion.ts
+const dialer = document.getElementById("dialer");
+const dlStatus = document.getElementById("dlStatus");
+const dlEnd = document.getElementById("dlEnd");
+const dlFits = ["dlName", "dlCaller", "dlNumber"].map((id) => document.getElementById(id));
+document.getElementById("dlKeypad").innerHTML = [
+  ["1", ""], ["2", "ABC"], ["3", "DEF"], ["4", "GHI"], ["5", "JKL"], ["6", "MNO"],
+  ["7", "PQRS"], ["8", "TUV"], ["9", "WXYZ"], ["#"], ["0", "+"], ["*"],
+].map(([d, l]) => `<button class="dl-key" type="button" aria-label="${l ? `${d} ${l}` : d}">
+  <span class="${d === "#" ? "t-android-headline" : "t-android-display"}">${d}</span>${l !== undefined ? `<span class="t-android-caption">${l}</span>` : ""}</button>`).join("");
+
+// Android shrinks a long name a little to fit, then (here) ends it in "…"
+function fitLine(el) {
+  el.style.fontSize = "";
+  const room = el.clientWidth, width = el.scrollWidth; // both include the side padding
+  if (room > 0 && width > room) {
+    const base = parseFloat(getComputedStyle(el).fontSize);
+    el.style.fontSize = `${Math.max(base - 6, Math.floor(base * room / width))}px`;
+  }
+}
+const fitDialer = () => dlFits.forEach((el) => el.offsetParent && fitLine(el));
+
+let callTimers = [];
+const clearCallTimers = () => { callTimers.forEach(clearTimeout); clearInterval(callTimers.tick); callTimers = []; };
+function setCallState(state) {
+  dialer.dataset.state = state;
+  dlEnd.disabled = state === "ended";
+  if (state === "calling") dlStatus.textContent = "Calling...";
+  if (state === "ended") dlStatus.textContent = "Call ended";
+  fitDialer();
+}
+function openDialer(kind = "member") {
+  const line = CALLS[kind] || CALLS.member;
+  clearCallTimers();
+  dlFits[0].firstElementChild.textContent = line.name;
+  dlFits[1].firstElementChild.textContent = line.name;
+  dlFits[2].firstElementChild.textContent = line.number;
+  dialer.setAttribute("aria-label", `Call ${line.name}`);
+  phone.classList.add("dialer-open");
+  dialer.setAttribute("aria-hidden", "false");
+  setCallState("dial");
+}
+function closeDialer() {
+  clearCallTimers();
+  phone.classList.remove("dialer-open");
+  dialer.setAttribute("aria-hidden", "true");
+}
+document.getElementById("dlCall").addEventListener("click", () => {
+  setCallState("calling");
+  callTimers.push(setTimeout(() => {
+    setCallState("connected");
+    const start = Date.now();
+    const tick = () => {
+      const s = Math.floor((Date.now() - start) / 1000);
+      dlStatus.textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+    };
+    tick();
+    callTimers.tick = setInterval(tick, 250);
+  }, CALL_MS.callingToConnected));
+});
+dlEnd.addEventListener("click", () => {
+  clearCallTimers();
+  setCallState("ended");
+  callTimers.push(setTimeout(closeDialer, CALL_MS.endedToClose));
 });
 
 /* ---------- Clock ----------
@@ -1042,7 +1094,7 @@ function toast(msg) {
 
 /* ---------- Back / home ---------- */
 function goHome() {
-  closeSheet();
+  closeDialer();
   closeApp();
 }
 /* The gesture handle fades away when it isn't needed, as in an Android app in full screen (tht-demo-studio
