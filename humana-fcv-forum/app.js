@@ -937,6 +937,8 @@ document.querySelectorAll("[data-open]").forEach((el) => {
 // Dock: Thrive opens the Thrive app (its Home tab), MyHumana its sign-in, each growing out of its icon
 document.getElementById("dockThrive").addEventListener("click", (e) => openApp("thrivehome", e.currentTarget));
 document.getElementById("dockHumana").addEventListener("click", (e) => openApp("myhumana", e.currentTarget));
+// "Powered by Thrive Mobile" at the foot of every widget opens the Thrive app too (even Widget 1)
+document.getElementById("poweredBy").addEventListener("click", (e) => openApp("thrivehome", e.currentTarget));
 // Widget 2's dock: My Molina isn't mocked here (real app: launches My Molina)
 document.getElementById("dockMolina").addEventListener("click", () => toast("Opening My Molina…"));
 // Widget 3

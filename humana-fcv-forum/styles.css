@@ -386,7 +386,8 @@ html, body { overflow: hidden; }
 .widget button:focus-visible { outline: 2px solid var(--text-brand); outline-offset: 2px; }
 
 .powered-frame { position: relative; width: 100%; padding-top: 20px; display: flex; flex-direction: column; }
-.powered-by { position: relative; margin: 0 20px; width: 109.921px; height: 22px; }
+.powered-by { position: relative; display: block; margin: 0 20px; width: 109.921px; height: 22px; }
+.powered-by::before { content: ""; position: absolute; inset: -11px -8px; } /* a 44px-tall tap target */
 .thrive-symbol { position: absolute; left: 0; top: 0; display: block; }
 .thrive-wordmark { position: absolute; left: 31.63px; top: 2.06px; display: block; }
 .spacer-16 { height: 16px; }
