@@ -292,6 +292,10 @@ function stopLaunch() {
 }
 function playLaunch(opening) {
   stopLaunch();
+  // A press on the gesture bar runs the swipe handler first, which leaves its drag styles on the window
+  // (a centred transform-origin, translate, scale, clip-path) for ~220ms after a tap. The morph below assumes
+  // the window's own top-left origin, so clear them, or the window shrinks off-centre and then jumps.
+  ["transformOrigin", "translate", "scale", "clipPath", "transition"].forEach((k) => (appScreen.style[k] = ""));
   const from = windowAt(launchFrom);
   if (reduceMotion.matches) {
     launchAnims.push(appScreen.animate([{ opacity: opening ? 0 : 1 }, { opacity: opening ? 1 : 0 }], { duration: 150 }));
