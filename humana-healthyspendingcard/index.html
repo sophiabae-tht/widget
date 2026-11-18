@@ -18,7 +18,7 @@
   <title>Widget prototype · v2/link</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=122" />
+  <link rel="stylesheet" href="styles.css?v=125" />
 </head>
 <body>
   <main class="stage">
@@ -45,7 +45,7 @@
 
           <div class="widget-top-bar">
             <img src="assets/logo-humana.svg" width="78" height="20" alt="Humana" class="logo" />
-            <button class="link" data-open="home" type="button">See more</button>
+            <button class="link" data-open="myhumana" type="button">See more</button>
           </div>
 
           <div class="chat-frame">
@@ -53,9 +53,10 @@
               <div class="card">
                 <div class="card-row">
                   <div class="card-icon"><img src="assets/icon-hand-heart.svg" width="24" height="24" alt="" /></div>
-                  <p class="card-body">Find out what your plan covers and how to make the most of it.</p>
+                  <!-- Humana's live widget copy (DSNP 2027 configuration menu, Widget tab), as in humana-fcv-forum Widget 1 -->
+                  <p class="card-body">Learn about your benefits and find care</p>
                 </div>
-                <button class="btn-tonal" data-open="home" type="button">Explore your benefits</button>
+                <button class="btn-tonal" data-open="myhumana" type="button">MyHumana</button>
               </div>
             </div>
 
@@ -81,15 +82,17 @@
                 <span class="tile-icon"><img src="assets/icon-cardholder.svg" width="16" height="16" alt="" /></span>
               </button>
 
-              <button class="tile" id="callTile" type="button">
+              <!-- Humana's live "Click to Visit" link (as in humana-fcv-forum Widget 1): a my2.humana.com link,
+                   which opens the MyHumana app and its sign-in -->
+              <button class="tile" id="visitTile" data-open="myhumana" type="button" aria-label="Humana Healthy Options">
                 <span class="tile-text">
                   <span class="tile-face">
-                    <span class="tile-line">Call</span>
-                    <span class="tile-line">Member</span>
-                    <span class="tile-line">Services</span>
+                    <span class="tile-line">Humana</span>
+                    <span class="tile-line">Healthy</span>
+                    <span class="tile-line">Options®</span>
                   </span>
                 </span>
-                <span class="tile-icon"><img src="assets/icon-phone.svg" width="16" height="16" alt="" /></span>
+                <span class="tile-icon"><img src="assets/icon-arrow-square-out-16.svg" width="16" height="16" alt="" /></span>
               </button>
             </div>
           </div>
@@ -106,6 +109,16 @@
 
 
       <div class="fill"></div>
+
+      <!-- The member's apps: the dock from tht-demo-studio's navigator (branch navigator/voice), straight on
+           the wallpaper, with Humana's apps (as in humana-fcv-forum). Thrive opens the Thrive app (Care hub) and MyHumana its sign-in; CenterWell Pharmacy is only shown. -->
+      <nav class="dock" aria-label="Apps">
+        <img class="dock-app" src="assets/dock/phone.webp" width="48" height="48" alt="Phone" />
+        <img class="dock-app" src="assets/dock/messages.webp" width="48" height="48" alt="Messages" />
+        <button class="dock-app dock-app--thrive" id="dockThrive" type="button" aria-label="Thrive"><img src="assets/dock/thrive-symbol.svg" width="24" height="24" alt="" /></button>
+        <button class="dock-app" id="dockClient" type="button" aria-label="MyHumana"><img src="assets/dock/myhumana.webp" width="48" height="48" alt="" /></button>
+        <img class="dock-app" src="assets/dock/centerwell-pharmacy.webp" width="48" height="48" alt="CenterWell Pharmacy" />
+      </nav>
 
       <!-- Simulated app launch (opened from widget taps) -->
       <div class="app-screen" id="appScreen" aria-hidden="true">
@@ -364,6 +377,6 @@
   </main>
   <script src="fullscreen-guide.js?v=3"></script>
   <script src="mobile-view-share.js?v=3"></script>
-  <script src="app.js?v=124"></script>
+  <script src="app.js?v=126"></script>
 </body>
 </html>

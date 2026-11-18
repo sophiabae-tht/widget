@@ -6,6 +6,7 @@
   --text-weak: #565a86;
   --text-brand: #4754eb;
   --text-strong: #1f2247;
+  --text-weaker: #696d9b;
   --fill-weaker: rgba(12, 15, 65, 0.05);
   --fill-inversemidweak: rgba(255, 255, 255, 0.65);
   --fill-brandweaker: rgba(71, 84, 235, 0.1);
@@ -139,7 +140,7 @@ html, body { overflow: hidden; }
   z-index: 1;
   flex: none;
   display: flex;
-  padding: 16px 24px; /* 24px in from the screen's sides, like a launcher's widget margin */
+  padding: 16px; /* Figma Molina_Widget_handoff 2900:17709: widget is 328 wide on the 360 screen */
 }
 .widget {
   position: relative;
@@ -238,7 +239,7 @@ html, body { overflow: hidden; }
   align-items: center;
   font-weight: 500;
   font-size: 14px;
-  line-height: 17.5px;
+  line-height: 20px;
   color: var(--text-weak);
 }
 .btn-tonal {
@@ -254,7 +255,7 @@ html, body { overflow: hidden; }
   white-space: nowrap;
 }
 
-.tile-row { display: flex; gap: 16px; padding: 16px; }
+.tile-row { display: flex; gap: 16px; padding: 16px 16px 8px; } /* 0 bottom + spacer/8 (Figma 2900:17729, 2902:60990) */
 .tile {
   flex: 1;
   min-width: 0;
@@ -417,6 +418,16 @@ html, body { overflow: hidden; }
 .gesture-bar.is-shown .handle { opacity: 1; transition: background-color 0.3s, opacity 150ms ease-out; }
 @media (hover: hover) { .gesture-bar:hover .handle { opacity: 1; transition: background-color 0.3s, opacity 150ms ease-out; } }
 .phone.app-open .handle { background: #0c0f41; }
+
+/* ---------- Dock (tht-demo-studio navigator/voice: NavigatorHomeScreen .dock), as in humana-fcv-forum ----------
+   48px rounded-square icons (Google Play style) spread across the bottom, 24px in from the sides, 8px above the gesture bar.
+   Apps are the client's: Thrive opens the Thrive app (Care hub); the client's app opens or hands off; the rest are only shown. */
+.dock { position: relative; z-index: 1; /* over the wallpaper, like .widget-frame */ flex: none; display: flex; justify-content: space-between; padding: 0 24px 8px; }
+.dock-app { display: block; width: 48px; height: 48px; border-radius: 26%; box-shadow: 0 1px 3px rgba(12, 15, 65, 0.18); } /* Google Play style: rounded square, lifted off the wallpaper */
+.dock-app img { display: block; width: 100%; height: 100%; border-radius: inherit; }
+.dock-app--thrive { display: grid; place-items: center; background: var(--background-base); }
+.dock-app--thrive img { width: 28px; height: 28px; border-radius: 0; }
+button.dock-app:active { filter: brightness(0.92); }
 /* Call modal open: the handle goes light, as if seen through the 50% overlay (Figma 911_10).
    Home screen: white under the overlay = #8a8b9b. In the app the dimmed page behind is about
    that same grey, so the handle stays a lighter #c3c3cc there to keep it visible. */
@@ -697,10 +708,10 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 
 /* StackView only: Call Member Services hugs its content so the Flex Card deck gets the
    extra width. AdapterViewFlipper keeps both tiles the same width (as in Figma v2/link). */
-.tile-row:has(.tile--flex[data-mode="stack"]) #callTile { flex: none; }
-.tile-row:has(.tile--flex[data-mode="stack"]) #callTile .tile-text { flex: none; width: auto; }
-.tile-row:has(.tile--flex[data-mode="stack"]) #callTile .tile-face { position: static; height: 100%; }
-.tile-row:has(.tile--flex[data-mode="stack"]) #callTile .tile-icon { margin-left: 8px; }
+.tile-row:has(.tile--flex[data-mode="stack"]) #visitTile { flex: none; }
+.tile-row:has(.tile--flex[data-mode="stack"]) #visitTile .tile-text { flex: none; width: auto; }
+.tile-row:has(.tile--flex[data-mode="stack"]) #visitTile .tile-face { position: static; height: 100%; }
+.tile-row:has(.tile--flex[data-mode="stack"]) #visitTile .tile-icon { margin-left: 8px; }
 
 /* Two equal columns, independent of each tile's padding/border (the flex row split
    leftover space after padding, so the padding-less Flex tile came out 22px narrower).
@@ -1009,10 +1020,10 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 .phone:not([data-answer="pager"]) #flexLinkTile { display: flex; }
 /* Undo the StackView "Call hugs its content" layout when the pager isn't shown */
 .phone:not([data-answer="pager"]) .tile-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-.phone:not([data-answer="pager"]) .tile-row #callTile { flex: 1; }
-.phone:not([data-answer="pager"]) .tile-row #callTile .tile-text { flex: 1; width: auto; }
-.phone:not([data-answer="pager"]) .tile-row #callTile .tile-face { position: absolute; height: auto; }
-.phone:not([data-answer="pager"]) .tile-row #callTile .tile-icon { margin-left: 0; }
+.phone:not([data-answer="pager"]) .tile-row #visitTile { flex: 1; }
+.phone:not([data-answer="pager"]) .tile-row #visitTile .tile-text { flex: 1; width: auto; }
+.phone:not([data-answer="pager"]) .tile-row #visitTile .tile-face { position: absolute; height: auto; }
+.phone:not([data-answer="pager"]) .tile-row #visitTile .tile-icon { margin-left: 0; }
 /* Only the active widget's settings show */
 .notes:not([data-answer="pager"]) .w1-only,
 .notes[data-answer="pager"] .w2-only { display: none; }
@@ -1151,7 +1162,10 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
 
 /* ---------- Widget 1 · v4 looks (Figma Molina_Widget_v4, frames v4/w1) ----------
    Shared: 12px padding (11 + 1px stroke), 2-line label cut off with …, amount, "1 of 4". */
-.tile--flex[data-look="v4-right"], .tile--flex[data-look="v4-bottom"], .tile--flex[data-look="v4-page"] { height: 108px; }
+.tile--flex[data-look="v4-bottom"], .tile--flex[data-look="v4-page"] { height: 108px; }
+/* widgetFlexCardTile (Figma 2900:17847): 12 + 40 name + 28 amount + 20 count + 12 */
+.tile--flex[data-look="v4-right"] { height: 112px; }
+.tile--flex[data-look="v4-right"] .v4-amount { line-height: 28px; }
 .tile--flex[data-look="v4-strip"], .tile--flex[data-look="v4-tab"] { height: 104px; }
 .v4-body { flex-direction: column; }
 .v4-label { display: flex; flex-direction: column; min-width: 0; font-size: 16px; line-height: 20px; font-weight: 600; color: var(--text-weak); }
@@ -1181,15 +1195,15 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
    in the tile's colour, in ImageViews outside the flipper (under the icon and the ›). */
 .v4-clip {
   position: absolute; inset: 0; border-radius: 15px; overflow: hidden;
-  /* icon: 11px in from the top/right, so its centre is 25px in · ›: 10px from the right and 6px
-     from the bottom (.v4-caret), so its centre is 24px / 20px in */
+  /* icon: 11px in from the top/right, so its centre is 25px in · ›: 5px from the right and 7px
+     from the bottom (.v4-caret), so its centre is 19px / 21px in */
   -webkit-mask-image:
     radial-gradient(circle at calc(100% - 25px) 25px, transparent 14px, #000 19px),
-    radial-gradient(circle at calc(100% - 24px) calc(100% - 20px), transparent 14px, #000 22px);
+    radial-gradient(circle at calc(100% - 19px) calc(100% - 21px), transparent 14px, #000 22px);
   -webkit-mask-composite: source-in;
   mask-image:
     radial-gradient(circle at calc(100% - 25px) 25px, transparent 14px, #000 19px),
-    radial-gradient(circle at calc(100% - 24px) calc(100% - 20px), transparent 14px, #000 22px);
+    radial-gradient(circle at calc(100% - 19px) calc(100% - 21px), transparent 14px, #000 22px);
   mask-composite: intersect;
 }
 
@@ -1197,8 +1211,11 @@ html.stacked .notes { flex: none; width: 100%; max-width: 560px; min-width: 0; m
    keeps an invisible copy so its label and amount sit exactly where they did. */
 .tile--flex[data-look="v4-right"] .pcard .v4-count { visibility: hidden; }
 .v4-count--static { position: absolute; z-index: 5; left: 11px; bottom: 11px; pointer-events: none; }
+/* Tiny/Bold, text/weaker (Figma 2900:17844) */
+.tile--flex[data-look="v4-right"] .v4-count { font-weight: 600; color: var(--text-weaker); }
 
 /* Right caret + Page turn: the icon sits beside both label lines; the bottom half flips */
+.tile--flex[data-look="v4-right"] .v4-caret { right: 5px; bottom: 7px; } /* › centre 20 / 22px in from the tile's edges (Figma 2902:61033) */
 .tile--flex[data-look="v4-right"] .v4-label,
 .tile--flex[data-look="v4-bottom"] .v4-label,
 .tile--flex[data-look="v4-page"] .v4-label { padding-right: 32px; }
@@ -1362,7 +1379,7 @@ html.full:not(.no-system-bar) .status-bar > * { display: none; }
 /* Mobile view on a real phone: the gesture bar sits a little higher, clear of the phone's own gesture
    bar / home indicator and the browser's bottom bar; apps, the glow behind the handle and the toast
    come up with it (backgrounds still reach the edge) */
-html.full .phone { --home-lift: 16px; padding-bottom: var(--home-lift); --fsg-pill-bottom: calc(48px + var(--home-lift)); }
+html.full .phone { --home-lift: 16px; padding-bottom: var(--home-lift); --fsg-pill-bottom: calc(96px + var(--home-lift)); /* clear of the dock: gesture bar 24 + dock 56 + 16 */ }
 /* Apps and the dialer still run to the screen's bottom edge (their backgrounds, illustrations and scrolling
    content go on under the gesture bar, as on Android); only what sits at the bottom makes room for the
    higher gesture bar: the tab bar, the end of a page, the footer buttons, the dialer's Call button */
@@ -1370,3 +1387,22 @@ html.full .app-nav button { padding-bottom: calc(16px + var(--home-lift)); }
 html.full .ch-accordions { padding-bottom: calc(40px + var(--home-lift)); }
 html.full .home-pulse { bottom: calc(12px + var(--home-lift)); }
 html.full .toast { bottom: calc(48px + var(--home-lift)); }
+
+/* ---------- MyHumana sign-in (Humana's live widget links) ---------- */
+.app-screen[data-variant="myhumana"] { background: #f1f2f4; }
+.app-screen[data-variant="myhumana"] .app-bar { display: none; }
+.app-screen[data-variant="myhumana"] .app-body { padding: 0; overflow: hidden; }
+.mh { position: relative; flex: 1; min-height: 100%; display: flex; flex-direction: column; align-items: center; color: #2d2f33; }
+.mh-sky { display: block; flex: none; }
+.mh-brand { display: block; flex: none; margin: 46px 0 0; }
+.mh-title { margin: 64px 0 0; padding: 0 40px; font-weight: 600; font-size: 27px; line-height: 34px; color: #5b8a2b; text-align: center; }
+/* Buttons as on the reference: 40px pills, 12px apart, 14px in from the screen edges, 13px labels */
+.mh-actions { position: relative; z-index: 1; align-self: stretch; display: flex; flex-direction: column; gap: 12px; padding: 80px 14px 0; }
+.mh-btn { display: flex; align-items: center; justify-content: center; gap: 6px; height: 40px; border-radius: 20px; font-weight: 600; font-size: 13px; line-height: 18px; }
+.mh-btn--primary { background: #5b7f2b; color: #fff; }
+.mh-btn--secondary { border: 1.5px solid #bfdc98; background: #e4f2d2; color: #2f4d14; }
+.mh-btn svg { display: block; flex: none; width: 14px; height: 14px; }
+.mh-btn:active { filter: brightness(0.94); }
+.mh-activate { margin: 0; text-align: center; font-weight: 500; font-size: 13px; line-height: 18px; color: #3d3f44; }
+.mh-link { color: #2f62a8; font-weight: 600; font-size: 13px; }
+.mh-home { position: absolute; left: 0; bottom: 0; display: block; }

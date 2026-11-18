@@ -229,16 +229,17 @@ function windowAt(el) {
   const W = appScreen.offsetWidth, H = appScreen.offsetHeight;
   const r = phoneRect(el);
   const k = r.w / W;
+  const radius = el.classList.contains("dock-app") ? r.w * 0.26 : 16; // a dock icon: its rounded-square corners
   return {
     transform: `translate(${r.x}px, ${r.y}px) scale(${k})`,
-    clipPath: `inset(0px 0px ${Math.max(0, H - r.h / k)}px 0px round ${16 / k}px)`,
+    clipPath: `inset(0px 0px ${Math.max(0, H - r.h / k)}px 0px round ${radius / k}px)`,
   };
 }
 // Full screen has square corners (the real screen supplies its own)
 const screenRadius = () => (document.documentElement.classList.contains("full") ? 0 : 32);
 const fullWindow = () => ({ transform: "translate(0px, 0px) scale(1)", clipPath: `inset(0px 0px 0px 0px round ${screenRadius()}px)` });
 const appLayers = () => [...appScreen.children];
-const homeLayers = () => [...phone.querySelectorAll(".widget-frame")];
+const homeLayers = () => [...phone.querySelectorAll(".widget-frame, .dock-app")];
 
 function stopLaunch() {
   launchAnims.forEach((a) => a.cancel());
@@ -380,6 +381,10 @@ function closeApp() {
   done.then(() => { if (!phone.classList.contains("app-open")) stopLaunch(); });
 }
 
+// Dock: Thrive opens the Thrive app (Care hub), growing out of its icon. My Molina isn't mocked here
+// (real app: launches My Molina).
+document.getElementById("dockThrive").addEventListener("click", (e) => openApp("home", e.currentTarget));
+document.getElementById("dockClient").addEventListener("click", () => toast("Opening My Molina…"));
 document.querySelectorAll("[data-open]").forEach((el) => {
   el.addEventListener("click", () => openApp(el.dataset.open, el.closest(".card") || el));
 });

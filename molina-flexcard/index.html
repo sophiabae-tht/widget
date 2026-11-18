@@ -18,7 +18,7 @@
   <title>Widget prototype · v2/link</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=121" />
+  <link rel="stylesheet" href="styles.css?v=123" />
 </head>
 <body>
   <main class="stage">
@@ -106,6 +106,16 @@
 
 
       <div class="fill"></div>
+
+      <!-- The member's apps: the dock from tht-demo-studio's navigator (branch navigator/voice), straight on
+           the wallpaper, with Molina's apps (as in humana-fcv-forum). Thrive opens the Thrive app (Care hub); My Molina isn't mocked here; CVS Caremark is only shown. -->
+      <nav class="dock" aria-label="Apps">
+        <img class="dock-app" src="assets/dock/phone.webp" width="48" height="48" alt="Phone" />
+        <img class="dock-app" src="assets/dock/messages.webp" width="48" height="48" alt="Messages" />
+        <button class="dock-app dock-app--thrive" id="dockThrive" type="button" aria-label="Thrive"><img src="assets/dock/thrive-symbol.svg" width="24" height="24" alt="" /></button>
+        <button class="dock-app dock-app--molina" id="dockClient" type="button" aria-label="My Molina"><img src="assets/carehub/app-molina-mark.svg" width="34" height="29" alt="" /></button>
+        <img class="dock-app" src="assets/carehub/app-cvs.webp" width="48" height="48" alt="CVS Caremark" />
+      </nav>
 
       <!-- Simulated app launch (opened from widget taps) -->
       <div class="app-screen" id="appScreen" aria-hidden="true">
@@ -364,6 +374,6 @@
   </main>
   <script src="fullscreen-guide.js?v=3"></script>
   <script src="mobile-view-share.js?v=3"></script>
-  <script src="app.js?v=123"></script>
+  <script src="app.js?v=124"></script>
 </body>
 </html>

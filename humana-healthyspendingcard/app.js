@@ -5,7 +5,6 @@ const appTitle = document.getElementById("appTitle");
 const appBody = document.getElementById("appBody");
 const appBack = document.getElementById("appBack");
 const flexTile = document.getElementById("flexTile");
-const callTile = document.getElementById("callTile");
 const toastEl = document.getElementById("toast");
 
 // Destinations the widget deep-links into. html can be a function of how the page was opened.
@@ -79,6 +78,61 @@ const RESOURCE_SKELETONS = [
 ];
 
 const DESTINATIONS = {
+  // Humana's live widget links (card, See more, Humana Healthy Options®) open the MyHumana app, which asks the
+  // member to sign in first. Same screen as humana-fcv-forum.
+  myhumana: {
+    title: "MyHumana",
+    variant: "myhumana",
+    // Mocked after the MyHumana app's welcome screen: sky line art, the MyHumana mark, "Your health plan in
+    // your pocket", password / Face ID sign-in, and the home-under-a-dome illustration at the foot.
+    // The art is drawn here in the app's line-art style (not Humana's own files). Signing in isn't part of the demo.
+    html: () => `
+      <div class="mh">
+        <svg class="mh-sky" viewBox="0 0 360 100" width="360" height="100" aria-hidden="true">
+          <g fill="none" stroke="#3d4b63" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="50" cy="54" r="18" fill="#f6d24a" />
+            ${Array.from({ length: 14 }, (_, i) => { // short wavy rays
+              const t = (i / 14) * Math.PI * 2 - 0.2, r1 = 23, r2 = i % 2 ? 30 : 33, w = i % 2 ? 1.6 : -1.6;
+              const P = (r, o = 0) => [50 + Math.cos(t) * r - Math.sin(t) * o, 54 + Math.sin(t) * r + Math.cos(t) * o].map((n) => n.toFixed(1)).join(" ");
+              return `<path d="M${P(r1)} Q${P((r1 + r2) / 2, w)} ${P(r2)}" />`; }).join("")}
+            <path d="M54 72 a5 5 0 0 1 8 -4 a6 6 0 0 1 11 1 a4 4 0 0 1 2 6 h-21 a3 3 0 0 1 0 -3z" fill="#fff" />
+            <path d="M78 75 h6 M80 72 h3" />
+            <path d="M22 79 a3.5 3.5 0 0 1 6 -2 a4 4 0 0 1 7 1 a2 2 0 0 1 1 3 h-14 z" fill="#fff" />
+            <path d="M151 65 a16 16 0 0 1 32 0 z" fill="#dfe8fb" /><line x1="141" y1="65" x2="190" y2="65" />
+            <path d="M257 73 a12 12 0 0 1 21 -8 a19 19 0 0 1 36 3 a5 5 0 0 1 4 5 z" fill="#dfe8fb" /><line x1="246" y1="73" x2="347" y2="73" />
+          </g>
+        </svg>
+        <img class="mh-brand" src="assets/myhumana-logo.svg" width="108" height="22.66" alt="MyHumana" />
+        <h2 class="mh-title">Your health plan in your pocket</h2>
+        <div class="mh-actions">
+          <button class="mh-btn mh-btn--primary" type="button" data-signin>Sign in with password</button>
+          <button class="mh-btn mh-btn--secondary" type="button" data-signin>
+            <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6V4a2 2 0 0 1 2-2h2M14 2h2a2 2 0 0 1 2 2v2M18 14v2a2 2 0 0 1-2 2h-2M6 18H4a2 2 0 0 1-2-2v-2" /><path d="M7 7.5v1M13 7.5v1M10 8v3h-1M7.5 13.5q2.5 2 5 0" /></g></svg>
+            Sign in with Face ID
+          </button>
+          <p class="mh-activate">Don’t have an account? <button class="mh-link" type="button" data-signin>Activate now</button></p>
+        </div>
+        <svg class="mh-home" viewBox="0 0 360 210" width="360" height="210" aria-hidden="true">
+          <path d="M0 150 L360 186 V210 H0 Z" fill="#e2efd2" />
+          <g stroke="#3d4b63" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M42 150 l4 -38 m12 40 l3 -40" fill="none" />
+            <circle cx="44" cy="96" r="20" fill="#bfe0a3" /><circle cx="64" cy="92" r="21" fill="#a9d48b" />
+            <path d="M108 176 a90 90 0 0 1 180 0 z" fill="#e6eefb" />
+            <path d="M150 112 l48 -22 l48 22 z" fill="#25406b" />
+            <rect x="214" y="82" width="10" height="16" fill="#25406b" />
+            <rect x="156" y="112" width="84" height="56" fill="#f6d24a" />
+            <path d="M174 110 l24 -18 l24 18" fill="none" />
+            <circle cx="198" cy="104" r="7" fill="#fff" /><path d="M198 97 v14 M191 104 h14" fill="none" />
+            <rect x="166" y="124" width="16" height="14" fill="#fff" /><path d="M174 124 v14 M166 131 h16" fill="none" />
+            <rect x="214" y="124" width="16" height="14" fill="#fff" /><path d="M222 124 v14 M214 131 h16" fill="none" />
+            <rect x="191" y="140" width="14" height="28" rx="2" fill="#5f8f2d" />
+            <path d="M198 66 q-12 -12 -14 -4 q-3 10 14 20 q17 -10 14 -20 q-2 -8 -14 4 z" fill="#78a943" transform="translate(-11.9 -4) scale(1.06)" />
+            <path d="M198 70 v10 M193 75 h10" stroke="#fff" stroke-width="2" fill="none" />
+            <path d="M130 196 l3 -6 m4 6 l1 -7 M296 200 l2 -6 m5 7 l1 -6" fill="none" />
+          </g>
+        </svg>
+      </div>`,
+  },
   // Healthy Spending Card (Figma 2737:10925): purse name + available balance only, named as on the Nations
   // portal. No "lives in Care hub" copy: it opens with Care hub underneath, which shows where it lives.
   flex: {
@@ -217,16 +271,17 @@ function windowAt(el) {
   const W = appScreen.offsetWidth, H = appScreen.offsetHeight;
   const r = phoneRect(el);
   const k = r.w / W;
+  const radius = el.classList.contains("dock-app") ? r.w * 0.26 : 16; // a dock icon: its rounded-square corners
   return {
     transform: `translate(${r.x}px, ${r.y}px) scale(${k})`,
-    clipPath: `inset(0px 0px ${Math.max(0, H - r.h / k)}px 0px round ${16 / k}px)`,
+    clipPath: `inset(0px 0px ${Math.max(0, H - r.h / k)}px 0px round ${radius / k}px)`,
   };
 }
 // Full screen has square corners (the real screen supplies its own)
 const screenRadius = () => (document.documentElement.classList.contains("full") ? 0 : 32);
 const fullWindow = () => ({ transform: "translate(0px, 0px) scale(1)", clipPath: `inset(0px 0px 0px 0px round ${screenRadius()}px)` });
 const appLayers = () => [...appScreen.children];
-const homeLayers = () => [...phone.querySelectorAll(".widget-frame")];
+const homeLayers = () => [...phone.querySelectorAll(".widget-frame, .dock-app")];
 
 function stopLaunch() {
   launchAnims.forEach((a) => a.cancel());
@@ -336,6 +391,7 @@ function renderApp() {
   const { key, opts } = appStack[appStack.length - 1];
   const dest = DESTINATIONS[key];
   appTitle.textContent = dest.title;
+  appScreen.dataset.variant = dest.variant || ""; // screens with their own look (MyHumana)
   appScreen.classList.toggle("app-screen--core", !!dest.core);
   appScreen.classList.toggle("app-screen--sub", !!dest.sub); // sub-page: no tab bar
   appBack.hidden = !!dest.root && appStack.length === 1;
@@ -368,6 +424,9 @@ function closeApp() {
   done.then(() => { if (!phone.classList.contains("app-open")) stopLaunch(); });
 }
 
+// Dock: Thrive opens the Thrive app (Care hub), MyHumana its sign-in, each growing out of its icon
+document.getElementById("dockThrive").addEventListener("click", (e) => openApp("home", e.currentTarget));
+document.getElementById("dockClient").addEventListener("click", (e) => openApp("myhumana", e.currentTarget));
 document.querySelectorAll("[data-open]").forEach((el) => {
   el.addEventListener("click", () => openApp(el.dataset.open, el.closest(".card") || el));
 });
@@ -407,6 +466,7 @@ appScreen.addEventListener("click", (e) => {
   stopHomePulse();
 });
 appBody.addEventListener("click", (e) => {
+  if (e.target.closest("[data-signin]")) { toast("Signing in isn’t part of this demo"); return; }
   const link = e.target.closest("[data-goto]");
   if (link) {
     const opts = { source: "carehub" };
@@ -957,7 +1017,6 @@ const openSheet = (kind = "member") => {
   phone.classList.add("sheet-open");
 };
 const closeSheet = () => phone.classList.remove("sheet-open");
-callTile.addEventListener("click", () => openSheet("member"));
 document.getElementById("scrim").addEventListener("click", closeSheet);
 document.getElementById("sheetCancel").addEventListener("click", closeSheet);
 document.getElementById("sheetCall").addEventListener("click", () => {
