@@ -211,7 +211,8 @@ const DESTINATIONS = {
    cropped to its height, the corner radius goes from the widget's (16dp) to the screen's, the
    widget's own content fades out first, then the app's content fades in. The rest of the home
    screen scales down a little and fades. Going home plays the same morph in reverse, back into
-   the widget. */
+   the widget: the app's content fades out first, then the window dissolves into the widget as it
+   lands (the widget is already in place under it, so there's never an empty card). */
 const LAUNCH = { open: 500, close: 420, ease: "cubic-bezier(0.2, 0, 0, 1)" };
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let launchFrom = null; // the widget root the app launched from
@@ -260,18 +261,19 @@ function playLaunch(opening) {
   // Window surface: covers the widget at its exact bounds, so fading it is the widget → app cross-fade
   launchAnims.push(appScreen.animate(opening
     ? [{ opacity: 0 }, { opacity: 1, offset: 0.16 }, { opacity: 1 }]
-    : [{ opacity: 1 }, { opacity: 1, offset: 0.8 }, { opacity: 0 }], { duration: d }));
+    // Going home: the window, still opaque over the widget, dissolves into it as it lands (no empty card)
+    : [{ opacity: 1 }, { opacity: 1, offset: 0.3 }, { opacity: 0, offset: 0.75 }, { opacity: 0 }], { duration: d }));
   // App content: in after the widget content is gone; out first when going home
   appLayers().forEach((el) => launchAnims.push(el.animate(opening
     ? [{ opacity: 0 }, { opacity: 0, offset: 0.14 }, { opacity: 1, offset: 0.5 }, { opacity: 1 }]
-    : [{ opacity: 1 }, { opacity: 0, offset: 0.45 }, { opacity: 0 }], { duration: d })));
+    : [{ opacity: 1 }, { opacity: 0, offset: 0.35 }, { opacity: 0 }], { duration: d })));
   // The launch source stays hidden under the window; the rest of the home screen recedes
   homeLayers().forEach((el) => {
     if (el.contains(launchFrom)) {
       // Stays fully visible until the window surface is opaque on top of it (no wallpaper bleed)
       launchAnims.push(el.animate(opening
         ? [{ opacity: 1 }, { opacity: 1, offset: 0.16 }, { opacity: 0, offset: 0.17 }, { opacity: 0 }]
-        : [{ opacity: 0 }, { opacity: 0, offset: 0.79 }, { opacity: 1, offset: 0.8 }, { opacity: 1 }],
+        : [{ opacity: 0 }, { opacity: 0, offset: 0.29 }, { opacity: 1, offset: 0.3 }, { opacity: 1 }],
       { duration: d, fill: "forwards" }));
     } else {
       launchAnims.push(el.animate(opening

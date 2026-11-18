@@ -769,18 +769,18 @@ function playLaunch(opening) {
   // Window surface: covers the widget at its exact bounds, so fading it is the widget → app cross-fade
   launchAnims.push(appScreen.animate(opening
     ? [{ opacity: 0 }, { opacity: 1, offset: 0.16 }, { opacity: 1 }]
-    : [{ opacity: 1 }, { opacity: 1, offset: 0.8 }, { opacity: 0 }], { duration: d }));
+    : [{ opacity: 1 }, { opacity: 1, offset: 0.3 }, { opacity: 0, offset: 0.75 }, { opacity: 0 }], { duration: d })); // going home: dissolves into the widget as it lands
   // App content: in after the widget content is gone; out first when going home
   appLayers().forEach((el) => launchAnims.push(el.animate(opening
     ? [{ opacity: 0 }, { opacity: 0, offset: 0.14 }, { opacity: 1, offset: 0.5 }, { opacity: 1 }]
-    : [{ opacity: 1 }, { opacity: 0, offset: 0.45 }, { opacity: 0 }], { duration: d })));
+    : [{ opacity: 1 }, { opacity: 0, offset: 0.35 }, { opacity: 0 }], { duration: d })));
   // The launch source stays hidden under the window; the rest of the home screen recedes
   homeLayers().forEach((el) => {
     if (el.contains(launchFrom)) {
       // Stays fully visible until the window surface is opaque on top of it (no wallpaper bleed)
       launchAnims.push(el.animate(opening
         ? [{ opacity: 1 }, { opacity: 1, offset: 0.16 }, { opacity: 0, offset: 0.17 }, { opacity: 0 }]
-        : [{ opacity: 0 }, { opacity: 0, offset: 0.79 }, { opacity: 1, offset: 0.8 }, { opacity: 1 }],
+        : [{ opacity: 0 }, { opacity: 0, offset: 0.29 }, { opacity: 1, offset: 0.3 }, { opacity: 1 }],
       { duration: d, fill: "forwards" }));
     } else {
       launchAnims.push(el.animate(opening
