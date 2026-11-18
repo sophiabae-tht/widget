@@ -61,6 +61,7 @@ const section = (title) => `<h3 class="ch-section">${title}</h3>`;
 
 // Care hub (Figma 6283:1802) — work-in-progress mock
 // Humana Care hub (Figma Core App Experience 3189:13169)
+const CARE_MANAGER = "Angela Martinez, RN"; // Widget 2's Care Manager (placeholder name)
 const CONTACTS = [
   { name: "Member Services", desc: "Call about your health plan", call: "member" },
   { name: "24/7 Nurse Line", desc: "Talk to a nurse day or night", call: "nurse" },
@@ -76,12 +77,14 @@ const BRANDS = {
     plan: "Humana", card: "Healthy Spending Card", memberLine: "Humana Member Services",
     logo: { src: "assets/logo-humana.svg", width: 78, height: 20, alt: "Humana" },
     memberIcon: `<img src="${C}logo-humana-symbol.svg" width="17.6" height="22" alt="" />`,
-    apps: APPS, benefitsPro: false,
+    contacts: CONTACTS, apps: APPS, benefitsPro: false,
   },
   molina: {
     plan: "Molina", card: "Flex card", memberLine: "Molina Member Services",
     logo: { src: "assets/logo-molina.svg", width: 68.637, height: 20, alt: "Molina Healthcare" },
     memberIcon: `<img src="${C}logo-molina-icon.svg" width="22" height="19" alt="" />`,
+    // The Care Manager leads: it's who Widget 2's tile calls
+    contacts: [{ name: CARE_MANAGER, desc: "Call your Care Manager", call: "care" }, ...CONTACTS],
     apps: [
       { name: "My Molina", desc: "See your ID card, benefits, and doctors near you", molina: true },
       { name: "CVS Caremark", desc: "Access prescriptions, compare prices, find pharmacies in one app", img: "app-cvs.webp" },
@@ -372,7 +375,7 @@ const ACCOUNT = [
   ] },
   { title: "Thrive settings", rows: [
     { title: "Check-in time", detail: "Mondays, 9:30 AM", end: "caret" },
-    { title: "Important contacts", get detail() { return `${brand().memberLine} · 24/7 Nurse Line`; }, end: "caret" },
+    { title: "Important contacts", get detail() { return `${brand().contacts.some((c) => c.call === "care") ? `${CARE_MANAGER} · ` : ""}${brand().memberLine} · 24/7 Nurse Line`; }, end: "caret" },
     { title: "Location sharing", detail: "On for ER visits", end: "caret" },
   ] },
   { title: "Notices", rows: [
@@ -710,7 +713,7 @@ const DESTINATIONS = {
       <div class="ch-spacer"></div>
       ${section("Contacts")}
       <div class="ch-hscroll">
-        ${CONTACTS.map((c) => `
+        ${brand().contacts.map((c) => `
         <button class="ch-contact" type="button"${c.call ? ` data-call="${c.call}"` : ""}>
           <span class="ch-circle ch-circle--32"><img src="${C}icon-phone-20.svg" width="20" height="20" alt="" /></span>
           <span class="ch-contact-text"><span class="ch-contact-name">${c.name}</span><span class="ch-contact-desc">${c.desc}</span></span>
@@ -1611,7 +1614,7 @@ setAndroidNotes((() => { try { return localStorage.getItem("humana-fcv-forum:and
 const CALLS = {
   member: { name: "Humana Member Services", number: "1-800-555-0142" },
   nurse: { name: "24/7 Nurse Line", number: "1-800-555-0150" },
-  care: { name: "My Care Manager", number: "1-800-555-0166" },
+  care: { name: CARE_MANAGER, number: "1-800-555-0166" },
 };
 const CALL_MS = { callingToConnected: 800, endedToClose: 800 }; // tht-demo-studio flow/motion.ts
 const dialer = document.getElementById("dialer");
