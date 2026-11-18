@@ -786,9 +786,11 @@ const fullWindow = () => ({ transform: "translate(0px, 0px) scale(1)", clipPath:
 const appLayers = () => [...appScreen.children];
 const homeLayers = () => [...phone.querySelectorAll(".widget-frame, .home-dots, .dock-app")];
 
+let launchRaised = null; // going home: the launch source, lifted over the app window while it fades in
 function stopLaunch() {
   launchAnims.forEach((a) => a.cancel());
   launchAnims = [];
+  if (launchRaised) { launchRaised.style.zIndex = ""; launchRaised = null; }
 }
 function playLaunch(opening) {
   stopLaunch();
@@ -805,19 +807,27 @@ function playLaunch(opening) {
   // Window surface: covers the widget at its exact bounds, so fading it is the widget → app cross-fade
   launchAnims.push(appScreen.animate(opening
     ? [{ opacity: 0 }, { opacity: 1, offset: 0.16 }, { opacity: 1 }]
-    // Going home: the window, still opaque over the widget, dissolves into it as it lands (no empty card)
-    : [{ opacity: 1 }, { opacity: 1, offset: 0.3 }, { opacity: 0, offset: 0.75 }, { opacity: 0 }], { duration: d }));
+    // Going home: stays solid while it shrinks exactly onto the widget's outline; the widget fades in on top
+    : [{ opacity: 1 }, { opacity: 1, offset: 0.85 }, { opacity: 0 }], { duration: d }));
   // App content: in after the widget content is gone; out first when going home
   appLayers().forEach((el) => launchAnims.push(el.animate(opening
     ? [{ opacity: 0 }, { opacity: 0, offset: 0.14 }, { opacity: 1, offset: 0.5 }, { opacity: 1 }]
-    : [{ opacity: 1 }, { opacity: 0, offset: 0.35 }, { opacity: 0 }], { duration: d })));
+    : [{ opacity: 1 }, { opacity: 0, offset: 0.3 }, { opacity: 0 }], { duration: d })));
   // The launch source stays hidden under the window; the rest of the home screen recedes
   homeLayers().forEach((el) => {
     if (el.contains(launchFrom)) {
-      // Stays fully visible until the window surface is opaque on top of it (no wallpaper bleed)
+      // Opening: stays fully visible until the window surface is opaque on top of it (no wallpaper bleed).
+      // Going home: lifted over the app window (z 30) and faded in on top of it as the window lands on
+      // its outline, so the window is never seen as a see-through box around it.
+      if (!opening) {
+        let top = el;
+        while (top.parentElement && top.parentElement !== phone) top = top.parentElement;
+        top.style.zIndex = "31";
+        launchRaised = top;
+      }
       launchAnims.push(el.animate(opening
         ? [{ opacity: 1 }, { opacity: 1, offset: 0.16 }, { opacity: 0, offset: 0.17 }, { opacity: 0 }]
-        : [{ opacity: 0 }, { opacity: 0, offset: 0.29 }, { opacity: 1, offset: 0.3 }, { opacity: 1 }],
+        : [{ opacity: 0 }, { opacity: 0, offset: 0.12 }, { opacity: 1, offset: 0.6 }, { opacity: 1 }], // crossfades with the app's content
       { duration: d, fill: "forwards" }));
     } else {
       launchAnims.push(el.animate(opening
