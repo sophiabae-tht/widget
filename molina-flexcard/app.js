@@ -280,6 +280,13 @@ function playLaunch(opening) {
         while (top.parentElement && top.parentElement !== phone) top = top.parentElement;
         top.style.zIndex = "31";
         launchRaised = top;
+        // …and drawn inside the shrinking window, as Launcher3 does: pinned to the window's top edge and
+        // sides (same easing and timing, so they shrink as one), with the window's crop closing up under it
+        const r = phoneRect(launchFrom), W = appScreen.offsetWidth;
+        launchAnims.push(launchFrom.animate([
+          { transformOrigin: "0 0", transform: `translate(${-r.x}px, ${-r.y}px) scale(${W / r.w})` },
+          { transformOrigin: "0 0", transform: "translate(0px, 0px) scale(1)" },
+        ], opts));
       }
       launchAnims.push(el.animate(opening
         ? [{ opacity: 1 }, { opacity: 1, offset: 0.16 }, { opacity: 0, offset: 0.17 }, { opacity: 0 }]
@@ -1161,12 +1168,14 @@ document.getElementById("gestureBar").addEventListener("click", goHome);
     const up = `0 ${-0.3 * layers[0].offsetHeight}px`; // HOME_EXIT's y: -30% of the screen
     const anims = layers.map((el) => el.animate([
       { translate: el.style.translate || "0 0", scale: el.style.scale || "1", opacity: 1, clipPath: el.style.clipPath || `inset(0 round ${screenRadius()}px)` },
+      { opacity: 0, offset: 0.4 }, // gone early: never seen half-faded over the home screen
       { translate: up, scale: "0.5", opacity: 0, clipPath: "inset(0 round 32px)" },
     ], { duration: ms, easing: HOME_EASE, fill: "forwards" }));
     // The gesture bar flies off with it
     bar.style.transformOrigin = barOrigin(layers[0]);
     anims.push(bar.animate([
       { translate: bar.style.translate || "0 0", scale: bar.style.scale || "1", opacity: 1 },
+      { opacity: 0, offset: 0.4 }, // gone before it can cross the widget
       { translate: up, scale: "0.5", opacity: 0 },
     ], { duration: ms, easing: HOME_EASE, fill: "forwards" }));
     // The home screen settles in from a slight zoom underneath
