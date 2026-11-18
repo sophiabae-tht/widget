@@ -803,7 +803,18 @@ function playLaunch(opening) {
   const opts = { duration: d, easing: LAUNCH.ease };
   // Window: morphs between the widget's bounds and the full screen
   const full = fullWindow();
-  launchAnims.push(appScreen.animate(opening ? [from, full] : [full, from], opts));
+  if (opening) launchAnims.push(appScreen.animate([from, full], opts));
+  else {
+    // Going home: the window shrinks onto the widget, and its crop closes up to the widget's proportions
+    // early (while the app's content fades out). From then on the window is exactly the widget's shape at
+    // every size, so the widget drawn inside it covers it edge to edge: never a taller blank card behind it.
+    launchAnims.push(appScreen.animate([{ transform: full.transform }, { transform: from.transform }], opts));
+    launchAnims.push(appScreen.animate([
+      { clipPath: full.clipPath, easing: LAUNCH.ease },
+      { clipPath: from.clipPath, offset: 0.3 },
+      { clipPath: from.clipPath },
+    ], { duration: d, fill: "forwards" }));
+  }
   // Window surface: covers the widget at its exact bounds, so fading it is the widget → app cross-fade
   launchAnims.push(appScreen.animate(opening
     ? [{ opacity: 0 }, { opacity: 1, offset: 0.16 }, { opacity: 1 }]
@@ -834,7 +845,7 @@ function playLaunch(opening) {
       }
       launchAnims.push(el.animate(opening
         ? [{ opacity: 1 }, { opacity: 1, offset: 0.16 }, { opacity: 0, offset: 0.17 }, { opacity: 0 }]
-        : [{ opacity: 0 }, { opacity: 0, offset: 0.12 }, { opacity: 1, offset: 0.6 }, { opacity: 1 }], // crossfades with the app's content
+        : [{ opacity: 0 }, { opacity: 0, offset: 0.15 }, { opacity: 1, offset: 0.55 }, { opacity: 1 }], // crossfades with the app's content
       { duration: d, fill: "forwards" }));
     } else {
       launchAnims.push(el.animate(opening
