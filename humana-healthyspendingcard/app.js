@@ -78,7 +78,7 @@ const RESOURCE_SKELETONS = [
 ];
 
 const DESTINATIONS = {
-  // Humana's live widget links (card, See more, Humana Healthy Options®) open the MyHumana app, which asks the
+  // Humana's live widget links (card, See more, Go365) open the MyHumana app, which asks the
   // member to sign in first. Same screen as humana-fcv-forum.
   myhumana: {
     title: "MyHumana",
